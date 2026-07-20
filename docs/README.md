@@ -1,5 +1,9 @@
 # OKAD documentation
 
+<p align="center">
+  <img src="../assets/okad-logo.png" alt="OKAD — عُقَد" width="200" />
+</p>
+
 | Doc | What you’ll find |
 |-----|------------------|
 | [Getting started](getting-started.md) | Clone → install → `/okad` in your LLM app |
