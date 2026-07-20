@@ -416,10 +416,11 @@ function cyStyle() {
         'border-color': '#3dba8a',
         'label': 'data(label)',
         'color': '#eef4ef',
-        'text-valign': 'center',
+        'text-valign': 'bottom',
         'text-halign': 'center',
+        'text-margin-y': 10,
         'text-wrap': 'wrap',
-        'text-max-width': 110,
+        'text-max-width': 120,
         'font-size': 12,
         'font-family': 'IBM Plex Sans, Segoe UI, sans-serif',
         'font-weight': 600,
@@ -477,6 +478,22 @@ function cyStyle() {
       style: { 'border-width': 5, 'border-color': '#ffffff' }
     },
     {
+      selector: 'node.banner',
+      style: {
+        'shape': 'round-rectangle',
+        'width': 160,
+        'height': 30,
+        'background-opacity': 0,
+        'border-width': 0,
+        'font-size': 11,
+        'color': '#8b9a90',
+        'font-weight': 600,
+        'text-valign': 'center',
+        'text-margin-y': 0,
+        'events': 'no',
+      }
+    },
+    {
       selector: 'edge',
       style: {
         'curve-style': 'bezier',
@@ -492,6 +509,16 @@ function cyStyle() {
         'text-background-opacity': 0.85,
         'text-background-padding': 2,
         'text-rotation': 'autorotate',
+        'opacity': 0.92,
+      }
+    },
+    {
+      selector: 'edge.taxi',
+      style: {
+        'curve-style': 'taxi',
+        'taxi-direction': 'horizontal',
+        'taxi-turn': '40%',
+        'taxi-turn-min-distance': 20,
       }
     },
     {
@@ -512,39 +539,58 @@ function cyStyle() {
 function mountCy(elements, rankDir = 'TB') {
   useGraph();
   if (cy) { cy.destroy(); cy = null; }
-  let layout = {
+  const layout = {
     name: 'dagre',
     rankDir,
-    nodeSep: 36,
-    edgeSep: 24,
-    rankSep: 70,
-    padding: 40,
+    nodeSep: 42,
+    edgeSep: 30,
+    rankSep: 90,
+    padding: 56,
     animate: false,
     fit: true,
   };
-  // fallback if dagre extension missing
   try {
     cy = cytoscape({
       container: cyEl,
       elements,
       style: cyStyle(),
-      minZoom: 0.2,
+      minZoom: 0.12,
       maxZoom: 2.8,
-      wheelSensitivity: 0.25,
+      wheelSensitivity: 0.2,
       layout,
     });
   } catch (err) {
-    layout = { name: 'breadthfirst', directed: true, padding: 40, spacingFactor: 1.15, animate: false, fit: true };
     cy = cytoscape({
       container: cyEl,
       elements,
       style: cyStyle(),
-      minZoom: 0.2,
+      minZoom: 0.12,
       maxZoom: 2.8,
-      wheelSensitivity: 0.25,
-      layout,
+      wheelSensitivity: 0.2,
+      layout: { name: 'breadthfirst', directed: true, padding: 56, spacingFactor: 1.25, animate: false, fit: true },
     });
   }
+  wireCy();
+}
+
+function mountCyPreset(elements) {
+  useGraph();
+  if (cy) { cy.destroy(); cy = null; }
+  cy = cytoscape({
+    container: cyEl,
+    elements,
+    style: cyStyle(),
+    minZoom: 0.12,
+    maxZoom: 2.8,
+    wheelSensitivity: 0.2,
+    layout: { name: 'preset', fit: true, padding: 64 },
+  });
+  // mark edges as taxi for clean layered routing
+  cy.edges().addClass('taxi');
+  wireCy();
+}
+
+function wireCy() {
   cy.on('tap', 'node', (evt) => {
     const d = evt.target.data();
     showInspector({
@@ -562,7 +608,7 @@ function mountCy(elements, rankDir = 'TB') {
   cy.on('tap', (evt) => {
     if (evt.target === cy) inspector.classList.remove('open');
   });
-  requestAnimationFrame(() => cy && cy.fit(undefined, 48));
+  requestAnimationFrame(() => cy && cy.fit(undefined, 64));
 }
 
 function shortLabel(s, n = 18) {
@@ -679,22 +725,24 @@ function renderArchitectureGraph() {
 
   sideTitle.textContent = 'Layers';
   const side = [
-    { id: 'layer:all', name: 'All layers', summary: `${nodes.length} nodes (capped)` },
+    { id: 'layer:all', name: 'All layers', summary: `${nodes.length} nodes · column layout` },
     ...LAYER_ORDER.map(l => ({ id: `layer:${l}`, name: l, summary: `${by[l].length} nodes` })),
   ];
   if (!focusId) focusId = 'layer:all';
   bindSide(side);
 
   const keep = new Set();
+  const perLayer = focusId === 'layer:all' ? 6 : 14;
   if (focusId === 'layer:all') {
-    LAYER_ORDER.forEach(l => by[l].slice(0, 7).forEach(n => keep.add(n.id)));
-    setMeta('Architecture graph', 'High-signal nodes by layer — Cytoscape dagre.');
+    LAYER_ORDER.forEach(l => by[l].slice(0, perLayer).forEach(n => keep.add(n.id)));
+    setMeta('Architecture (layered)', 'Five columns = five layers. Edges only between neighboring layers.');
   } else {
     const layer = focusId.split(':')[1];
-    by[layer].slice(0, 16).forEach(n => keep.add(n.id));
+    by[layer].slice(0, perLayer).forEach(n => keep.add(n.id));
+    // one hop neighbors only
     (DATA.edges || []).forEach(e => {
-      if (keep.has(e.source)) keep.add(e.target);
-      if (keep.has(e.target)) keep.add(e.source);
+      if (keep.has(e.source) && nm[e.target]) keep.add(e.target);
+      if (keep.has(e.target) && nm[e.source]) keep.add(e.source);
     });
     setMeta(`${layer} layer`, (DATA.layers || []).find(x => x.id === layer)?.blurb || '');
   }
@@ -707,38 +755,83 @@ function renderArchitectureGraph() {
     return 'service';
   };
 
+  const colX = { experience: 0, interface: 1, application: 2, data: 3, infra: 4 };
+  const colW = 240;
+  const rowH = 110;
+  const originX = 120;
+  const originY = 80;
+  const indexes = { experience: 0, interface: 0, application: 0, data: 0, infra: 0 };
+
+  // layer banner nodes (non-selectable labels via parent-ish free nodes)
   const elements = [];
+  LAYER_ORDER.forEach((l, i) => {
+    elements.push({
+      group: 'nodes',
+      data: {
+        id: `banner:${l}`,
+        label: l.toUpperCase(),
+        fullLabel: l,
+        summary: '',
+        kind: 'service',
+        layer: l,
+        size: 30,
+      },
+      position: { x: originX + i * colW, y: 24 },
+      classes: 'banner',
+      grabbable: false,
+      selectable: false,
+    });
+  });
+
   [...keep].forEach(id => {
     const n = nm[id];
     if (!n) return;
+    const layer = by[n.layer] ? n.layer : 'application';
+    const idx = indexes[layer]++;
     elements.push({
+      group: 'nodes',
       data: {
         id: n.id,
         label: shortLabel(n.label, 16),
         fullLabel: n.label,
         summary: n.summary || '',
         kind: kindOf(n),
-        layer: n.layer,
-        size: 68,
+        layer,
+        size: 74,
         sourcePath: n.source || null,
-      }
+      },
+      position: {
+        x: originX + (colX[layer] || 2) * colW,
+        y: originY + idx * rowH,
+      },
     });
   });
+
+  const layerIndex = { experience: 0, interface: 1, application: 2, data: 3, infra: 4 };
   (DATA.edges || [])
     .filter(e => e.kind !== 'contains' && keep.has(e.source) && keep.has(e.target))
-    .slice(0, 50)
+    .filter(e => {
+      const a = nm[e.source]; const b = nm[e.target];
+      if (!a || !b) return false;
+      // keep edges within layer or between adjacent layers only — kills spaghetti
+      return Math.abs((layerIndex[a.layer] || 2) - (layerIndex[b.layer] || 2)) <= 1;
+    })
+    .slice(0, 36)
     .forEach(e => {
       elements.push({
+        group: 'edges',
         data: {
           id: e.id || `${e.source}->${e.target}`,
           source: e.source,
           target: e.target,
           label: e.label || e.kind || '',
           kind: e.kind || 'relates',
-        }
+        },
+        classes: 'taxi',
       });
     });
-  mountCy(elements, 'LR');
+
+  mountCyPreset(elements);
 }
 
 function renderDataGraph() {
