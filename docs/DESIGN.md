@@ -69,14 +69,24 @@ Priority when capping: nodes referenced by journeys / requests / data flows win.
 
 ## Viz views
 
-`story.html` uses real graph libraries:
+`story.html` ships a **deterministic graph engine — zero libraries**. Nodes are HTML
+cards; edges are one SVG overlay of orthogonal (taxi) routes with per-gap channel
+tracks, port spreading, rounded corners, arrowheads, and kind-colored labels.
+Layout is custom and reproducible: layer bands + barycenter ordering for the
+architecture, an org-chart with a labeled relation corridor for agents.
 
-1. **Agents & tools** — Cytoscape.js + dagre (hierarchy, tools, relations)  
-2. **Architecture** — Cytoscape layered graph (capped high-signal nodes)  
-3. **Data flow** — Cytoscape LR pipeline  
-4. **Journeys / Requests** — Mermaid `sequenceDiagram`
+1. **Agents & tools** — org graph: system → orchestrator columns → subagent stacks,
+   tools as chips, flow-order badges, cross-agent relations routed through a labeled
+   corridor above the orchestrator row
+2. **Architecture** — journey-scoped layered graph by default (story spine numbered,
+   inferred steps dashed, context limited to 1-hop edges that touch the spine);
+   "Full system" shows every wired node and hides isolated ones with a count chip
+3. **Data flow** — pipeline cards
+4. **Journeys / Requests** — vertical story rails
 
-Toolbar: Fit, Export PNG. Story schema `version` is `2` when agents are supported. 
+Views are deep-linkable: `story.html#architecture/j-<id>`, `#agents`, `#requests/…`.
+Hovering a card isolates its neighborhood; hovering an edge reveals its label.
+Story schema `version` is `2` when agents are supported. 
 
 ## Extension points
 

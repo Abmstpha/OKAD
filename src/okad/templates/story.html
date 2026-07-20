@@ -23,6 +23,7 @@
     --danger: #e87a6b;
     --violet: #b89cff;
     --sky: #7ec8ff;
+    --orange: #ff9f6b;
     --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
     --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -41,22 +42,25 @@
       radial-gradient(800px 420px at 100% 0%, #16122a 0%, transparent 48%),
       var(--bg);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.65rem 1rem;
+    gap: 0.3rem 1rem;
     align-items: center;
-    padding: 0.85rem 1.15rem;
+    padding: 0.4rem 0.9rem;
     border-bottom: 1px solid var(--line);
     background: color-mix(in srgb, var(--bg) 86%, transparent);
     backdrop-filter: blur(12px);
     z-index: 6;
+    flex: 0 0 auto;
   }
-  .brand-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.45rem 0.75rem; }
+  .brand-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem 0.65rem; }
   .brand {
     font-family: var(--font-display);
-    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+    font-size: 1.15rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     margin: 0;
@@ -75,23 +79,22 @@
   .chip.accent { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
   .tagline {
     color: var(--muted);
-    margin: 0.35rem 0 0;
-    max-width: 78ch;
-    font-size: 0.8rem;
-    line-height: 1.45;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    margin: 0.15rem 0 0;
+    max-width: 100ch;
+    font-size: 0.7rem;
+    line-height: 1.35;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
   .tabs { display: flex; gap: 0.28rem; flex-wrap: wrap; justify-content: flex-end; }
   .tab {
     background: transparent;
     color: var(--muted);
     border: 1px solid var(--line);
-    padding: 0.4rem 0.7rem;
+    padding: 0.28rem 0.55rem;
     font: inherit;
-    font-size: 0.8rem;
+    font-size: 0.74rem;
     cursor: pointer;
     border-radius: 6px;
     transition: border-color .15s, background .15s, color .15s;
@@ -102,42 +105,37 @@
     background: var(--accent);
     border-color: var(--accent);
   }
-  .toolbar {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 0.35rem;
-    align-items: center;
-    justify-content: flex-end;
-  }
   .toolbtn {
     background: var(--bg-elev);
     color: var(--ink);
     border: 1px solid var(--line);
-    padding: 0.3rem 0.6rem;
+    padding: 0.28rem 0.55rem;
     font: inherit;
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     cursor: pointer;
     border-radius: 6px;
   }
   .toolbtn:hover { border-color: var(--accent); }
-  .hint { color: var(--muted); font-size: 0.68rem; margin-left: 0.25rem; }
   main {
     display: grid;
-    grid-template-columns: minmax(230px, 290px) 1fr;
-    height: calc(100vh - 118px);
+    grid-template-columns: minmax(138px, 172px) 1fr;
+    flex: 1;
+    min-height: 0;
   }
+  main.nosides { grid-template-columns: 1fr; }
+  main.nosides aside { display: none; }
   aside {
     border-right: 1px solid var(--line);
-    padding: 0.9rem;
+    padding: 0.45rem;
     overflow: auto;
     background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
   }
   aside h2 {
-    font-size: 0.64rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: var(--muted);
-    margin: 0 0 0.65rem;
+    margin: 0 0 0.45rem;
   }
   .list { display: flex; flex-direction: column; gap: 0.3rem; }
   .item {
@@ -146,7 +144,7 @@
     background: transparent;
     border: 1px solid transparent;
     color: var(--ink);
-    padding: 0.55rem 0.6rem;
+    padding: 0.4rem 0.5rem;
     cursor: pointer;
     font: inherit;
     border-radius: 8px;
@@ -157,46 +155,64 @@
     border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
     background: color-mix(in srgb, var(--accent) 8%, var(--bg-card));
   }
-  .item strong { display: block; font-size: 0.86rem; font-weight: 600; }
-  .item small { display: block; color: var(--muted); margin-top: 0.18rem; font-size: 0.7rem; line-height: 1.35; }
+  .item strong { display: block; font-size: 0.78rem; font-weight: 600; line-height: 1.25; }
+  .item small {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--muted); margin-top: 0.14rem; font-size: 0.64rem; line-height: 1.3;
+  }
   .stage {
     position: relative;
-    display: grid;
-    grid-template-rows: auto 1fr;
     min-height: 0;
+    min-width: 0;
   }
   .stage-head {
-    padding: 0.85rem 1.15rem 0.55rem;
-    border-bottom: 1px solid var(--line);
+    position: absolute;
+    top: 0.55rem; left: 0.8rem;
+    z-index: 4;
+    max-width: min(560px, 55%);
+    background: color-mix(in srgb, var(--bg-elev) 88%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.4rem 0.7rem 0.45rem;
+    backdrop-filter: blur(10px);
+    pointer-events: none;
   }
   .stage-head h2 {
     margin: 0;
     font-family: var(--font-display);
     font-weight: 500;
-    font-size: 1.35rem;
+    font-size: 1rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .stage-head p {
-    margin: 0.35rem 0 0;
+    margin: 0.12rem 0 0;
     color: var(--muted);
-    font-size: 0.86rem;
-    line-height: 1.45;
-    max-width: 90ch;
+    font-size: 0.68rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   #board {
     width: 100%;
     height: 100%;
     min-height: 0;
     overflow: auto;
-    display: none;
-    padding: 1.1rem 1.2rem 2rem;
+    padding: 3rem 1rem 2rem;
     background:
       linear-gradient(to right, color-mix(in srgb, var(--line) 28%, transparent) 1px, transparent 1px) 0 0 / 56px 56px,
       linear-gradient(to bottom, color-mix(in srgb, var(--line) 28%, transparent) 1px, transparent 1px) 0 0 / 56px 56px;
   }
-  #board.active { display: block; }
   .empty { padding: 2rem; color: var(--muted); }
   .inspector {
-    position: absolute; right: 0.9rem; top: 4.4rem; width: min(360px, calc(100% - 1.8rem));
+    position: absolute; right: 0.9rem; top: 0.55rem; width: min(360px, calc(100% - 1.8rem));
     background: color-mix(in srgb, var(--bg-elev) 96%, transparent);
     border: 1px solid var(--line);
     padding: 0.95rem;
@@ -217,276 +233,151 @@
     background: transparent; border: 0; color: var(--muted); cursor: pointer; font-size: 1.1rem;
   }
 
-  /* ——— Agents org ——— */
-  .fleet { display: flex; flex-direction: column; gap: 1.15rem; max-width: 1180px; }
-  .system-card {
-    border: 1px solid color-mix(in srgb, var(--violet) 45%, var(--line));
-    background: linear-gradient(135deg, #17121f 0%, var(--bg-card) 60%);
-    border-radius: 14px;
-    padding: 1rem 1.1rem;
-    animation: rise .45s ease both;
+  /* ——— Deterministic graph engine (zero libraries) ——— */
+  .gcanvas { position: relative; }
+  .gedges { position: absolute; left: 0; top: 0; z-index: 1; overflow: visible; pointer-events: none; }
+  .gedges path.eline { fill: none; stroke-width: 1.6; transition: opacity .18s, stroke-width .12s; }
+  .gedges path.eline.flow { stroke-width: 2.6; }
+  .gedges path.ehit { fill: none; stroke: rgba(0,0,0,0); stroke-width: 11; pointer-events: stroke; cursor: pointer; }
+  .gedges text.elabel {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    fill: color-mix(in srgb, var(--ink) 78%, var(--muted));
+    transition: opacity .18s;
   }
-  .system-card .eyebrow {
+  .gedges rect.elbg { fill: color-mix(in srgb, var(--bg) 90%, #000); transition: opacity .18s; }
+  .gedges.quiet text.elabel:not(.on), .gedges.quiet rect.elbg:not(.on) { opacity: 0; }
+  .gcanvas.dim .gnode:not(.on) { opacity: .22; }
+  .gcanvas.dim path.eline:not(.on) { opacity: .08; }
+  .gcanvas.dim text.elabel:not(.on), .gcanvas.dim rect.elbg:not(.on) { opacity: .05; }
+  .gband {
+    position: absolute; z-index: 0;
+    border: 1px dashed color-mix(in srgb, var(--line-strong) 60%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--bg-elev) 55%, transparent);
+  }
+  .gband-label {
+    position: absolute; z-index: 2;
     font-family: var(--font-mono);
     font-size: 0.62rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--violet);
-    margin: 0 0 0.25rem;
-  }
-  .system-card h3 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: 1.35rem;
-    font-weight: 550;
-  }
-  .system-card p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.84rem; line-height: 1.45; max-width: 70ch; }
-  .orch-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 0.9rem;
-  }
-  .orch {
-    border: 1px solid color-mix(in srgb, #ff9f6b 40%, var(--line));
-    background: linear-gradient(180deg, #1c1612 0%, var(--bg-card) 40%);
-    border-radius: 12px;
-    padding: 0.85rem 0.9rem 0.95rem;
-    cursor: pointer;
-    transition: transform .15s, border-color .15s, box-shadow .15s;
-    animation: rise .5s ease both;
-  }
-  .orch:hover {
-    transform: translateY(-2px);
-    border-color: #ff9f6b;
-    box-shadow: 0 12px 32px rgba(0,0,0,.28);
-  }
-  .orch .level {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #ff9f6b;
-    margin: 0 0 0.2rem;
+    font-weight: 600;
+    line-height: 1.3;
   }
-  .orch h4 {
-    margin: 0;
-    font-size: 1.02rem;
-    font-weight: 650;
-    letter-spacing: -0.01em;
-  }
-  .orch .role { margin: 0.3rem 0 0.75rem; color: var(--muted); font-size: 0.78rem; line-height: 1.4; min-height: 2.2em; }
-  .subs {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .sub {
-    display: grid;
-    grid-template-columns: 8px 1fr;
-    gap: 0.55rem;
-    align-items: start;
-    background: var(--bg-elev);
+  .gband-label em { display: block; font-style: normal; color: var(--muted); font-size: 0.56rem; letter-spacing: 0.04em; text-transform: none; }
+  .gnode {
+    position: absolute; z-index: 2;
+    width: max-content;
+    max-width: 186px;
+    background: var(--bg-card-2);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.5rem 0.55rem;
+    border-radius: 10px;
+    padding: 0.42rem 0.6rem 0.5rem;
     cursor: pointer;
-    transition: border-color .12s, background .12s;
+    transition: opacity .18s, border-color .15s, box-shadow .15s;
   }
-  .sub:hover { border-color: var(--warn); background: #1a1710; }
-  .sub .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--warn); margin-top: 0.35rem;
+  .gnode:hover { border-color: var(--line-strong); box-shadow: 0 10px 26px rgba(0,0,0,.3); }
+  .gnode .kind {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
   }
-  .sub .name { font-size: 0.82rem; font-weight: 600; }
-  .sub .sum { color: var(--muted); font-size: 0.7rem; line-height: 1.35; margin-top: 0.12rem; }
-  .tools {
-    display: flex; flex-wrap: wrap; gap: 0.28rem; margin-top: 0.4rem;
+  .gnode .title { font-size: 0.78rem; font-weight: 600; margin-top: 0.12rem; line-height: 1.28; }
+  .gnode.experience { border-left: 3px solid var(--experience); }
+  .gnode.interface { border-left: 3px solid var(--interface); }
+  .gnode.application { border-left: 3px solid var(--application); }
+  .gnode.data { border-left: 3px solid var(--data); }
+  .gnode.infra { border-left: 3px solid var(--infra); }
+  .gstep {
+    position: absolute; top: -9px; right: -8px;
+    background: var(--accent); color: var(--bg);
+    font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700;
+    border-radius: 999px; padding: 0.08rem 0.34rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.4);
   }
+
+  /* Agents org graph */
+  .gnode.sys {
+    max-width: none;
+    background: linear-gradient(135deg, #17121f 0%, var(--bg-card) 60%);
+    border: 1px solid color-mix(in srgb, var(--violet) 45%, var(--line));
+    border-radius: 14px;
+    padding: 0.8rem 1rem 0.85rem;
+  }
+  .gnode.sys .eyebrow, .gnode.orchg .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+  .gnode.sys .eyebrow { color: var(--violet); }
+  .gnode.orchg .eyebrow { color: var(--orange); }
+  .gnode.sys h3 { margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 550; }
+  .gnode.sys .role { margin: 0.3rem 0 0; color: var(--muted); font-size: 0.78rem; line-height: 1.4; }
+  .gnode.orchg {
+    max-width: none;
+    background: linear-gradient(180deg, #1c1612 0%, var(--bg-card) 45%);
+    border: 1px solid color-mix(in srgb, var(--orange) 40%, var(--line));
+    border-radius: 12px;
+    padding: 0.6rem 0.7rem 0.65rem;
+  }
+  .gnode.orchg h4 { margin: 0; font-size: 0.95rem; font-weight: 650; letter-spacing: -0.01em; }
+  .gnode.orchg .role { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
+  .gnode.subg { max-width: none; border-radius: 9px; }
+  .gnode.subg .name { font-size: 0.78rem; font-weight: 600; line-height: 1.25; }
+  .gnode.subg .sum { color: var(--muted); font-size: 0.66rem; line-height: 1.32; margin-top: 0.14rem; }
+  .gflow {
+    position: absolute; top: -8px; left: -8px;
+    background: var(--warn); color: var(--bg);
+    font-family: var(--font-mono); font-size: 0.58rem; font-weight: 700;
+    border-radius: 999px; padding: 0.06rem 0.3rem;
+  }
+  .tools { display: flex; flex-wrap: wrap; gap: 0.26rem; margin-top: 0.35rem; }
   .tool {
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     color: var(--sky);
     border: 1px solid color-mix(in srgb, var(--sky) 35%, var(--line));
     background: #101820;
-    padding: 0.12rem 0.35rem;
-    border-radius: 999px;
-  }
-  .rel-row {
-    display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem;
-  }
-  .rel {
-    font-size: 0.68rem;
-    color: var(--muted);
-    border: 1px dashed var(--line-strong);
-    padding: 0.18rem 0.4rem;
+    padding: 0.1rem 0.32rem;
     border-radius: 999px;
   }
 
-  /* ——— Architecture / journey map ——— */
-  .arch { display: flex; flex-direction: column; gap: 1.25rem; max-width: 1280px; }
-  .path {
-    position: relative;
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    padding: 0.35rem 0.15rem 0.85rem;
-    scroll-snap-type: x proximity;
-  }
-  .path::-webkit-scrollbar { height: 6px; }
-  .path::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 99px; }
-  .step {
-    position: relative;
-    flex: 0 0 168px;
-    scroll-snap-align: start;
-    padding-right: 28px;
-    animation: rise .4s ease both;
-  }
-  .step::after {
-    content: "";
+  .legend-bar {
     position: absolute;
-    top: 28px; right: 6px;
-    width: 16px; height: 2px;
-    background: linear-gradient(90deg, var(--line-strong), transparent);
-  }
-  .step:last-child::after { display: none; }
-  .step-card {
+    left: 0.8rem; bottom: 0.7rem;
+    z-index: 4;
+    max-width: calc(100% - 1.6rem);
+    background: color-mix(in srgb, var(--bg-elev) 88%, transparent);
     border: 1px solid var(--line);
-    background: var(--bg-card);
-    border-radius: 12px;
-    padding: 0.7rem 0.75rem;
-    min-height: 108px;
-    cursor: pointer;
-    transition: border-color .15s, transform .15s;
-  }
-  .step-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .step-num {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--accent);
-    letter-spacing: 0.08em;
-  }
-  .step-card h4 {
-    margin: 0.25rem 0 0.35rem;
-    font-size: 0.9rem;
-    font-weight: 650;
-    line-height: 1.25;
-  }
-  .layer-pill {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 0.12rem 0.35rem;
     border-radius: 999px;
-    border: 1px solid var(--line);
+    padding: 0.3rem 0.8rem;
+    backdrop-filter: blur(10px);
+    pointer-events: none;
   }
-  .layer-pill.experience { color: var(--experience); border-color: color-mix(in srgb, var(--experience) 45%, var(--line)); }
-  .layer-pill.interface { color: var(--interface); border-color: color-mix(in srgb, var(--interface) 45%, var(--line)); }
-  .layer-pill.application { color: var(--application); border-color: color-mix(in srgb, var(--application) 45%, var(--line)); }
-  .layer-pill.data { color: var(--data); border-color: color-mix(in srgb, var(--data) 45%, var(--line)); }
-  .layer-pill.infra { color: var(--infra); border-color: color-mix(in srgb, var(--infra) 45%, var(--line)); }
-  .note { margin-top: 0.35rem; color: var(--muted); font-size: 0.68rem; line-height: 1.3; }
-
-  .lanes {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(140px, 1fr));
-    gap: 0.65rem;
-    align-items: start;
-  }
-  .lane {
-    border: 1px dashed color-mix(in srgb, var(--line-strong) 80%, transparent);
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--bg-elev) 70%, transparent);
-    min-height: 160px;
-    padding: 0.55rem;
-    animation: rise .55s ease both;
-  }
-  .lane-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.4rem;
-    margin-bottom: 0.5rem;
-    padding: 0.15rem 0.2rem 0.45rem;
-    border-bottom: 1px solid var(--line);
-  }
-  .lane-head span {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  .lane-head em {
-    font-style: normal;
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
+  .legend-bar:empty { display: none; }
+  .legend {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.8rem;
     color: var(--muted);
-  }
-  .lane.experience .lane-head span { color: var(--experience); }
-  .lane.interface .lane-head span { color: var(--interface); }
-  .lane.application .lane-head span { color: var(--application); }
-  .lane.data .lane-head span { color: var(--data); }
-  .lane.infra .lane-head span { color: var(--infra); }
-  .node {
-    border: 1px solid var(--line);
-    background: var(--bg-card-2);
-    border-radius: 8px;
-    padding: 0.5rem 0.55rem;
-    margin-bottom: 0.4rem;
-    cursor: pointer;
-    transition: border-color .12s, transform .12s;
-  }
-  .node:hover { transform: translateY(-1px); }
-  .node.experience { border-left: 3px solid var(--experience); }
-  .node.interface { border-left: 3px solid var(--interface); }
-  .node.application { border-left: 3px solid var(--application); }
-  .node.data { border-left: 3px solid var(--data); }
-  .node.infra { border-left: 3px solid var(--infra); }
-  .node .kind {
-    font-family: var(--font-mono);
-    font-size: 0.56rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .node .title { font-size: 0.78rem; font-weight: 600; margin-top: 0.15rem; line-height: 1.25; }
-  .edge-list {
-    margin-top: 0.15rem;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--bg-elev);
-    padding: 0.7rem 0.85rem;
-  }
-  .edge-list h5 {
-    margin: 0 0 0.5rem;
     font-size: 0.66rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 600;
   }
-  .edge {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 0.55rem;
-    align-items: center;
-    padding: 0.4rem 0;
-    border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
-    font-size: 0.76rem;
+  .legend i {
+    display: inline-block;
+    width: 14px; height: 3px;
+    border-radius: 2px;
+    margin-right: 0.32rem;
+    vertical-align: middle;
   }
-  .edge:first-of-type { border-top: 0; }
-  .edge .src, .edge .tgt { color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .edge .tgt { text-align: right; }
-  .edge .mid {
+  .legend .lchip {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: #ff9f6b;
-    white-space: nowrap;
-    padding: 0.12rem 0.4rem;
+    font-size: 0.6rem;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, #ff9f6b 35%, var(--line));
+    padding: 0.1rem 0.4rem;
   }
 
   /* ——— Data pipeline ——— */
@@ -528,21 +419,23 @@
   .pipe-card h4 { margin: 0.3rem 0; font-size: 0.95rem; }
   .pipe-card p { margin: 0; color: var(--muted); font-size: 0.74rem; line-height: 1.4; }
 
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 0.45rem 0.85rem;
-    margin-top: 0.2rem;
-    color: var(--muted);
-    font-size: 0.68rem;
-  }
-  .legend i {
+  .layer-pill {
     display: inline-block;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    margin-right: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.12rem 0.35rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
   }
+  .layer-pill.experience { color: var(--experience); border-color: color-mix(in srgb, var(--experience) 45%, var(--line)); }
+  .layer-pill.interface { color: var(--interface); border-color: color-mix(in srgb, var(--interface) 45%, var(--line)); }
+  .layer-pill.application { color: var(--application); border-color: color-mix(in srgb, var(--application) 45%, var(--line)); }
+  .layer-pill.data { color: var(--data); border-color: color-mix(in srgb, var(--data) 45%, var(--line)); }
+  .layer-pill.infra { color: var(--infra); border-color: color-mix(in srgb, var(--infra) 45%, var(--line)); }
 
-
-  /* ——— Vertical story rail (no diagrams) ——— */
+  /* ——— Vertical story rail ——— */
   .rail {
     max-width: 720px;
     display: flex;
@@ -635,33 +528,18 @@
     margin-top: 0.55rem;
     font-family: var(--font-mono);
     font-size: 0.62rem;
-    color: #ff9f6b;
+    color: var(--orange);
   }
 
   @keyframes rise {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: none; }
   }
-  .orch:nth-child(1) { animation-delay: .04s; }
-  .orch:nth-child(2) { animation-delay: .08s; }
-  .orch:nth-child(3) { animation-delay: .12s; }
-  .orch:nth-child(4) { animation-delay: .16s; }
-  .step:nth-child(1) .step-card { animation: rise .35s ease both; }
-  .step:nth-child(2) .step-card { animation: rise .4s ease both .04s; }
-  .step:nth-child(3) .step-card { animation: rise .4s ease both .08s; }
-  .step:nth-child(4) .step-card { animation: rise .4s ease both .12s; }
-  .step:nth-child(5) .step-card { animation: rise .4s ease both .16s; }
-  .step:nth-child(6) .step-card { animation: rise .4s ease both .2s; }
-  .step:nth-child(7) .step-card { animation: rise .4s ease both .24s; }
 
   @media (max-width: 980px) {
     header { grid-template-columns: 1fr; }
-    main { grid-template-columns: 1fr; grid-template-rows: minmax(120px, 24vh) 1fr; height: calc(100vh - 155px); }
+    main { grid-template-columns: 1fr; grid-template-rows: minmax(100px, 20vh) 1fr; }
     aside { border-right: 0; border-bottom: 1px solid var(--line); }
-    .lanes { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 640px) {
-    .lanes { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -673,22 +551,20 @@
       <div class="chips">
         <span class="chip accent">okad __OKAD_VERSION__</span>
         <span class="chip">story v__STORY_VERSION__</span>
-        <span class="chip" id="chip-engine">Zero diagrams</span>
+        <span class="chip" id="chip-engine">Deterministic graphs</span>
         <span class="chip" id="chip-stats"></span>
       </div>
     </div>
     <p class="tagline">__SUMMARY__</p>
   </div>
-  <div class="tabs" role="tablist">
+  <div class="tabs" role="tablist" title="Org graph · Journey-scoped layer graphs · Story rails — zero libraries">
     <button class="tab" data-view="agents" aria-selected="true">Agents &amp; tools</button>
     <button class="tab" data-view="architecture">Architecture</button>
     <button class="tab" data-view="journeys">Journeys</button>
     <button class="tab" data-view="requests">Requests</button>
     <button class="tab" data-view="data">Data flow</button>
-  </div>
-  <div class="toolbar">
+    <button class="toolbtn" id="btn-side" type="button" title="Toggle the story list">☰</button>
     <button class="toolbtn" id="btn-top" type="button">Top</button>
-    <span class="hint" id="engine-hint">Zero diagrams · Agents org · Journey rails · Layer lanes</span>
   </div>
 </header>
 <main>
@@ -701,7 +577,8 @@
       <h2 id="focus-title">Loading…</h2>
       <p id="focus-summary"></p>
     </div>
-    <div id="board" class="active"></div>
+    <div id="board"></div>
+    <div class="legend-bar" id="legend-bar"></div>
     <div class="inspector" id="inspector">
       <button class="close" id="ins-close" type="button" aria-label="Close">×</button>
       <h3 id="ins-title"></h3>
@@ -713,9 +590,45 @@
 <script>
 const DATA = __DATA__;
 const LAYERS = ['experience', 'interface', 'application', 'data', 'infra'];
+const LAYER_COLOR = {
+  experience: '#7ec8ff', interface: '#3dba8a', application: '#e2b15c',
+  data: '#e87a6b', infra: '#b89cff',
+};
+const KIND_STYLE = {
+  calls:       { c: '#3dba8a' },
+  triggers:    { c: '#ff9f6b' },
+  navigates:   { c: '#b89cff' },
+  reads:       { c: '#7ec8ff' },
+  writes:      { c: '#e87a6b' },
+  transforms:  { c: '#e2b15c' },
+  returns:     { c: '#8d9b92', dash: '5 4' },
+  depends_on:  { c: '#8d9b92', dash: '2 4' },
+  renders:     { c: '#7ec8ff' },
+  invokes:     { c: '#ff9f6b' },
+  feeds:       { c: '#3dba8a' },
+  shares:      { c: '#7ec8ff' },
+  reads_agent: { c: '#7ec8ff' },
+  indexes_for: { c: '#b89cff' },
+  flow:        { c: '#3dba8a', dash: '7 5' },
+};
+function kindStyle(k) { return KIND_STYLE[k] || { c: '#8d9b92' }; }
 
 let view = 'agents';
 let focusId = null;
+/* deep links: #view or #view/focusId */
+(function initHash() {
+  const h = decodeURIComponent(location.hash.replace(/^#/, ''));
+  if (!h) return;
+  const [v, ...rest] = h.split('/');
+  if (['agents', 'architecture', 'journeys', 'requests', 'data'].includes(v)) {
+    view = v;
+    if (rest.length) focusId = rest.join('/');
+  }
+})();
+function syncHash() {
+  const h = `#${view}${focusId ? '/' + encodeURIComponent(focusId) : ''}`;
+  if (location.hash !== h) history.replaceState(null, '', h);
+}
 
 const sideList = document.getElementById('side-list');
 const sideTitle = document.getElementById('side-title');
@@ -738,6 +651,9 @@ document.querySelectorAll('.tab').forEach(btn => {
 });
 document.getElementById('btn-top').onclick = () => {
   board.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+};
+document.getElementById('btn-side').onclick = () => {
+  document.querySelector('main').classList.toggle('nosides');
 };
 document.getElementById('ins-close').onclick = () => inspector.classList.remove('open');
 
@@ -762,9 +678,6 @@ function agents() {
 }
 function esc(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function escM(s) {
-  return String(s || '').replace(/[\[\]#;{}()<>|"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 42);
 }
 function setMeta(title, summary) {
   focusTitle.textContent = title || '';
@@ -797,238 +710,740 @@ function bindSide(items) {
     });
   });
 }
-function useBoard(engine = 'Story map') {
-  board.classList.add('active');
-  document.getElementById('chip-engine').textContent = engine;
+function useBoard(engine) {
+  document.getElementById('chip-engine').textContent = engine || 'Deterministic graphs';
+  document.getElementById('legend-bar').innerHTML = '';
 }
-function wireClicks(root, selector, lookup) {
-  root.querySelectorAll(selector).forEach(el => {
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const obj = lookup(el.dataset.id);
-      if (obj) showInspector(obj);
+function setLegend(html) {
+  document.getElementById('legend-bar').innerHTML = html || '';
+}
+
+/* ═══════════════════ Graph engine ═══════════════════
+   HTML cards for nodes, one SVG overlay for orthogonal
+   taxi edges. Layout is deterministic: bands (layers),
+   barycenter ordering, port spreading, channel tracks
+   per band gap so edges never overlap. */
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const k in attrs || {}) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function orthoPath(pts, r = 7) {
+  if (pts.length < 2) return '';
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const p = pts[i], a = pts[i - 1], b = pts[i + 1];
+    const d1 = Math.hypot(p.x - a.x, p.y - a.y), d2 = Math.hypot(b.x - p.x, b.y - p.y);
+    const rr = Math.min(r, d1 / 2, d2 / 2);
+    if (rr < 1) { d += ` L ${p.x} ${p.y}`; continue; }
+    const ix = p.x + (a.x - p.x) / d1 * rr, iy = p.y + (a.y - p.y) / d1 * rr;
+    const ox = p.x + (b.x - p.x) / d2 * rr, oy = p.y + (b.y - p.y) / d2 * rr;
+    d += ` L ${ix} ${iy} Q ${p.x} ${p.y} ${ox} ${oy}`;
+  }
+  const last = pts[pts.length - 1];
+  d += ` L ${last.x} ${last.y}`;
+  return d;
+}
+function arrowPath(p, dir, size = 5) {
+  if (dir === 'down')  return `M ${p.x - size} ${p.y - size * 1.6} L ${p.x} ${p.y} L ${p.x + size} ${p.y - size * 1.6}`;
+  if (dir === 'up')    return `M ${p.x - size} ${p.y + size * 1.6} L ${p.x} ${p.y} L ${p.x + size} ${p.y + size * 1.6}`;
+  if (dir === 'right') return `M ${p.x - size * 1.6} ${p.y - size} L ${p.x} ${p.y} L ${p.x - size * 1.6} ${p.y + size}`;
+  return `M ${p.x + size * 1.6} ${p.y - size} L ${p.x} ${p.y} L ${p.x + size * 1.6} ${p.y + size}`;
+}
+/* Greedy interval scheduling → returns track index per segment. */
+function assignTracks(segments, pad = 18) {
+  const order = segments.map((s, i) => i).sort((a, b) => Math.min(segments[a].x1, segments[a].x2) - Math.min(segments[b].x1, segments[b].x2));
+  const trackEnd = [];
+  const out = new Array(segments.length).fill(0);
+  order.forEach(i => {
+    const lo = Math.min(segments[i].x1, segments[i].x2), hi = Math.max(segments[i].x1, segments[i].x2);
+    let t = trackEnd.findIndex(end => lo > end + pad);
+    if (t === -1) { t = trackEnd.length; trackEnd.push(hi); }
+    else trackEnd[t] = Math.max(trackEnd[t], hi);
+    out[i] = t;
+  });
+  return { tracks: out, count: trackEnd.length };
+}
+function edgeGroup(svg, edge, pts, arrowDir, opts) {
+  const st = kindStyle(edge.kind);
+  const g = svgEl('g', {});
+  const line = svgEl('path', { d: orthoPath(pts), class: `eline${edge.flow ? ' flow' : ''}`, stroke: st.c });
+  if (st.dash && !edge.flow) line.setAttribute('stroke-dasharray', st.dash);
+  if (edge.flow && edge.kind === 'flow') line.setAttribute('stroke-dasharray', '7 5');
+  g.appendChild(line);
+  const tip = pts[pts.length - 1];
+  g.appendChild(svgEl('path', { d: arrowPath(tip, arrowDir), class: 'eline', fill: 'none', stroke: st.c, 'stroke-width': edge.flow ? 2.4 : 1.6 }));
+  let labelEls = [];
+  if (edge.label && opts && opts.labelAt) {
+    const { x, y } = opts.labelAt;
+    const w = edge.label.length * 5.7 + 10;
+    const bg = svgEl('rect', { x: x - w / 2, y: y - 13, width: w, height: 14, rx: 4, class: 'elbg' });
+    const tx = svgEl('text', { x, y: y - 2.5, 'text-anchor': 'middle', class: 'elabel' });
+    tx.textContent = edge.label;
+    g.appendChild(bg); g.appendChild(tx);
+    labelEls = [bg, tx];
+  }
+  const hit = svgEl('path', { d: orthoPath(pts), class: 'ehit' });
+  g.appendChild(hit);
+  svg.appendChild(g);
+  return { g, line, hit, labelEls, edge };
+}
+function wireGraphHover(canvas, nodeEls, drawn, incidence) {
+  const setOn = (ids, on) => {
+    ids.forEach(id => {
+      const el = nodeEls[id];
+      if (el) el.classList.toggle('on', on);
+    });
+  };
+  Object.keys(nodeEls).forEach(id => {
+    const el = nodeEls[id];
+    el.addEventListener('mouseenter', () => {
+      canvas.classList.add('dim');
+      const inc = incidence[id] || [];
+      const nbrs = new Set([id]);
+      inc.forEach(d => {
+        d.line.classList.add('on');
+        d.labelEls.forEach(l => l.classList.add('on'));
+        nbrs.add(d.edge.source); nbrs.add(d.edge.target);
+      });
+      setOn([...nbrs], true);
+    });
+    el.addEventListener('mouseleave', () => {
+      canvas.classList.remove('dim');
+      drawn.forEach(d => { d.line.classList.remove('on'); d.labelEls.forEach(l => l.classList.remove('on')); });
+      Object.values(nodeEls).forEach(e => e.classList.remove('on'));
+    });
+  });
+  drawn.forEach(d => {
+    d.hit.addEventListener('mouseenter', () => {
+      d.line.classList.add('on');
+      d.labelEls.forEach(l => l.classList.add('on'));
+    });
+    d.hit.addEventListener('mouseleave', () => {
+      d.line.classList.remove('on');
+      d.labelEls.forEach(l => l.classList.remove('on'));
     });
   });
 }
 
+/* Layered band graph: nodes carry {id, band, html, cls, badge}. */
+function drawLayeredGraph(host, spec) {
+  const GL = 128, GR = 40, GAP_X = 24, BAND_PAD = 16, TRACK_H = 13;
+  host.innerHTML = '<div class="gcanvas"><svg class="gedges"></svg></div>';
+  const canvas = host.querySelector('.gcanvas');
+  const svg = canvas.querySelector('svg');
+  if (spec.showLabels === 'hover') svg.classList.add('quiet');
+
+  const nodeEls = {};
+  spec.nodes.forEach(n => {
+    const el = document.createElement('div');
+    el.className = `gnode ${n.cls || ''}`;
+    el.innerHTML = n.html;
+    el.dataset.id = n.id;
+    canvas.appendChild(el);
+    nodeEls[n.id] = el;
+  });
+  const size = {};
+  spec.nodes.forEach(n => { size[n.id] = { w: nodeEls[n.id].offsetWidth, h: nodeEls[n.id].offsetHeight }; });
+
+  const bands = spec.bands
+    .map(b => ({ ...b, nodes: spec.nodes.filter(n => n.band === b.id) }))
+    .filter(b => b.nodes.length);
+  const bandIdx = {};
+  bands.forEach((b, i) => b.nodes.forEach(n => { bandIdx[n.id] = i; }));
+  const edges = spec.edges.filter(e => bandIdx[e.source] !== undefined && bandIdx[e.target] !== undefined);
+
+  const nbr = {};
+  edges.forEach(e => {
+    (nbr[e.source] = nbr[e.source] || []).push(e.target);
+    (nbr[e.target] = nbr[e.target] || []).push(e.source);
+  });
+
+  /* — ordering: badge order, degree, then barycenter sweeps — */
+  bands.forEach(b => {
+    b.nodes.sort((a, c) =>
+      (a.badgeOrder ?? 999) - (c.badgeOrder ?? 999) ||
+      (nbr[c.id] || []).length - (nbr[a.id] || []).length ||
+      String(a.id).localeCompare(String(c.id)));
+  });
+  const pos = {};
+  const reindex = () => bands.forEach(b => b.nodes.forEach((n, i) => { pos[n.id] = i / Math.max(1, b.nodes.length - 1); }));
+  reindex();
+  for (let sweep = 0; sweep < 4; sweep++) {
+    bands.forEach(b => {
+      b.nodes.sort((a, c) => {
+        const bar = n => {
+          const ns = (nbr[n.id] || []).filter(x => bandIdx[x] !== bandIdx[n.id]);
+          if (!ns.length) return pos[n.id];
+          return ns.reduce((s, x) => s + pos[x], 0) / ns.length;
+        };
+        return bar(a) - bar(c) || (a.badgeOrder ?? 999) - (c.badgeOrder ?? 999);
+      });
+    });
+    reindex();
+  }
+
+  /* — x assignment: pack, then relax toward neighbor barycenters — */
+  const bandW = b => b.nodes.reduce((s, n) => s + size[n.id].w, 0) + GAP_X * Math.max(0, b.nodes.length - 1);
+  const innerW = Math.max(...bands.map(bandW), 320);
+  const canvasW = GL + innerW + GR;
+  const X = {};
+  bands.forEach(b => {
+    let x = GL + (innerW - bandW(b)) / 2;
+    b.nodes.forEach(n => { X[n.id] = x; x += size[n.id].w + GAP_X; });
+  });
+  const cx = id => X[id] + size[id].w / 2;
+  const relaxBand = b => {
+    const desired = b.nodes.map(n => {
+      const ns = (nbr[n.id] || []).filter(x => bandIdx[x] !== bandIdx[n.id]);
+      if (!ns.length) return cx(n.id);
+      return ns.reduce((s, x) => s + cx(x), 0) / ns.length;
+    });
+    let x = GL;
+    b.nodes.forEach((n, i) => {
+      x = Math.max(desired[i] - size[n.id].w / 2, x);
+      X[n.id] = x;
+      x += size[n.id].w + GAP_X;
+    });
+    const over = (X[b.nodes[b.nodes.length - 1].id] + size[b.nodes[b.nodes.length - 1].id].w) - (GL + innerW);
+    if (over > 0) {
+      for (let i = b.nodes.length - 1; i >= 0; i--) {
+        const n = b.nodes[i];
+        const limit = i === b.nodes.length - 1
+          ? GL + innerW - size[n.id].w
+          : X[b.nodes[i + 1].id] - GAP_X - size[n.id].w;
+        X[n.id] = Math.min(X[n.id], limit);
+      }
+    }
+  };
+  for (let s = 0; s < 3; s++) {
+    for (let i = 0; i < bands.length; i++) relaxBand(bands[i]);
+    for (let i = bands.length - 1; i >= 0; i--) relaxBand(bands[i]);
+  }
+
+  /* — route planning in the x plane — */
+  const slotFor = (b, want) => {
+    const xs = [GL - 22];
+    for (let i = 0; i < b.nodes.length - 1; i++) {
+      xs.push((X[b.nodes[i].id] + size[b.nodes[i].id].w + X[b.nodes[i + 1].id]) / 2);
+    }
+    xs.push(GL + innerW + 22);
+    let best = xs[0];
+    xs.forEach(x => { if (Math.abs(x - want) < Math.abs(best - want)) best = x; });
+    return best;
+  };
+  const slotUse = {};
+  const routes = edges.map(e => {
+    const sb = bandIdx[e.source], tb = bandIdx[e.target];
+    const up = sb > tb;
+    const topB = Math.min(sb, tb), botB = Math.max(sb, tb);
+    const upper = up ? e.target : e.source, lower = up ? e.source : e.target;
+    const slots = [];
+    for (let b = topB + 1; b < botB; b++) {
+      const want = (cx(upper) + cx(lower)) / 2;
+      let x = slotFor(bands[b], want);
+      const key = `${b}:${Math.round(x)}`;
+      const used = slotUse[key] || 0;
+      slotUse[key] = used + 1;
+      x += used * 9;
+      slots.push({ band: b, x });
+    }
+    return { e, sb, tb, up, topB, botB, upper, lower, same: sb === tb, slots };
+  });
+
+  /* — ports: spread along each card face, ordered by exit direction — */
+  const portReq = {}; // id -> {bottom:[], top:[]}
+  const req = (id, side, route, key) => {
+    portReq[id] = portReq[id] || { bottom: [], top: [] };
+    portReq[id][side].push({ route, key });
+  };
+  routes.forEach(r => {
+    if (r.same) {
+      req(r.e.source, 'bottom', r, cx(r.e.target));
+      req(r.e.target, 'bottom', r, cx(r.e.source));
+    } else {
+      const upperNext = r.slots.length ? r.slots[0].x : cx(r.lower);
+      const lowerPrev = r.slots.length ? r.slots[r.slots.length - 1].x : cx(r.upper);
+      req(r.upper, 'bottom', r, upperNext);
+      req(r.lower, 'top', r, lowerPrev);
+    }
+  });
+  const portX = {}; // `${id}:${side}:${edgeId}` -> x
+  Object.keys(portReq).forEach(id => {
+    ['bottom', 'top'].forEach(side => {
+      const list = portReq[id][side];
+      if (!list.length) return;
+      list.sort((a, b) => a.key - b.key);
+      list.forEach((p, i) => {
+        portX[`${id}:${side}:${p.route.e.id}`] = X[id] + size[id].w * (i + 1) / (list.length + 1);
+      });
+    });
+  });
+
+  /* — horizontal segments per gap → channel tracks — */
+  const gapSegs = bands.map(() => []);
+  routes.forEach(r => {
+    if (r.same) {
+      const x1 = portX[`${r.e.source}:bottom:${r.e.id}`], x2 = portX[`${r.e.target}:bottom:${r.e.id}`];
+      r.segs = [{ gap: r.sb, x1, x2 }];
+    } else {
+      r.segs = [];
+      const startX = portX[`${r.upper}:bottom:${r.e.id}`];
+      const endX = portX[`${r.lower}:top:${r.e.id}`];
+      const xs = [startX, ...r.slots.map(s => s.x), endX];
+      for (let g = r.topB; g < r.botB; g++) {
+        const i = g - r.topB;
+        r.segs.push({ gap: g, x1: xs[i], x2: xs[i + 1] });
+      }
+    }
+    r.segs.forEach(s => { s.routeRef = r; gapSegs[s.gap].push(s); });
+  });
+  const gapTracks = gapSegs.map(segs => {
+    if (!segs.length) return { count: 0 };
+    const res = assignTracks(segs);
+    segs.forEach((s, i) => { s.track = res.tracks[i]; });
+    return res;
+  });
+
+  /* — y layout — */
+  const bandH = bands.map(b => Math.max(...b.nodes.map(n => size[n.id].h)) + BAND_PAD * 2);
+  const gapH = bands.map((_, g) => 30 + (gapTracks[g].count || 0) * TRACK_H);
+  const bandTop = [];
+  let y = 14;
+  bands.forEach((b, i) => { bandTop.push(y); y += bandH[i] + gapH[i]; });
+  const canvasH = y + 10;
+  const trackY = (g, t) => bandTop[g] + bandH[g] + 17 + t * TRACK_H;
+
+  canvas.style.width = canvasW + 'px';
+  canvas.style.height = canvasH + 'px';
+  svg.setAttribute('width', canvasW);
+  svg.setAttribute('height', canvasH);
+
+  /* — paint bands, labels, nodes — */
+  bands.forEach((b, i) => {
+    const bg = document.createElement('div');
+    bg.className = 'gband';
+    bg.style.cssText = `left:${GL - 18}px; top:${bandTop[i]}px; width:${innerW + 36}px; height:${bandH[i]}px;` +
+      `border-color: color-mix(in srgb, ${b.color} 26%, transparent); background: color-mix(in srgb, ${b.color} 4%, transparent);`;
+    canvas.appendChild(bg);
+    const lb = document.createElement('div');
+    lb.className = 'gband-label';
+    lb.style.cssText = `left:14px; top:${bandTop[i] + bandH[i] / 2 - 14}px; width:${GL - 40}px; color:${b.color};`;
+    lb.innerHTML = `${esc(b.label)}<em>${b.nodes.length} node${b.nodes.length === 1 ? '' : 's'}</em>`;
+    canvas.appendChild(lb);
+    b.nodes.forEach(n => {
+      const el = nodeEls[n.id];
+      el.style.left = X[n.id] + 'px';
+      el.style.top = (bandTop[i] + (bandH[i] - size[n.id].h) / 2) + 'px';
+    });
+  });
+
+  /* — paint edges (flow last so it sits on top) — */
+  const topOf = id => parseFloat(nodeEls[id].style.top);
+  const botOf = id => topOf(id) + size[id].h;
+  const drawn = [];
+  const incidence = {};
+  const paint = r => {
+    let pts, arrowDir, labelAt;
+    if (r.same) {
+      const ty = trackY(r.sb, r.segs[0].track);
+      const x1 = r.segs[0].x1, x2 = r.segs[0].x2;
+      pts = [
+        { x: x1, y: botOf(r.e.source) },
+        { x: x1, y: ty },
+        { x: x2, y: ty },
+        { x: x2, y: botOf(r.e.target) },
+      ];
+      arrowDir = 'up';
+      labelAt = { x: (x1 + x2) / 2, y: ty };
+    } else {
+      pts = [];
+      const push = p => {
+        const last = pts[pts.length - 1];
+        if (!last || Math.abs(last.x - p.x) > 0.5 || Math.abs(last.y - p.y) > 0.5) pts.push(p);
+      };
+      push({ x: r.segs[0].x1, y: botOf(r.upper) });
+      r.segs.forEach(s => {
+        const ty = trackY(s.gap, s.track);
+        push({ x: s.x1, y: ty });
+        push({ x: s.x2, y: ty });
+      });
+      push({ x: r.segs[r.segs.length - 1].x2, y: topOf(r.lower) });
+      if (r.up) { pts.reverse(); arrowDir = 'up'; } else { arrowDir = 'down'; }
+      let best = r.segs[0];
+      r.segs.forEach(s => { if (Math.abs(s.x2 - s.x1) > Math.abs(best.x2 - best.x1)) best = s; });
+      labelAt = { x: (best.x1 + best.x2) / 2, y: trackY(best.gap, best.track) };
+    }
+    const d = edgeGroup(svg, r.e, pts, arrowDir, { labelAt });
+    drawn.push(d);
+    (incidence[r.e.source] = incidence[r.e.source] || []).push(d);
+    (incidence[r.e.target] = incidence[r.e.target] || []).push(d);
+  };
+  routes.filter(r => !r.e.flow).forEach(paint);
+  routes.filter(r => r.e.flow).forEach(paint);
+
+  wireGraphHover(canvas, nodeEls, drawn, incidence);
+  Object.keys(nodeEls).forEach(id => {
+    nodeEls[id].addEventListener('click', e => { e.stopPropagation(); spec.onNode && spec.onNode(id); });
+  });
+  return { canvas };
+}
+
+/* ═══════════════════ Agents: org graph ═══════════════════ */
 function renderAgents() {
-  useBoard();
+  useBoard('Org graph');
   const all = agents();
+  const byId = Object.fromEntries(all.map(a => [a.id, a]));
   const systems = all.filter(a => a.level === 'system');
   const orchs = all.filter(a => a.level === 'orchestrator' || (!a.parent_id && a.level !== 'system' && a.level !== 'subagent'));
+  const subs = all.filter(a => a.level === 'subagent');
+
   const side = [
-    { id: '__fleet__', name: 'Fleet overview', summary: `${all.length} agents · org chart` },
-    ...orchs.map(a => ({
-      id: a.id,
-      name: a.name,
-      summary: a.role || a.summary || `${(a.tools || []).length} tools`,
-      _raw: a,
-    })),
+    { id: '__fleet__', name: 'Fleet overview', summary: `${all.length} agents · org graph` },
+    ...orchs.map(a => ({ id: a.id, name: a.name, summary: a.role || a.summary || '', _raw: a })),
   ];
   if (!focusId) focusId = '__fleet__';
   sideTitle.textContent = 'Agent fleet';
   bindSide(side);
+  setMeta(
+    focusId === '__fleet__' ? 'Agentic architecture' : (byId[focusId] || {}).name || 'Agentic architecture',
+    focusId === '__fleet__'
+      ? 'System → orchestrators → subagents, tools as chips. Cross-agent relations run through the labeled corridor. Hover any card.'
+      : [(byId[focusId] || {}).role, (byId[focusId] || {}).summary].filter(Boolean).join(' — ')
+  );
 
-  if (focusId !== '__fleet__') {
-    const current = all.find(a => a.id === focusId) || orchs[0];
-    setMeta(current.name, [current.role, current.summary].filter(Boolean).join(' — '));
-    const kids = all.filter(a => a.parent_id === current.id || (current.flow || []).includes(a.id));
-    board.innerHTML = `<div class="fleet">${orchCard(current, kids.length ? kids : [current], true)}</div>`;
-    wireAgentClicks();
+  if (!all.length) {
+    board.innerHTML = '<div class="empty">No agents authored. Re-run /okad.</div>';
     return;
   }
 
-  setMeta('Agentic architecture', 'Readable hierarchy: system → orchestrators → subagents → tools. Click any card.');
-  const owned = new Set();
-  let html = '<div class="fleet">';
-  if (systems.length) {
-    systems.forEach(sys => {
-      html += `<article class="system-card" data-id="${esc(sys.id)}">
-        <div class="eyebrow">System agent</div>
-        <h3>${esc(sys.name)}</h3>
-        <p>${esc(sys.role || sys.summary || '')}</p>
-      </article>`;
-      const children = orchs.filter(o => o.parent_id === sys.id);
-      children.forEach(o => owned.add(o.id));
-      if (children.length) {
-        html += `<div class="orch-grid">${children.map(o => {
-          const kids = all.filter(c => c.parent_id === o.id || (o.flow || []).includes(c.id));
-          return orchCard(o, kids);
-        }).join('')}</div>`;
-      }
+  const COLW = 250, SUB_IND = 26, GAPC = 40, GL = 26, TRACK_H = 15;
+  const sys = systems[0] || null;
+
+  /* columns: one per orchestrator; orphan subs get their own column */
+  const cols = orchs.map(o => ({
+    orch: o,
+    subs: subs.filter(s => s.parent_id === o.id)
+      .sort((a, b) => {
+        const f = o.flow || [];
+        const ia = f.indexOf(a.id), ib = f.indexOf(b.id);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      }),
+  }));
+  const orphanSubs = subs.filter(s => !s.parent_id || !byId[s.parent_id] || byId[s.parent_id].level === 'system');
+  if (orphanSubs.length) cols.push({ orch: null, subs: orphanSubs });
+
+  const ncol = Math.max(cols.length, 1);
+  const canvasW = GL * 2 + ncol * COLW + (ncol - 1) * GAPC;
+
+  board.innerHTML = '<div class="gcanvas"><svg class="gedges"></svg></div>';
+  const canvas = board.querySelector('.gcanvas');
+  const svg = canvas.querySelector('svg');
+  const nodeEls = {};
+
+  const mkCard = (cls, html, id, w) => {
+    const el = document.createElement('div');
+    el.className = `gnode ${cls}`;
+    el.innerHTML = html;
+    el.dataset.id = id;
+    el.style.width = w + 'px';
+    canvas.appendChild(el);
+    if (id) nodeEls[id] = el;
+    return el;
+  };
+
+  let sysEl = null;
+  if (sys) {
+    const sysW = Math.min(620, canvasW - GL * 2);
+    sysEl = mkCard('sys', `
+      <div class="eyebrow">System agent</div>
+      <h3>${esc(sys.name)}</h3>
+      <div class="role">${esc(sys.role || sys.summary || '')}</div>
+    `, sys.id, sysW);
+    sysEl.style.left = (canvasW - sysW) / 2 + 'px';
+    sysEl.style.top = '12px';
+  }
+
+  /* classify relations: tree labels vs cross edges */
+  const treeLabel = {};
+  const cross = [];
+  all.forEach(a => {
+    (a.relations || []).forEach(r => {
+      const t = byId[r.target];
+      if (!t) return;
+      if (t.parent_id === a.id) { treeLabel[t.id] = r.label || r.kind; return; }
+      cross.push({ id: `x:${a.id}:${r.target}:${r.kind}`, source: a.id, target: r.target, kind: r.kind, label: r.label || r.kind });
+    });
+  });
+
+  const corridorTop = (sys ? 12 + (sysEl ? sysEl.offsetHeight : 0) : 0) + 18;
+  const corridorH = cross.length ? 14 + cross.length * TRACK_H : 10;
+  const busY = corridorTop + corridorH + 6;
+  const orchTop = busY + 16;
+
+  /* place orchestrators + subs */
+  const colX = i => GL + i * (COLW + GAPC);
+  let maxBottom = orchTop;
+  cols.forEach((c, i) => {
+    const x = colX(i);
+    let bottom = orchTop;
+    if (c.orch) {
+      const invoked = treeLabel[c.orch.id];
+      const el = mkCard('orchg', `
+        <div class="eyebrow">Orchestrator${invoked ? ` · <span style="color:var(--muted)">${esc(invoked)}</span>` : ''}</div>
+        <h4>${esc(c.orch.name)}</h4>
+        <div class="role">${esc(c.orch.role || c.orch.summary || '')}</div>
+        ${(c.orch.tools || []).length ? `<div class="tools">${c.orch.tools.map(t => `<span class="tool">${esc(t.name)}</span>`).join('')}</div>` : ''}
+      `, c.orch.id, COLW);
+      el.style.left = x + 'px';
+      el.style.top = orchTop + 'px';
+      bottom = orchTop + el.offsetHeight;
+    }
+    let sy = bottom + 26;
+    c.subs.forEach(s => {
+      const fi = c.orch && (c.orch.flow || []).indexOf(s.id);
+      const el = mkCard('subg', `
+        ${fi !== null && fi >= 0 ? `<span class="gflow">${String(fi + 1).padStart(2, '0')}</span>` : ''}
+        <div class="name">${esc(s.name)}</div>
+        <div class="sum">${esc(s.summary || s.role || '')}</div>
+        ${(s.tools || []).length ? `<div class="tools">${s.tools.map(t => `<span class="tool">${esc(t.name)}</span>`).join('')}</div>` : ''}
+      `, s.id, COLW - SUB_IND);
+      el.style.left = (x + SUB_IND) + 'px';
+      el.style.top = sy + 'px';
+      sy += el.offsetHeight + 12;
+    });
+    maxBottom = Math.max(maxBottom, sy);
+  });
+  const canvasH = maxBottom + 18;
+  canvas.style.width = canvasW + 'px';
+  canvas.style.height = canvasH + 'px';
+  svg.setAttribute('width', canvasW);
+  svg.setAttribute('height', canvasH);
+
+  const geo = id => {
+    const el = nodeEls[id];
+    return el ? {
+      x: parseFloat(el.style.left), y: parseFloat(el.style.top),
+      w: el.offsetWidth, h: el.offsetHeight,
+    } : null;
+  };
+  const drawn = [];
+  const incidence = {};
+  const record = (d, a, b) => {
+    drawn.push(d);
+    (incidence[a] = incidence[a] || []).push(d);
+    (incidence[b] = incidence[b] || []).push(d);
+  };
+
+  /* tree: system → orchestrators */
+  if (sys) {
+    const sg = geo(sys.id);
+    cols.forEach(c => {
+      if (!c.orch) return;
+      const og = geo(c.orch.id);
+      const cxo = og.x + og.w / 2;
+      const pts = [
+        { x: sg.x + sg.w / 2, y: sg.y + sg.h },
+        { x: sg.x + sg.w / 2, y: busY },
+        { x: cxo, y: busY },
+        { x: cxo, y: og.y },
+      ];
+      const d = edgeGroup(svg, { id: `t:${c.orch.id}`, kind: 'invokes', label: '' }, pts, 'down');
+      record(d, sys.id, c.orch.id);
     });
   }
-  const rest = orchs.filter(o => !owned.has(o.id));
-  if (rest.length) {
-    html += `<div class="orch-grid">${rest.map(o => {
-      const kids = all.filter(c => c.parent_id === o.id || (o.flow || []).includes(c.id));
-      return orchCard(o, kids);
-    }).join('')}</div>`;
+  /* tree: orchestrator → subs (left spine) */
+  cols.forEach((c, i) => {
+    if (!c.subs.length) return;
+    const x = colX(i);
+    const spineX = x + 12;
+    const fromY = c.orch ? geo(c.orch.id).y + geo(c.orch.id).h : orchTop;
+    c.subs.forEach(s => {
+      const gsub = geo(s.id);
+      const midY = gsub.y + Math.min(20, gsub.h / 2);
+      const d = edgeGroup(svg, { id: `s:${s.id}`, kind: 'depends_on', label: '' },
+        [{ x: spineX, y: fromY }, { x: spineX, y: midY }, { x: gsub.x, y: midY }], 'right');
+      record(d, c.orch ? c.orch.id : s.id, s.id);
+    });
+  });
+
+  /* cross relations through the corridor */
+  const sorted = cross.slice().sort((a, b) => {
+    const ga = geo(a.source), gb = geo(b.source), ta = geo(a.target), tb = geo(b.target);
+    const da = ga && ta ? Math.abs(ga.x - ta.x) : 0, db = gb && tb ? Math.abs(gb.x - tb.x) : 0;
+    return da - db;
+  });
+  const portShift = {};
+  const attach = (id, otherX, ty) => {
+    const g = geo(id);
+    if (!g) return null;
+    const a = byId[id];
+    if (a && a.level === 'subagent') {
+      const ci = cols.findIndex(c => c.subs.some(s => s.id === id));
+      const gx = ci <= 0 ? Math.max(8, colX(0) - 14) : colX(ci) - GAPC / 2;
+      const midY = g.y + Math.min(18, g.h / 2);
+      return { pts: [{ x: g.x, y: midY }, { x: gx, y: midY }, { x: gx, y: ty }], enterDir: 'right' };
+    }
+    const n = (portShift[id] = (portShift[id] || 0) + 1);
+    const off = (n % 2 === 1 ? -1 : 1) * (26 + Math.floor((n - 1) / 2) * 24);
+    const px = Math.max(g.x + 14, Math.min(g.x + g.w - 14, g.x + g.w / 2 + (otherX > g.x ? off : -off)));
+    if (a && a.level === 'system') return { pts: [{ x: px, y: g.y + g.h }, { x: px, y: ty }], enterDir: 'down' };
+    return { pts: [{ x: px, y: g.y }, { x: px, y: ty }], enterDir: 'down' };
+  };
+  sorted.forEach((e, t) => {
+    const ty = corridorTop + 8 + t * TRACK_H;
+    const sg = geo(e.source), tg = geo(e.target);
+    if (!sg || !tg) return;
+    const src = attach(e.source, tg.x + tg.w / 2, ty);
+    const dst = attach(e.target, sg.x + sg.w / 2, ty);
+    if (!src || !dst) return;
+    const pts = [...src.pts, ...dst.pts.slice().reverse()];
+    const lx = (src.pts[src.pts.length - 1].x + dst.pts[dst.pts.length - 1].x) / 2;
+    const d = edgeGroup(svg, e, pts, dst.enterDir === 'right' ? 'right' : 'down', { labelAt: { x: lx, y: ty } });
+    record(d, e.source, e.target);
+  });
+
+  wireGraphHover(canvas, nodeEls, drawn, incidence);
+  Object.keys(nodeEls).forEach(id => {
+    nodeEls[id].addEventListener('click', e => { e.stopPropagation(); showInspector(byId[id]); });
+  });
+  const crossKinds = [...new Set(cross.map(c => c.kind))];
+  setLegend(`<div class="legend">
+    <span><i style="background:var(--violet)"></i>system</span>
+    <span><i style="background:var(--orange)"></i>orchestrator</span>
+    <span><i style="background:var(--warn)"></i>flow order</span>
+    <span><i style="background:var(--sky)"></i>tools</span>
+    ${crossKinds.map(k => `<span><i style="background:${kindStyle(k).c}"></i>${esc(k)}</span>`).join('')}
+  </div>`);
+
+  /* sidebar focus: spotlight one orchestrator's column */
+  if (focusId !== '__fleet__' && nodeEls[focusId]) {
+    canvas.classList.add('dim');
+    const keep = new Set([focusId]);
+    subs.filter(s => s.parent_id === focusId).forEach(s => keep.add(s.id));
+    (incidence[focusId] || []).forEach(d => {
+      d.line.classList.add('on');
+      d.labelEls.forEach(l => l.classList.add('on'));
+    });
+    keep.forEach(id => {
+      nodeEls[id] && nodeEls[id].classList.add('on');
+      (incidence[id] || []).forEach(d => d.line.classList.add('on'));
+    });
+    nodeEls[focusId].scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }
-  html += `<div class="legend">
-    <span><i style="background:var(--violet)"></i>System</span>
-    <span><i style="background:#ff9f6b"></i>Orchestrator</span>
-    <span><i style="background:var(--warn)"></i>Subagent</span>
-    <span><i style="background:var(--sky)"></i>Tool</span>
-  </div></div>`;
-  board.innerHTML = html || '<div class="empty">No agents authored. Re-run /okad.</div>';
-  wireAgentClicks();
 }
 
-function orchCard(o, kids, solo) {
-  const subs = (kids || []).filter(k => k.id !== o.id);
-  const showSelfTools = !subs.length;
-  const rel = (o.relations || []).slice(0, 4).map(r =>
-    `<span class="rel">${esc(r.label || r.kind || 'relates')} → ${esc((agents().find(a => a.id === r.target) || {}).name || r.target)}</span>`
-  ).join('');
-  return `<article class="orch" data-id="${esc(o.id)}" style="${solo ? 'max-width:560px' : ''}">
-    <div class="level">${esc(o.level || 'orchestrator')}</div>
-    <h4>${esc(o.name)}</h4>
-    <p class="role">${esc(o.role || o.summary || '')}</p>
-    <div class="subs">${
-      subs.length
-        ? subs.map(s => `<div class="sub" data-id="${esc(s.id)}">
-            <span class="dot"></span>
-            <div>
-              <div class="name">${esc(s.name)}</div>
-              <div class="sum">${esc(s.summary || s.role || '')}</div>
-              ${(s.tools || []).length ? `<div class="tools">${s.tools.map(t => `<span class="tool">${esc(t.name)}</span>`).join('')}</div>` : ''}
-            </div>
-          </div>`).join('')
-        : `<div class="sub" data-id="${esc(o.id)}"><span class="dot"></span><div><div class="name">Direct tools</div><div class="sum">No subagents — tools hang on the orchestrator.</div>
-            ${(o.tools || []).length ? `<div class="tools">${o.tools.map(t => `<span class="tool">${esc(t.name)}</span>`).join('')}</div>` : ''}
-          </div></div>`
-    }</div>
-    ${showSelfTools && (o.tools || []).length && subs.length ? `<div class="tools" style="margin-top:.65rem">${o.tools.map(t => `<span class="tool">${esc(t.name)}</span>`).join('')}</div>` : ''}
-    ${rel ? `<div class="rel-row">${rel}</div>` : ''}
-  </article>`;
-}
-
-function wireAgentClicks() {
-  const map = Object.fromEntries(agents().map(a => [a.id, a]));
-  wireClicks(board, '.system-card, .orch, .sub', id => map[id]);
-}
-
+/* ═══════════════════ Architecture: layered graph ═══════════════════ */
 function journeySteps(j) {
   return (j.steps || []).map(s => {
     if (typeof s === 'string') return { node_id: s, note: '' };
     return { node_id: s.node_id || s.id, note: s.note || '' };
   }).filter(s => s.node_id);
 }
-
+function archLegend(edges, extraChips) {
+  const kinds = [...new Set(edges.map(e => e.kind))].filter(k => k !== 'flow');
+  return `<div class="legend">
+    ${kinds.map(k => `<span><i style="background:${kindStyle(k).c}"></i>${esc(k)}</span>`).join('')}
+    ${edges.some(e => e.kind === 'flow') ? `<span><i style="background:var(--accent);height:3px;border:1px dashed var(--accent);background:transparent"></i>story step (inferred)</span>` : ''}
+    ${(extraChips || []).map(c => `<span class="lchip">${esc(c)}</span>`).join('')}
+  </div>`;
+}
 function renderArchitecture() {
-  useBoard();
+  useBoard('Layered graph');
   const nm = nodeMap();
   const journeys = DATA.journeys || [];
   const side = [
-    { id: 'arch:overview', name: 'Layer overview', summary: 'Top nodes per layer · no spaghetti' },
-    ...journeys.map(j => ({
-      id: j.id,
-      name: j.name,
-      summary: j.summary || `${(j.steps || []).length} steps`,
-      _raw: j,
-    })),
+    ...journeys.map(j => ({ id: j.id, name: j.name, summary: j.summary || `${(j.steps || []).length} steps`, _raw: j })),
+    { id: 'arch:full', name: 'Full system', summary: 'Every wired node · labels on hover' },
   ];
-  if (!focusId) focusId = journeys[0] ? journeys[0].id : 'arch:overview';
-  sideTitle.textContent = 'Stories';
+  if (!focusId || !side.find(s => s.id === focusId)) focusId = journeys[0] ? journeys[0].id : 'arch:full';
+  sideTitle.textContent = 'Scope';
   bindSide(side);
 
-  if (focusId === 'arch:overview') {
-    setMeta('Architecture overview', 'Five layers. Highest-signal nodes only — open a journey for the real story path.');
-    const deg = {};
-    (DATA.edges || []).forEach(e => {
-      if (e.kind === 'contains') return;
-      deg[e.source] = (deg[e.source] || 0) + 1;
-      deg[e.target] = (deg[e.target] || 0) + 1;
-    });
-    const by = {};
-    LAYERS.forEach(l => { by[l] = []; });
-    (DATA.nodes || []).filter(n => n.kind !== 'layer').forEach(n => {
-      (by[n.layer] ? by[n.layer] : by.application).push(n);
-    });
-    LAYERS.forEach(l => by[l].sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0)));
-    board.innerHTML = `<div class="arch">
-      <div class="lanes">${LAYERS.map(l => laneHtml(l, by[l].slice(0, 6))).join('')}</div>
-      <div class="legend">
-        <span><i style="background:var(--experience)"></i>Experience</span>
-        <span><i style="background:var(--interface)"></i>Interface</span>
-        <span><i style="background:var(--application)"></i>Application</span>
-        <span><i style="background:var(--data)"></i>Data</span>
-        <span><i style="background:var(--infra)"></i>Infra</span>
-      </div>
-    </div>`;
-    wireNodeClicks(nm);
-    return;
-  }
-
-  const journey = journeys.find(j => j.id === focusId) || journeys[0];
-  if (!journey) {
-    setMeta('No journeys', 'Re-run /okad to author journeys.');
-    board.innerHTML = '<div class="empty">No journeys yet.</div>';
-    return;
-  }
-  const steps = journeySteps(journey);
-  setMeta(journey.name, journey.summary || 'Journey path across layers — then the lane map of only what this story touches.');
-
-  const keep = new Set(steps.map(s => s.node_id));
-  (DATA.edges || []).forEach(e => {
-    if (e.kind === 'contains') return;
-    if (keep.has(e.source) && nm[e.target]) keep.add(e.target);
-    if (keep.has(e.target) && nm[e.source]) keep.add(e.source);
+  const bands = LAYERS.map(l => {
+    const meta = (DATA.layers || []).find(x => x.id === l) || {};
+    return { id: l, label: meta.label || l, color: LAYER_COLOR[l] };
+  });
+  const realNodes = (DATA.nodes || []).filter(n => n.kind !== 'layer');
+  const realEdges = (DATA.edges || []).filter(e => e.kind !== 'contains');
+  const deg = {};
+  realEdges.forEach(e => {
+    deg[e.source] = (deg[e.source] || 0) + 1;
+    deg[e.target] = (deg[e.target] || 0) + 1;
   });
 
-  const by = {};
-  LAYERS.forEach(l => { by[l] = []; });
-  [...keep].forEach(id => {
+  let scopeIds, scopeEdges, badges = {}, badgeOrder = {}, flowEdges = [], chips = [], labelMode = 'always';
+
+  if (focusId === 'arch:full') {
+    setMeta('Full system', 'Every node that has at least one real relationship, in five layers. Hover a card to isolate its edges; hover an edge for its label.');
+    const wired = realNodes.filter(n => (deg[n.id] || 0) > 0);
+    scopeIds = new Set(wired.map(n => n.id));
+    scopeEdges = realEdges.filter(e => scopeIds.has(e.source) && scopeIds.has(e.target));
+    const hidden = realNodes.length - wired.length;
+    if (hidden > 0) chips.push(`${hidden} unwired node${hidden === 1 ? '' : 's'} hidden`);
+    labelMode = 'hover';
+  } else {
+    const journey = journeys.find(j => j.id === focusId) || journeys[0];
+    if (!journey) {
+      setMeta('No journeys', 'Re-run /okad to author journeys.');
+      board.innerHTML = '<div class="empty">No journeys yet.</div>';
+      return;
+    }
+    setMeta(journey.name, journey.summary || 'This story’s slice of the system — numbered in journey order.');
+    const steps = journeySteps(journey);
+    const spine = new Set(steps.map(s => s.node_id).filter(id => nm[id]));
+    /* context = 1-hop neighbors, but only edges touching the story spine —
+       neighbor↔neighbor mesh stays out so the story keeps the foreground */
+    scopeEdges = realEdges.filter(e =>
+      (spine.has(e.source) && nm[e.target]) || (spine.has(e.target) && nm[e.source]));
+    scopeIds = new Set(spine);
+    scopeEdges.forEach(e => { scopeIds.add(e.source); scopeIds.add(e.target); });
+    steps.forEach((s, i) => {
+      if (!nm[s.node_id]) return;
+      (badges[s.node_id] = badges[s.node_id] || []).push(i + 1);
+      if (badgeOrder[s.node_id] === undefined) badgeOrder[s.node_id] = i;
+    });
+    for (let i = 0; i < steps.length - 1; i++) {
+      const a = steps[i].node_id, b = steps[i + 1].node_id;
+      if (!nm[a] || !nm[b] || a === b) continue;
+      const hit = scopeEdges.find(e => (e.source === a && e.target === b) || (e.source === b && e.target === a));
+      if (hit) hit.flow = true;
+      else flowEdges.push({ id: `flow:${i}`, source: a, target: b, kind: 'flow', label: '', flow: true });
+    }
+    chips.push(`${steps.length} story steps`);
+  }
+
+  const nodes = [...scopeIds].map(id => {
     const n = nm[id];
-    if (!n || n.kind === 'layer') return;
-    (by[n.layer] ? by[n.layer] : by.application).push(n);
+    if (!n || n.kind === 'layer') return null;
+    const band = LAYERS.includes(n.layer) ? n.layer : 'application';
+    const b = badges[id];
+    return {
+      id, band,
+      cls: band,
+      badgeOrder: badgeOrder[id],
+      html: `${b ? `<span class="gstep">${b.join('·')}</span>` : ''}
+        <div class="kind">${esc(n.kind || 'node')}</div>
+        <div class="title">${esc(n.label || id)}</div>`,
+    };
+  }).filter(Boolean);
+  const edges = [...scopeEdges.map(e => ({ ...e })), ...flowEdges];
+
+  setLegend(archLegend(edges, chips));
+  board.innerHTML = '<div id="ghost"></div>';
+  const host = board.querySelector('#ghost');
+  drawLayeredGraph(host, {
+    bands, nodes, edges,
+    showLabels: labelMode,
+    onNode: id => showInspector(nm[id]),
   });
-
-  const pathHtml = steps.map((s, i) => {
-    const n = nm[s.node_id] || { id: s.node_id, label: s.node_id, layer: 'application', kind: 'service' };
-    return `<div class="step">
-      <div class="step-card" data-id="${esc(n.id)}">
-        <div class="step-num">STEP ${String(i + 1).padStart(2, '0')}</div>
-        <h4>${esc(n.label || n.id)}</h4>
-        <span class="layer-pill ${esc(n.layer || 'application')}">${esc(n.layer || 'application')}</span>
-        ${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-
-  board.innerHTML = `<div class="arch">
-    <div>
-      <div class="legend" style="margin-bottom:.55rem"><span>Story path</span></div>
-      <div class="path">${pathHtml}</div>
-    </div>
-    <div>
-      <div class="legend" style="margin-bottom:.55rem"><span>Touched layers</span></div>
-      <div class="lanes">${LAYERS.map(l => laneHtml(l, by[l])).join('')}</div>
-    </div>
-  </div>`;
-  wireNodeClicks(nm);
-  wireClicks(board, '.step-card', id => nm[id]);
 }
 
-function laneHtml(layer, nodes) {
-  return `<section class="lane ${layer}">
-    <div class="lane-head"><span>${layer}</span><em>${nodes.length}</em></div>
-    ${nodes.length
-      ? nodes.map(n => `<div class="node ${layer}" data-id="${esc(n.id)}">
-          <div class="kind">${esc(n.kind || 'node')}</div>
-          <div class="title">${esc(n.label || n.id)}</div>
-        </div>`).join('')
-      : `<div class="empty" style="padding:.6rem;font-size:.72rem">—</div>`}
-  </section>`;
-}
-
-function wireNodeClicks(nm) {
-  wireClicks(board, '.node', id => nm[id]);
-}
-
+/* ═══════════════════ Data pipeline ═══════════════════ */
 function renderData() {
-  useBoard();
+  useBoard('Pipeline');
   const nm = nodeMap();
   const items = (DATA.data_flows || []).map(d => ({
     id: d.id, name: d.name, summary: d.summary || d.shape || '', _raw: d
@@ -1057,9 +1472,12 @@ function renderData() {
       </div>
     </div>`;
   }).join('')}</div>`;
-  wireNodeClicks(nm);
+  board.querySelectorAll('.pipe-card').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); showInspector(nm[el.dataset.id]); });
+  });
 }
 
+/* ═══════════════════ Journey / request rails ═══════════════════ */
 function renderStoryRail(mode) {
   useBoard(mode === 'journeys' ? 'Journey rail' : 'Request rail');
   const nm = nodeMap();
@@ -1092,10 +1510,7 @@ function renderStoryRail(mode) {
 
   let steps = [];
   if (mode === 'journeys') {
-    steps = journeySteps(current).map(s => ({
-      id: s.node_id,
-      note: s.note || '',
-    }));
+    steps = journeySteps(current).map(s => ({ id: s.node_id, note: s.note || '' }));
   } else {
     steps = (current.steps || []).map(id => ({ id, note: '' }));
   }
@@ -1132,11 +1547,15 @@ function renderStoryRail(mode) {
       </div>`;
     }).join('')}
   </div>`;
-  wireClicks(board, '.rail-card', id => nm[id]);
+  board.querySelectorAll('.rail-card').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); showInspector(nm[el.dataset.id]); });
+  });
 }
 
 function render() {
   inspector.classList.remove('open');
+  syncHash();
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === view)));
   if (view === 'agents') return renderAgents();
   if (view === 'architecture') return renderArchitecture();
   if (view === 'data') return renderData();

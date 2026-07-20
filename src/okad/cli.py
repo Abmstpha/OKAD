@@ -192,6 +192,20 @@ def install_cmd(
         console.print(f"[green]Installed[/green] → {t}")
 
 
+@app.command("update")
+def update_cmd(
+    platform: str = typer.Option("auto", "--platform", help="claude|codex|cursor|agents|auto"),
+) -> None:
+    """Refresh installed /okad skill copies so they match this OKAD version."""
+    from okad.install import install
+
+    targets = install(platform)
+    for t in targets:
+        console.print(f"[green]Refreshed[/green] → {t}")
+    console.print(f"okad {__version__} — skill copies now match the installed package.")
+    console.print("[dim]Tip: `okad render <project>` re-renders story.html with the latest viewer.[/dim]")
+
+
 @app.command("render")
 def render_cmd(
     path: Path = typer.Argument(Path("."), help="Project root containing okad-out/story.json"),
