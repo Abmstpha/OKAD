@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/okad-logo.png" alt="OKAD — عُقَد" width="280" />
+</p>
+
 # OKAD
 
 [![CI](https://github.com/Abmstpha/OKAD/actions/workflows/ci.yml/badge.svg)](https://github.com/Abmstpha/OKAD/actions/workflows/ci.yml)
