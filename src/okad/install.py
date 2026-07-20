@@ -28,8 +28,9 @@ def install(platform: str = "auto") -> list[Path]:
     p = platform.lower()
     if p in ("auto", "claude"):
         targets.append(home / ".claude" / "skills" / "okad" / "SKILL.md")
-        # Claude Code slash command
+        # Claude Code slash commands
         targets.append(home / ".claude" / "commands" / "okad.md")
+        targets.append(home / ".claude" / "commands" / "okad-delete.md")
     if p in ("auto", "codex", "agents"):
         targets.append(home / ".codex" / "skills" / "okad" / "SKILL.md")
         targets.append(home / ".agents" / "skills" / "okad" / "SKILL.md")
@@ -40,11 +41,11 @@ def install(platform: str = "auto") -> list[Path]:
     if p == "auto":
         local = Path.cwd() / ".claude" / "skills" / "okad" / "SKILL.md"
         targets.append(local)
-        local_cmd = Path.cwd() / ".claude" / "commands" / "okad.md"
-        targets.append(local_cmd)
+        targets.append(Path.cwd() / ".claude" / "commands" / "okad.md")
+        targets.append(Path.cwd() / ".claude" / "commands" / "okad-delete.md")
 
     text = src.read_text(encoding="utf-8")
-    # Slash command wrapper for Claude Code
+    # Slash command wrappers for Claude Code
     command_body = (
         "---\n"
         "description: Build a story-driven architecture map (UX / requests / data flows)\n"
@@ -52,11 +53,24 @@ def install(platform: str = "auto") -> list[Path]:
         "Follow the OKAD skill at skills/okad/SKILL.md (or ~/.claude/skills/okad/SKILL.md).\n"
         "User args: $ARGUMENTS\n"
     )
+    delete_body = (
+        "---\n"
+        "description: Delete this project's OKAD story (okad-out/)\n"
+        "---\n\n"
+        "Delete the generated OKAD story for the current project, if it exists.\n\n"
+        "1. Look for an `okad-out/` directory at the project root.\n"
+        "2. If it does not exist, tell the user there is nothing to delete and stop.\n"
+        "3. If it exists, list what it contains (file names / count), ask the user to\n"
+        "   confirm, then remove the directory (`rm -rf okad-out`).\n"
+        "User args: $ARGUMENTS\n"
+    )
 
     for dest in targets:
         dest.parent.mkdir(parents=True, exist_ok=True)
-        if dest.name == "okad.md" and dest.parent.name == "commands":
+        if dest.parent.name == "commands" and dest.name == "okad.md":
             dest.write_text(command_body, encoding="utf-8")
+        elif dest.parent.name == "commands" and dest.name == "okad-delete.md":
+            dest.write_text(delete_body, encoding="utf-8")
         else:
             dest.write_text(text, encoding="utf-8")
         written.append(dest)
@@ -97,11 +111,13 @@ def uninstall() -> list[Path]:
     paths = [
         home / ".claude" / "skills" / "okad",
         home / ".claude" / "commands" / "okad.md",
+        home / ".claude" / "commands" / "okad-delete.md",
         home / ".codex" / "skills" / "okad",
         home / ".agents" / "skills" / "okad",
         home / ".cursor" / "skills" / "okad",
         Path.cwd() / ".claude" / "skills" / "okad",
         Path.cwd() / ".claude" / "commands" / "okad.md",
+        Path.cwd() / ".claude" / "commands" / "okad-delete.md",
     ]
     for p in paths:
         if p.is_file():
