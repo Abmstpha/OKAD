@@ -7,21 +7,14 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   :root {
-    --bg: #0c100e;
-    --bg-elev: #151b18;
-    --bg-card: #1a2220;
+    --bg: #0b0f0d;
+    --bg-elev: #121816;
+    --bg-card: #18201c;
     --ink: #eef4ef;
     --muted: #8b9a90;
-    --line: #2c3832;
+    --line: #2a3530;
     --accent: #3dba8a;
     --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
-    --experience: #6eb8ff;
-    --interface: #3dba8a;
-    --application: #e2b15c;
-    --data: #e87a6b;
-    --infra: #c49bff;
-    --agent: #ff9f6b;
-    --tool: #9ad7ff;
     --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -30,8 +23,8 @@
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font-body); }
   body {
     background:
-      radial-gradient(900px 480px at 8% -8%, #1a2e26 0%, transparent 55%),
-      radial-gradient(700px 420px at 100% 0%, #221a2a 0%, transparent 50%),
+      radial-gradient(900px 480px at 8% -8%, #152820 0%, transparent 55%),
+      radial-gradient(700px 420px at 100% 0%, #1a1524 0%, transparent 50%),
       var(--bg);
     overflow: hidden;
   }
@@ -42,9 +35,8 @@
     align-items: center;
     padding: 0.85rem 1.1rem;
     border-bottom: 1px solid var(--line);
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
     backdrop-filter: blur(8px);
-    z-index: 5;
   }
   .brand-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.55rem 0.85rem; }
   .brand {
@@ -86,7 +78,6 @@
     font-size: 0.82rem;
     cursor: pointer;
     border-radius: 4px;
-    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
   }
   .tab:hover { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
   .tab[aria-selected="true"] {
@@ -115,14 +106,14 @@
   .hint { color: var(--muted); font-size: 0.72rem; margin-left: 0.35rem; }
   main {
     display: grid;
-    grid-template-columns: minmax(200px, 260px) 1fr;
+    grid-template-columns: minmax(220px, 280px) 1fr;
     height: calc(100vh - 118px);
   }
   aside {
     border-right: 1px solid var(--line);
     padding: 0.85rem;
     overflow: auto;
-    background: color-mix(in srgb, var(--bg-elev) 90%, transparent);
+    background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
   }
   aside h2 {
     font-size: 0.68rem;
@@ -138,148 +129,117 @@
     background: transparent;
     border: 1px solid transparent;
     color: var(--ink);
-    padding: 0.5rem 0.55rem;
+    padding: 0.55rem 0.6rem;
     cursor: pointer;
     font: inherit;
     border-radius: 6px;
-    transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
   }
   .item:hover, .item.active {
     border-color: var(--line);
     background: var(--bg-card);
   }
-  .item.active { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); box-shadow: 0 0 0 1px var(--accent-soft); }
+  .item.active {
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+    box-shadow: 0 0 0 1px var(--accent-soft);
+  }
   .item small { display: block; color: var(--muted); margin-top: 0.18rem; font-size: 0.72rem; line-height: 1.35; }
   .stage {
     position: relative;
-    overflow: hidden;
-    background:
-      linear-gradient(transparent 23px, color-mix(in srgb, var(--line) 35%, transparent) 24px),
-      linear-gradient(90deg, transparent 23px, color-mix(in srgb, var(--line) 35%, transparent) 24px);
-    background-size: 24px 24px;
+    overflow: auto;
+    padding: 1rem 1.25rem 2rem;
   }
-  #canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-    cursor: grab;
-    touch-action: none;
-    shape-rendering: geometricPrecision;
+  .stage-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 0.85rem;
   }
-  #canvas.dragging { cursor: grabbing; }
-  .layer-label {
-    fill: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    font-family: var(--font-body);
+  .stage-head h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.35rem;
   }
-  .node-card { cursor: pointer; }
-  .node-card circle.orb {
-    paint-order: stroke fill;
-    transition: stroke-width 160ms ease, stroke 160ms ease;
+  .stage-head p {
+    margin: 0.35rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    max-width: 70ch;
   }
-  .node-card:hover circle.orb { stroke-width: 3.25; }
-  .node-card .halo {
-    pointer-events: none;
-    opacity: 0.18;
-  }
-  .node-card text {
-    pointer-events: none;
-    font-family: var(--font-body);
-  }
-  .node-card .node-title {
-    fill: var(--ink);
-    font-size: 12.5px;
-    font-weight: 560;
-  }
-  .node-card .node-sub {
-    fill: var(--muted);
-    font-size: 10px;
-    font-family: var(--font-mono);
-  }
-  .node-card .node-idx {
-    fill: #0c100e;
-    font-size: 14px;
-    font-weight: 700;
-    font-family: var(--font-body);
-  }
-  .edge {
-    fill: none;
-    stroke-opacity: 0.92;
-    stroke-width: 2.25;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .edge.flow {
-    stroke-dasharray: 1;
-  }
-  .edge.hot { stroke-width: 2.5; stroke-opacity: 1; }
-  .edge.dim { stroke-opacity: 0.12; }
-  .edge-label {
-    fill: #a8b7ad;
-    font-size: 10px;
-    font-family: var(--font-mono);
-    pointer-events: none;
-  }
-  .node-card.dim { opacity: 0.28; }
-  @keyframes fadein {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  .pop {
-    animation: fadein 280ms ease both;
-  }
-  .legend {
-    position: absolute; left: 0.75rem; bottom: 0.75rem;
-    display: flex; gap: 0.65rem; flex-wrap: wrap;
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
+  #diagram {
+    min-height: 55vh;
     border: 1px solid var(--line);
-    padding: 0.45rem 0.65rem;
-    font-size: 0.72rem; color: var(--muted);
-    border-radius: 6px;
-    max-width: calc(100% - 1.5rem);
+    border-radius: 12px;
+    background:
+      linear-gradient(transparent 23px, color-mix(in srgb, var(--line) 28%, transparent) 24px),
+      linear-gradient(90deg, transparent 23px, color-mix(in srgb, var(--line) 28%, transparent) 24px),
+      var(--bg-elev);
+    background-size: 24px 24px, 24px 24px, auto;
+    padding: 1.25rem;
+    overflow: auto;
   }
-  .swatch { width: 0.6rem; height: 0.6rem; display: inline-block; margin-right: 0.28rem; border-radius: 2px; vertical-align: middle; }
+  #diagram .mermaid,
+  #diagram svg {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+  }
+  #diagram .error {
+    color: #e87a6b;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+  }
+  .source-panel {
+    margin-top: 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg-elev);
+    display: none;
+  }
+  .source-panel.open { display: block; }
+  .source-panel header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .source-panel pre {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    overflow: auto;
+    max-height: 28vh;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: #c9d4cc;
+  }
+  .empty { padding: 2rem; color: var(--muted); }
   .inspector {
-    position: absolute; right: 0.75rem; top: 0.75rem; width: min(340px, calc(100% - 1.5rem));
-    background: color-mix(in srgb, var(--bg-elev) 94%, transparent);
+    position: absolute; right: 1rem; top: 1rem; width: min(340px, calc(100% - 2rem));
+    background: color-mix(in srgb, var(--bg-elev) 96%, transparent);
     border: 1px solid var(--line);
     padding: 0.9rem;
     display: none;
     border-radius: 8px;
     backdrop-filter: blur(10px);
-    max-height: calc(100% - 1.5rem);
-    overflow: auto;
+    z-index: 3;
   }
   .inspector.open { display: block; }
-  .inspector h3 { margin: 0 0 0.35rem; font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; }
+  .inspector h3 { margin: 0 0 0.35rem; font-family: var(--font-display); font-weight: 500; }
   .inspector p { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.45; }
   .inspector .meta { margin-top: 0.7rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); white-space: pre-wrap; }
   .inspector .close {
     position: absolute; top: 0.45rem; right: 0.55rem;
     background: transparent; border: 0; color: var(--muted); cursor: pointer; font-size: 1rem;
   }
-  .mermaid-panel {
-    position: absolute; left: 0.75rem; right: 0.75rem; bottom: 0.75rem;
-    max-height: 38%;
-    overflow: auto;
-    background: color-mix(in srgb, var(--bg-elev) 94%, transparent);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.65rem 0.85rem;
-    display: none;
-  }
-  .mermaid-panel.open { display: block; }
-  .mermaid-panel h3 {
-    margin: 0 0 0.4rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .mermaid { background: transparent; }
-  .empty { padding: 2rem; color: var(--muted); }
   @media (max-width: 900px) {
     header { grid-template-columns: 1fr; }
     main { grid-template-columns: 1fr; grid-template-rows: minmax(140px, 28vh) 1fr; height: calc(100vh - 150px); }
@@ -295,7 +255,7 @@
       <h1 class="brand">OKAD <span>__SYSTEM_NAME__</span></h1>
       <div class="chips">
         <span class="chip accent">okad __OKAD_VERSION__</span>
-        <span class="chip" id="chip-story">story v__STORY_VERSION__</span>
+        <span class="chip">story v__STORY_VERSION__</span>
         <span class="chip" id="chip-stats"></span>
       </div>
     </div>
@@ -303,17 +263,15 @@
   </div>
   <div class="tabs" role="tablist">
     <button class="tab" data-view="agents" aria-selected="true">Agents &amp; tools</button>
-    <button class="tab" data-view="architecture" aria-selected="false">Architecture</button>
+    <button class="tab" data-view="architecture">Architecture</button>
     <button class="tab" data-view="journeys">Journeys</button>
     <button class="tab" data-view="requests">Requests</button>
     <button class="tab" data-view="data">Data flow</button>
   </div>
   <div class="toolbar">
-    <button class="toolbtn" id="btn-fit" type="button">Fit</button>
-    <button class="toolbtn" id="btn-zin" type="button">Zoom +</button>
-    <button class="toolbtn" id="btn-zout" type="button">Zoom −</button>
-    <button class="toolbtn" id="btn-mermaid" type="button">Mermaid</button>
-    <span class="hint">scroll to zoom · drag to pan</span>
+    <button class="toolbtn" id="btn-source" type="button">Show Mermaid source</button>
+    <button class="toolbtn" id="btn-copy" type="button">Copy source</button>
+    <span class="hint">diagrams rendered with Mermaid</span>
   </div>
 </header>
 <main>
@@ -322,64 +280,85 @@
     <div class="list" id="side-list"></div>
   </aside>
   <section class="stage">
-    <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
-    <div class="legend" id="legend"></div>
+    <div class="stage-head">
+      <div>
+        <h2 id="focus-title">Loading…</h2>
+        <p id="focus-summary"></p>
+      </div>
+    </div>
+    <div id="diagram"><div class="empty">Rendering…</div></div>
+    <div class="source-panel" id="source-panel">
+      <header>
+        <span>Mermaid source</span>
+      </header>
+      <pre id="source-pre"></pre>
+    </div>
     <div class="inspector" id="inspector">
       <button class="close" id="ins-close" type="button" aria-label="Close">×</button>
       <h3 id="ins-title"></h3>
       <p id="ins-body"></p>
       <div class="meta" id="ins-meta"></div>
     </div>
-    <div class="mermaid-panel" id="mermaid-panel">
-      <h3>Mermaid sequence</h3>
-      <pre class="mermaid" id="mermaid-target"></pre>
-    </div>
   </section>
 </main>
 <script>
 const DATA = __DATA__;
-const OKAD_VERSION = "__OKAD_VERSION__";
-const COLORS = {
-  experience: '#6eb8ff',
-  interface: '#3dba8a',
-  application: '#e2b15c',
-  data: '#e87a6b',
-  infra: '#c49bff',
-  agent: '#ff9f6b',
-  tool: '#9ad7ff',
-};
 const LAYER_ORDER = ['experience','interface','application','data','infra'];
 
 let view = 'agents';
 let focusId = null;
-let showMermaid = false;
-let scale = 1;
-let panX = 0;
-let panY = 0;
-let contentW = 1200;
-let contentH = 800;
-let dragging = false;
-let lastX = 0;
-let lastY = 0;
+let lastMermaid = '';
+let showSource = false;
 
-const svg = document.getElementById('canvas');
 const sideList = document.getElementById('side-list');
 const sideTitle = document.getElementById('side-title');
+const diagram = document.getElementById('diagram');
+const focusTitle = document.getElementById('focus-title');
+const focusSummary = document.getElementById('focus-summary');
+const sourcePanel = document.getElementById('source-panel');
+const sourcePre = document.getElementById('source-pre');
 const inspector = document.getElementById('inspector');
-const legend = document.getElementById('legend');
-const mermaidPanel = document.getElementById('mermaid-panel');
-const mermaidTarget = document.getElementById('mermaid-target');
+
+document.getElementById('chip-stats').textContent =
+  `${(DATA.nodes||[]).filter(n => n.kind !== 'layer').length} nodes · ${(DATA.agents||[]).length} agents · ${(DATA.journeys||[]).length} journeys · ${(DATA.requests||[]).length} requests`;
 
 mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
   securityLevel: 'loose',
-  flowchart: { curve: 'basis' },
-  sequence: { mirrorActors: false },
+  fontFamily: 'IBM Plex Sans, Segoe UI, sans-serif',
+  themeVariables: {
+    darkMode: true,
+    background: '#121816',
+    primaryColor: '#1a2420',
+    primaryTextColor: '#eef4ef',
+    primaryBorderColor: '#3dba8a',
+    lineColor: '#8a9a90',
+    secondaryColor: '#1c221f',
+    tertiaryColor: '#151b18',
+    noteBkgColor: '#18201c',
+    noteTextColor: '#eef4ef',
+    actorBkg: '#1a2420',
+    actorBorder: '#3dba8a',
+    actorTextColor: '#eef4ef',
+    signalColor: '#c9d4cc',
+    signalTextColor: '#eef4ef',
+  },
+  flowchart: {
+    curve: 'basis',
+    htmlLabels: true,
+    nodeSpacing: 42,
+    rankSpacing: 56,
+    padding: 16,
+  },
+  sequence: {
+    mirrorActors: false,
+    bottomMarginAdj: 8,
+    messageMargin: 36,
+    actorMargin: 48,
+    useMaxWidth: true,
+  },
 });
-
-document.getElementById('chip-stats').textContent =
-  `${(DATA.nodes||[]).filter(n=>n.kind!=='layer').length} nodes · ${(DATA.journeys||[]).length} journeys · ${(DATA.requests||[]).length} requests`;
 
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -391,46 +370,23 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 
-document.getElementById('btn-fit').onclick = () => fitView();
-document.getElementById('btn-zin').onclick = () => zoomAt(1.18);
-document.getElementById('btn-zout').onclick = () => zoomAt(1/1.18);
-document.getElementById('btn-mermaid').onclick = () => {
-  showMermaid = !showMermaid;
-  mermaidPanel.classList.toggle('open', showMermaid);
-  if (showMermaid) updateMermaid();
+document.getElementById('btn-source').onclick = () => {
+  showSource = !showSource;
+  sourcePanel.classList.toggle('open', showSource);
+  document.getElementById('btn-source').textContent = showSource ? 'Hide Mermaid source' : 'Show Mermaid source';
+};
+document.getElementById('btn-copy').onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(lastMermaid || '');
+    document.getElementById('btn-copy').textContent = 'Copied';
+    setTimeout(() => { document.getElementById('btn-copy').textContent = 'Copy source'; }, 1200);
+  } catch (_) {}
 };
 document.getElementById('ins-close').onclick = () => inspector.classList.remove('open');
 
-svg.addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
-  zoomAt(factor, e.offsetX, e.offsetY);
-}, { passive: false });
-
-svg.addEventListener('pointerdown', (e) => {
-  if (e.button !== 0) return;
-  dragging = true;
-  lastX = e.clientX;
-  lastY = e.clientY;
-  svg.classList.add('dragging');
-  svg.setPointerCapture(e.pointerId);
-});
-svg.addEventListener('pointermove', (e) => {
-  if (!dragging) return;
-  panX += e.clientX - lastX;
-  panY += e.clientY - lastY;
-  lastX = e.clientX;
-  lastY = e.clientY;
-  applyCamera();
-});
-svg.addEventListener('pointerup', () => {
-  dragging = false;
-  svg.classList.remove('dragging');
-});
-
 function nodeMap() {
   const m = {};
-  (DATA.nodes || []).forEach(n => m[n.id] = n);
+  (DATA.nodes || []).forEach(n => { m[n.id] = n; });
   return m;
 }
 
@@ -449,820 +405,334 @@ function inferAgents() {
       tools: a.tools || [],
     }));
   }
-  const nm = nodeMap();
-  const agents = [];
-  const re = /(agent|langgraph|graph|underwriter|orchestr)/i;
-  (DATA.nodes || []).forEach(n => {
-    if (n.kind === 'layer') return;
-    const blob = `${n.label||''} ${n.summary||''} ${n.kind||''}`;
-    if (!re.test(blob) && !(n.meta && n.meta.agent)) return;
-    const tools = [];
-    (DATA.edges || []).forEach(e => {
-      if (e.source !== n.id) return;
-      if (!['calls','reads','writes','depends_on'].includes(e.kind)) return;
-      const t = nm[e.target];
-      if (!t) return;
-      tools.push({
-        id: t.id,
-        name: e.label || t.label,
-        summary: t.summary || '',
-        source: t.source || null,
-      });
-    });
-    const seen = new Set();
-    const uniq = [];
-    tools.forEach(t => { if (!seen.has(t.id)) { seen.add(t.id); uniq.push(t); } });
-    agents.push({
-      id: n.id,
-      name: n.label,
-      summary: n.summary || '',
-      role: n.kind,
-      level: 'orchestrator',
-      parent_id: null,
-      node_id: n.id,
-      flow: [],
-      relations: [],
-      tools: uniq,
-    });
-  });
-  return agents;
+  return [];
 }
 
-function agentMap(agents) {
-  const m = {};
-  agents.forEach(a => m[a.id] = a);
-  return m;
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function wrapText(parent, text, x, y, maxWidth, lineHeight, fill, size, anchor='middle') {
-  const words = String(text || '').split(/\s+/).filter(Boolean);
-  let line = '';
-  let dy = 0;
-  const lines = [];
-  words.forEach(w => {
-    const test = line ? line + ' ' + w : w;
-    if (test.length * (size * 0.55) > maxWidth && line) {
-      lines.push(line);
-      line = w;
-    } else line = test;
-  });
-  if (line) lines.push(line);
-  lines.slice(0, 4).forEach((ln, i) => {
-    const t = el('text', {
-      x, y: y + i * lineHeight, fill, 'font-size': size, 'text-anchor': anchor,
-      'font-family': 'IBM Plex Sans, Segoe UI, sans-serif'
-    });
-    t.textContent = ln;
-    parent.appendChild(t);
-  });
-  return lines.length;
+function escM(s) {
+  return String(s || '')
+    .replace(/[\[\]#;{}()<>|"]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 48);
 }
 
-function ensureMarkers(parent) {
-  if (parent.querySelector('defs#okad-markers')) return;
-  const defs = el('defs', { id: 'okad-markers' });
-  const mk = (id, fill) => {
-    const marker = el('marker', {
-      id, viewBox: '0 0 12 12', refX: '10', refY: '6',
-      markerWidth: '10', markerHeight: '10', orient: 'auto',
-      markerUnits: 'userSpaceOnUse'
-    });
-    marker.appendChild(el('path', {
-      d: 'M 1 1 L 10 6 L 1 11 z', fill, stroke: fill, 'stroke-linejoin': 'round'
-    }));
-    defs.appendChild(marker);
-  };
-  mk('arrow', '#ff9f6b');
-  mk('arrow-tool', '#9ad7ff');
-  mk('arrow-arch', '#3dba8a');
-  mk('arrow-flow', '#e2b15c');
-  parent.insertBefore(defs, parent.firstChild);
+function sid(prefix, i) {
+  return `${prefix}${i}`;
 }
 
-function shortLabel(s, n) {
-  const t = String(s || '').replace(/\s+/g, ' ').trim();
-  return t.length <= n ? t : t.slice(0, n - 1) + '…';
+function classBlock() {
+  return [
+    '  classDef system fill:#241a2a,stroke:#c49bff,color:#fff,stroke-width:2px',
+    '  classDef orch fill:#2a1f18,stroke:#ff9f6b,color:#fff,stroke-width:2px',
+    '  classDef sub fill:#2a2418,stroke:#e2b15c,color:#fff,stroke-width:1.8px',
+    '  classDef tool fill:#152028,stroke:#9ad7ff,color:#fff,stroke-width:1.5px',
+    '  classDef screen fill:#15202a,stroke:#6eb8ff,color:#fff',
+    '  classDef route fill:#15241c,stroke:#3dba8a,color:#fff',
+    '  classDef service fill:#242014,stroke:#e2b15c,color:#fff',
+    '  classDef store fill:#241816,stroke:#e87a6b,color:#fff',
+    '  classDef infra fill:#1e1828,stroke:#c49bff,color:#fff',
+  ].join('\n');
 }
 
-function drawCircleNode(parent, p, opts={}) {
-  const label = opts.label || '';
-  const sub = opts.sub || '';
-  const color = opts.color || COLORS.agent;
-  const r = opts.r || 54;
-  const g = el('g', {
-    class: 'node-card pop',
-    transform: `translate(${p.x},${p.y})`,
-    style: `animation-delay:${opts.delay||0}ms`
-  });
-  // soft halo (no dash spam)
-  g.appendChild(el('circle', {
-    class: 'halo', cx: 0, cy: 0, r: r + 8,
-    fill: color, opacity: 0.12
-  }));
-  g.appendChild(el('circle', {
-    class: 'orb', cx: 0, cy: 0, r,
-    fill: opts.fill || '#151c19',
-    stroke: color,
-    'stroke-width': opts.strokeWidth || 2.75
-  }));
-
-  // Inside: step index OR short monogram — never dump long titles into the orb
-  if (opts.index != null) {
-    const idx = el('text', {
-      class: 'node-idx', x: 0, y: 5, 'text-anchor': 'middle',
-      fill: color, 'font-size': Math.max(13, Math.min(18, r * 0.38))
-    });
-    idx.textContent = String(opts.index);
-    g.appendChild(idx);
-  } else {
-    const mono = el('text', {
-      x: 0, y: 5, 'text-anchor': 'middle', fill: color,
-      'font-size': Math.max(11, Math.min(15, r * 0.28)),
-      'font-family': 'IBM Plex Mono, ui-monospace, monospace', 'font-weight': '600'
-    });
-    mono.textContent = (opts.monogram || (label || '?').slice(0, 2)).toUpperCase();
-    g.appendChild(mono);
-  }
-
-  // Labels live UNDER the circle — readable, no truncation garbage inside
-  const titleY = r + 18;
-  const title = el('text', {
-    class: 'node-title', x: 0, y: titleY, 'text-anchor': 'middle',
-    'font-size': opts.titleSize || 12.5
-  });
-  // wrap to ~18 chars / 2 lines
-  const words = String(label).split(/\s+/);
-  let line1 = '', line2 = '';
-  words.forEach(w => {
-    const t = line1 ? line1 + ' ' + w : w;
-    if (t.length <= 18 || !line1) line1 = t;
-    else if (!line2 || (line2 + ' ' + w).length <= 18) line2 = line2 ? line2 + ' ' + w : w;
-  });
-  if (line2) {
-    title.setAttribute('y', titleY - 6);
-    title.textContent = line1;
-    const t2 = el('text', {
-      class: 'node-title', x: 0, y: titleY + 10, 'text-anchor': 'middle',
-      'font-size': opts.titleSize || 12.5
-    });
-    t2.textContent = line2;
-    g.appendChild(title); g.appendChild(t2);
-  } else {
-    title.textContent = line1;
-    g.appendChild(title);
-  }
-  if (sub) {
-    const s = el('text', {
-      class: 'node-sub', x: 0, y: titleY + (line2 ? 24 : 14), 'text-anchor': 'middle'
-    });
-    s.textContent = sub;
-    g.appendChild(s);
-  }
-
-  if (opts.onClick) g.addEventListener('click', (ev) => { ev.stopPropagation(); opts.onClick(); });
-  parent.appendChild(g);
-  p.r = r;
-  return r;
+function kindClass(kind, layer) {
+  if (kind === 'screen' || kind === 'action') return 'screen';
+  if (kind === 'route' || kind === 'handler') return 'route';
+  if (kind === 'store' || kind === 'entity') return 'store';
+  if (kind === 'external' || layer === 'infra') return 'infra';
+  if (kind === 'service' || kind === 'agent') return 'service';
+  return 'service';
 }
 
-function drawBigAgent(parent, p, opts={}) {
-  const a = p.agent;
-  const color = opts.color || (a.level === 'subagent' ? '#e2b15c' : (a.level === 'system' ? '#c49bff' : COLORS.agent));
-  const r = opts.r || (a.level === 'system' ? 78 : a.level === 'subagent' ? 58 : 70);
-  const toolN = (a.tools || []).length;
-  const childN = (a.flow || []).length;
-  const meta = [
-    toolN ? `${toolN} tools` : null,
-    childN ? `${childN} steps` : null,
-  ].filter(Boolean).join(' · ') || (a.level || 'agent');
-  const words = String(a.name || '').trim().split(/\s+/);
-  const mono = (words[0] || 'A').slice(0, 1) + (words[1] ? words[1].slice(0, 1) : (words[0] || 'G').slice(1, 2));
-  drawCircleNode(parent, p, {
-    label: a.name,
-    sub: meta,
-    color,
-    r,
-    delay: opts.delay || 0,
-    titleSize: a.level === 'subagent' ? 12 : 13,
-    monogram: mono,
-    strokeWidth: 3,
-    onClick: () => {
-      focusId = a.id;
-      showInspector({
-        id: a.id, label: a.name, kind: a.level || 'agent', layer: 'application',
-        summary: [a.role, a.summary].filter(Boolean).join(' — '),
-        source: a.node_id || null,
-      });
-      render();
-    },
-  });
+function setFocusMeta(title, summary) {
+  focusTitle.textContent = title || 'Map';
+  focusSummary.textContent = summary || '';
 }
 
-function drawToolPill(parent, p, tool, delay=0) {
-  const name = tool.name || tool.id || 'tool';
-  drawCircleNode(parent, p, {
-    label: name,
-    sub: 'tool',
-    color: COLORS.tool,
-    r: 34,
-    delay,
-    titleSize: 11,
-    fill: '#121820',
-    monogram: String(name).replace(/^tool:/i,'').slice(0, 2),
-    strokeWidth: 2.5,
-    onClick: () => {
-      showInspector({
-        id: tool.id, label: tool.name, kind: 'tool', layer: 'infra',
-        summary: tool.summary || '', source: tool.source || null,
-      });
-    },
-  });
-}
-
-function renderAgents() {
-  sideTitle.textContent = 'Agent fleet';
-  const agents = inferAgents();
-  const world = worldGroup();
-  if (!agents.length) {
-    sideList.innerHTML = `<div class="empty">No agents authored. Re-run /okad and fill the <code>agents</code> list (orchestrators, subagents, tools, relations).</div>`;
-    const t = el('text', { x: 40, y: 80, fill: '#8a9a90', 'font-size': 16 });
-    t.textContent = 'No agentic map yet.';
-    world.appendChild(t);
-    contentW = 700; contentH = 320;
-    return;
-  }
-
-  const am = agentMap(agents);
-  const roots = agents.filter(a => a.level === 'system' || a.level === 'orchestrator');
-  const fallbackRoots = roots.length ? roots : agents.filter(a => !a.parent_id);
-
-  // Sidebar: fleet overview + each orchestrator / system agent
-  const sideItems = [
-    { id: '__fleet__', name: 'Fleet overview', summary: `${agents.length} agents · hierarchy + tools + relations` },
-    ...fallbackRoots.map(a => ({
-      id: a.id,
-      name: a.name,
-      summary: a.role || a.summary || `${(a.flow||[]).length} steps · ${(a.tools||[]).length} tools`,
-    })),
-  ];
-  if (!focusId || (focusId !== '__fleet__' && !am[focusId])) focusId = '__fleet__';
-  sideList.innerHTML = sideItems.map(it =>
-    `<button class="item ${it.id===focusId?'active':''}" data-id="${esc(it.id)}"><strong>${esc(it.name)}</strong><small>${esc(it.summary)}</small></button>`
-  ).join('');
-  bindSide();
-
-  if (focusId === '__fleet__') {
-    renderAgentFleet(world, agents, fallbackRoots);
-  } else {
-    const current = am[focusId] || fallbackRoots[0];
-    renderAgentDetail(world, agents, current);
-  }
-}
-
-function renderAgentFleet(world, agents, roots) {
-  const title = el('text', { x: 36, y: 42, fill: '#eef4ef', 'font-size': 22, 'font-family': 'Georgia, serif' });
-  title.textContent = 'Agentic architecture';
-  world.appendChild(title);
-  const sub = el('text', { x: 36, y: 66, fill: '#8b9a90', 'font-size': 12 });
-  sub.textContent = 'Hierarchy · relations · click an orchestrator to open subagents + tools';
-  world.appendChild(sub);
-
-  const systems = roots.filter(a => a.level === 'system');
-  const orchs = roots.filter(a => a.level !== 'system');
-  const gapX = 220;
-  const positions = {};
-
-  // Row 0 — system orchestrators
-  systems.forEach((a, i) => {
-    const total = Math.max(systems.length, 1);
-    const x = 200 + i * gapX + (orchs.length > systems.length ? (orchs.length - systems.length) * gapX / 2 : 0);
-    positions[a.id] = { x, y: 190, agent: a, r: 78 };
-  });
-  // Row 1 — domain orchestrators
-  orchs.forEach((a, i) => {
-    positions[a.id] = { x: 160 + i * gapX, y: systems.length ? 400 : 220, agent: a, r: 70 };
-  });
-
-  contentW = Math.max(1100, 160 + Math.max(orchs.length, systems.length, 1) * gapX + 120);
-  contentH = systems.length ? 700 : 560;
-
-  // parent_id hierarchy edges + explicit relations
-  roots.forEach(a => {
-    if (a.parent_id && positions[a.parent_id] && positions[a.id]) {
-      drawLabeledEdge(world, positions[a.parent_id], positions[a.id], 'owns');
-    }
-    (a.relations || []).forEach(r => {
-      if (!positions[a.id] || !positions[r.target]) return;
-      drawLabeledEdge(world, positions[a.id], positions[r.target], r.label || r.kind || 'relates');
-    });
-  });
-
-  Object.values(positions).forEach((p, i) => {
-    const color = p.agent.level === 'system' ? '#c49bff' : COLORS.agent;
-    drawBigAgent(world, p, { delay: i * 50, r: p.r || 70, color });
-  });
-
-  // Under each orchestrator, preview subagent names
-  const previewY = (systems.length ? 420 : 230) + 130;
-  orchs.forEach((a) => {
-    const kids = agents.filter(c => c.parent_id === a.id || (a.flow || []).includes(c.id));
-    const names = kids.length
-      ? kids.map(c => c.name.replace(/ Agent$/, '')).slice(0, 5)
-      : (a.flow || []).slice(0, 5);
-    if (!names.length) return;
-    const t = el('text', {
-      x: positions[a.id].x, y: previewY + 20, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 10
-    });
-    t.textContent = names.join(' → ');
-    world.appendChild(t);
-  });
-}
-
-function renderAgentDetail(world, agents, current) {
-  const title = el('text', { x: 36, y: 40, fill: '#eef4ef', 'font-size': 22, 'font-family': 'Georgia, serif' });
-  title.textContent = current.name;
-  world.appendChild(title);
-  const sub = el('text', { x: 36, y: 62, fill: '#8b9a90', 'font-size': 12 });
-  sub.textContent = [current.role, current.summary].filter(Boolean).join(' — ').slice(0, 140);
-  world.appendChild(sub);
-
-  // Orchestrator hub on the left
-  const hub = { x: 150, y: 280, agent: current, r: 72 };
-  drawBigAgent(world, hub, { r: 72, delay: 0 });
-
-  // Children: from flow ids or parent_id
-  let children = agents.filter(a => a.parent_id === current.id);
-  if (!children.length && (current.flow || []).length) {
-    const am = agentMap(agents);
-    children = current.flow.map(id => am[id] || {
-      id: `step:${id}`,
-      name: String(id).replace(/_/g, ' '),
-      role: 'graph step',
-      level: 'subagent',
-      summary: `Pipeline step in ${current.name}`,
-      tools: [],
-      flow: [],
-      relations: [],
-    });
-  }
-
-  const gap = 250;
-  const startX = 460;
-  const rowY = 200;
-  contentW = Math.max(1100, startX + Math.max(children.length, 1) * gap + 80);
-  contentH = Math.max(720, 420 + Math.max(...children.map(c => (c.tools || []).length), 1) * 56);
-
-  const childPos = {};
-  if (!children.length) {
-    // leaf agent — fan tools to the right of hub
-    const tools = current.tools || [];
-    tools.forEach((t, i) => {
-      const tx = 480 + (i % 3) * 180;
-      const ty = 160 + Math.floor(i / 3) * 90;
-      drawLabeledEdge(world, hub, { x: tx, y: ty, r: 36 }, 'uses', { marker: 'url(#arrow-tool)', color: COLORS.tool, rb: 36 });
-      drawToolPill(world, { x: tx, y: ty }, t, 80 + i * 25);
-    });
-    contentW = Math.max(contentW, 480 + 3 * 180);
-    return;
-  }
-
-  children.forEach((c, i) => {
-    const x = startX + i * gap;
-    const y = rowY + (i % 2 === 0 ? 0 : 40);
-    childPos[c.id] = { x, y, agent: c };
-    drawLabeledEdge(world, hub, childPos[c.id], i === 0 ? 'runs' : 'then');
-  });
-  // sequence edges between children
-  for (let i = 0; i < children.length - 1; i++) {
-    drawLabeledEdge(world, childPos[children[i].id], childPos[children[i+1].id], '→');
-  }
-  children.forEach((c, i) => drawBigAgent(world, childPos[c.id], { w: 220, h: 140, delay: 40 + i * 50, color: '#e2b15c' }));
-
-  // Tools under each subagent
-  children.forEach((c, i) => {
-    const tools = c.tools || [];
-    tools.forEach((t, j) => {
-      const tx = childPos[c.id].x;
-      const ty = childPos[c.id].y + 120 + j * 58;
-      drawLabeledEdge(world, childPos[c.id], { x: tx, y: ty, r: 36 }, 'tool', { marker: 'url(#arrow-tool)', color: COLORS.tool, rb: 36 });
-      drawToolPill(world, { x: tx, y: ty }, t, 100 + i * 20 + j * 15);
-    });
-  });
-
-  // Outbound relations to other orchestrators
-  (current.relations || []).forEach((r, i) => {
-    const target = agents.find(a => a.id === r.target);
-    if (!target) return;
-    const tx = startX + children.length * gap + 40;
-    const ty = 120 + i * 170;
-    const tp = { x: tx, y: ty, agent: target };
-    drawLabeledEdge(world, hub, tp, r.label || r.kind || 'relates');
-    tp.r = 64; drawBigAgent(world, tp, { r: 64, delay: 200, color: '#c49bff' });
-    contentW = Math.max(contentW, tx + 160);
-  });
-}
-
-function drawLabeledEdge(parent, a, b, label, opts={}) {
-  ensureMarkers(parent);
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const dist = Math.max(Math.hypot(dx, dy), 1);
-  const ra = (a.r || opts.ra || 48) + 1;
-  const rb = (b.r || opts.rb || 48) + 1 + 6; // leave room for arrowhead
-  const ux = dx / dist;
-  const uy = dy / dist;
-  const x1 = a.x + ux * ra;
-  const y1 = a.y + uy * ra;
-  const x2 = b.x - ux * rb;
-  const y2 = b.y - uy * rb;
-  const mx = (x1 + x2) / 2;
-  const my = (y1 + y2) / 2;
-  // gentle bend only when not nearly horizontal
-  const bend = Math.abs(uy) < 0.15 ? 0 : Math.min(48, dist * 0.12);
-  const nx = -uy * bend;
-  const ny = ux * bend;
-  const cx = mx + nx;
-  const cy = my + ny;
-  const color = opts.color || COLORS.agent;
-  const path = el('path', {
-    class: `edge flow ${opts.hot === false ? '' : 'hot'}`.trim(),
-    d: bend ? `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`,
-    stroke: color,
-    'marker-end': opts.marker || 'url(#arrow)',
-  });
-  parent.appendChild(path);
-  if (label) {
-    const t = el('text', {
-      class: 'edge-label',
-      x: bend ? cx : mx,
-      y: (bend ? cy : my) - 10,
-      'text-anchor': 'middle'
-    });
-    t.textContent = String(label).slice(0, 28);
-    parent.appendChild(t);
-  }
-}
-
-function worldGroup() {
-  let g = svg.querySelector('#world');
-  if (!g) {
-    g = el('g', { id: 'world' });
-    svg.appendChild(g);
-  }
-  return g;
-}
-
-function applyCamera() {
-  const g = worldGroup();
-  g.setAttribute('transform', `translate(${panX},${panY}) scale(${scale})`);
-}
-
-function fitView() {
-  const vbW = svg.clientWidth || 900;
-  const vbH = svg.clientHeight || 600;
-  const pad = 36;
-  const sx = (vbW - pad * 2) / Math.max(contentW, 1);
-  const sy = (vbH - pad * 2) / Math.max(contentH, 1);
-  scale = Math.min(sx, sy, 1.35);
-  panX = (vbW - contentW * scale) / 2;
-  panY = (vbH - contentH * scale) / 2;
-  applyCamera();
-}
-
-function zoomAt(factor, cx, cy) {
-  const vbW = svg.clientWidth || 900;
-  const vbH = svg.clientHeight || 600;
-  const x = cx == null ? vbW / 2 : cx;
-  const y = cy == null ? vbH / 2 : cy;
-  const wx = (x - panX) / scale;
-  const wy = (y - panY) / scale;
-  scale = Math.min(3.5, Math.max(0.25, scale * factor));
-  panX = x - wx * scale;
-  panY = y - wy * scale;
-  applyCamera();
-}
-
-function render() {
-  const vbW = svg.clientWidth || window.innerWidth - 260;
-  const vbH = svg.clientHeight || window.innerHeight - 120;
-  svg.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
-  svg.innerHTML = '';
-  legend.innerHTML = LAYER_ORDER.map(l =>
-    `<span><i class="swatch" style="background:${COLORS[l]}"></i>${l}</span>`
-  ).join('') + `<span><i class="swatch" style="background:${COLORS.agent}"></i>agent</span><span><i class="swatch" style="background:${COLORS.tool}"></i>tool</span>`;
-
-  if (view === 'architecture') renderArchitecture();
-  else if (view === 'agents') renderAgents();
-  else if (view === 'journeys') renderPathView('journeys');
-  else if (view === 'requests') renderPathView('requests');
-  else renderPathView('data');
-
-  fitView();
-  if (showMermaid) updateMermaid();
-}
-
-function renderArchitecture() {
-  sideTitle.textContent = 'Layers & hubs';
-  const nodes = (DATA.nodes || []).filter(n => n.kind !== 'layer');
-  const byLayer = {};
-  LAYER_ORDER.forEach(l => byLayer[l] = []);
-  nodes.forEach(n => {
-    const layer = byLayer[n.layer] ? n.layer : 'application';
-    byLayer[layer].push(n);
-  });
-
-  sideList.innerHTML = LAYER_ORDER.map(l => {
-    const count = byLayer[l].length;
-    return `<button class="item" data-id="layer:${l}"><strong>${l}</strong><small>${count} nodes · ${(DATA.layers||[]).find(x=>x.id===l)?.blurb||''}</small></button>`;
-  }).join('');
-  bindSide();
-
-  const world = worldGroup();
-  const padX = 28, padY = 56;
-  const colW = 200;
-  const cardH = 120;
-  const gap = 36;
-  const maxCount = Math.max(1, ...LAYER_ORDER.map(l => byLayer[l].length));
-  contentW = padX * 2 + LAYER_ORDER.length * colW;
-  contentH = padY + maxCount * (cardH + gap) + 40;
-
-  LAYER_ORDER.forEach((l, i) => {
-    const x = padX + i * colW;
-    const band = el('g');
-    const rect = el('rect', {
-      x, y: 20, width: colW - 18, height: contentH - 40,
-      fill: 'transparent', stroke: '#2a3530', 'stroke-dasharray': '3 6', opacity: 0.75, rx: 8
-    });
-    const label = el('text', { x: x + 10, y: 42, class: 'layer-label' });
-    label.textContent = l;
-    band.appendChild(rect); band.appendChild(label); world.appendChild(band);
-  });
-
-  const positions = {};
-  LAYER_ORDER.forEach((l, i) => {
-    const items = byLayer[l];
-    const x = padX + i * colW + (colW - 18) / 2;
-    items.forEach((n, idx) => {
-      positions[n.id] = { x, y: padY + 20 + idx * (cardH + gap), n };
-    });
-  });
-
-  Object.values(positions).forEach((p, i) => drawNode(world, p, false, i * 18));
-  const edges = (DATA.edges || []).filter(e =>
-    positions[e.source] && positions[e.target] && e.kind !== 'contains'
-  );
-  edges.forEach(e => drawEdge(world, positions[e.source], positions[e.target], e));
-}
-
-function renderPathView(mode) {
-  const nm = nodeMap();
-  let items = [];
-  if (mode === 'journeys') {
-    sideTitle.textContent = 'User journeys';
-    items = DATA.journeys || [];
-  } else if (mode === 'requests') {
-    sideTitle.textContent = 'Request paths';
-    items = DATA.requests || [];
-  } else {
-    sideTitle.textContent = 'Data flows';
-    items = DATA.data_flows || [];
-  }
-
-  const world = worldGroup();
-  if (!items.length) {
-    sideList.innerHTML = `<div class="empty">No ${mode} yet.</div>`;
-    const t = el('text', { x: 40, y: 80, fill: '#8a9a90', 'font-size': 16 });
-    t.textContent = `No ${mode} in this map.`;
-    world.appendChild(t);
-    contentW = 700; contentH = 320;
-    return;
-  }
-
-  if (!focusId) focusId = items[0].id;
-  sideList.innerHTML = items.map(it => {
-    const sub = it.summary || it.route || it.shape || '';
-    return `<button class="item ${it.id===focusId?'active':''}" data-id="${esc(it.id)}"><strong>${esc(it.name)}</strong><small>${esc(sub)}</small></button>`;
-  }).join('');
-  bindSide();
-
-  const current = items.find(i => i.id === focusId) || items[0];
-  let stepIds = [];
-  if (mode === 'journeys') stepIds = (current.steps || []).map(s => s.node_id || s);
-  else if (mode === 'requests') stepIds = current.steps || [];
-  else stepIds = [current.origin, ...(current.through||[]), current.destination].filter(Boolean);
-
-  const unique = [];
-  stepIds.forEach(id => { if (id && !unique.includes(id)) unique.push(id); });
-
-  const padX = 110, rowY = 210;
-  const gap = 210;
-  contentW = Math.max(960, padX * 2 + Math.max(unique.length - 1, 0) * gap + 140);
-  contentH = 520;
-
-  const title = el('text', { x: 40, y: 44, fill: '#eef4ef', 'font-size': 22, 'font-family': 'Georgia, serif' });
-  title.textContent = current.name;
-  world.appendChild(title);
-  const s = el('text', { x: 40, y: 68, fill: '#8a9a90', 'font-size': 12.5 });
-  s.textContent = current.summary || `${current.method || ''} ${current.route || ''}`.trim();
-  world.appendChild(s);
-
-  if (!unique.length) return;
-
-  const positions = {};
-  unique.forEach((id, i) => {
-    const n = nm[id] || { id, label: id, layer: 'application', kind: 'service', summary: '' };
-    // single baseline — no zigzag that breaks edge quality
-    positions[id] = { x: padX + i * gap, y: rowY, n, r: 46 };
-  });
-  // draw edges under nodes
-  for (let i = 0; i < unique.length - 1; i++) {
-    const a = positions[unique[i]];
-    const b = positions[unique[i + 1]];
-    drawLabeledEdge(world, a, b, '', {
-      hot: true,
-      color: COLORS[(a.n && a.n.layer) || 'application'] || COLORS.application,
-      marker: 'url(#arrow-flow)',
-      ra: 46,
-      rb: 46,
-    });
-  }
-  unique.forEach((id, i) => {
-    const p = positions[id];
-    const n = p.n;
-    const color = COLORS[n.layer] || COLORS.application;
-    drawCircleNode(world, p, {
-      label: n.label || n.id,
-      sub: n.kind || '',
-      color,
-      r: 46,
-      index: i + 1,
-      delay: i * 35,
-      titleSize: 12.5,
-      onClick: () => showInspector(n),
-    });
-  });
-}
-
-function drawNode(parent, p, hot=false, delay=0, strokeOverride=null) {
-  const n = p.n;
-  const color = strokeOverride || COLORS[n.layer] || COLORS.application;
-  const words = String(n.label || n.id || '').trim().split(/\s+/);
-  const mono = (words[0] || '?').slice(0, 1) + (words[1] ? words[1].slice(0, 1) : (words[0] || '').slice(1, 2));
-  drawCircleNode(parent, p, {
-    label: n.label || n.id,
-    sub: n.kind || '',
-    color,
-    r: hot ? 46 : 40,
-    delay,
-    titleSize: 12,
-    monogram: mono,
-    onClick: () => showInspector(n),
-  });
-}
-
-function drawEdge(parent, a, b, e, hot=false) {
-  drawLabeledEdge(parent, a, b, e && e.label ? e.label : '', {
-    hot,
-    color: COLORS[(a.n && a.n.layer) || 'application'] || COLORS.application,
-    marker: 'url(#arrow-arch)',
-    ra: a.r || 40,
-    rb: b.r || 40,
-  });
-}
-
-function bindSide() {
+function bindSide(items, onPick) {
+  sideList.innerHTML = items.map(it =>
+    `<button class="item ${it.id === focusId ? 'active' : ''}" data-id="${esc(it.id)}"><strong>${esc(it.name)}</strong><small>${esc(it.summary || '')}</small></button>`
+  ).join('') || `<div class="empty">Nothing here yet.</div>`;
   sideList.querySelectorAll('.item').forEach(btn => {
     btn.addEventListener('click', () => {
       focusId = btn.dataset.id;
-      if (view === 'architecture' && focusId.startsWith('layer:')) {
-        const layer = focusId.split(':')[1];
-        const first = (DATA.nodes||[]).find(n => n.layer === layer && n.kind !== 'layer');
-        if (first) showInspector(first);
-        sideList.querySelectorAll('.item').forEach(b => b.classList.toggle('active', b.dataset.id === focusId));
-        return;
-      }
-      render();
+      const hit = items.find(i => i.id === focusId);
+      if (hit && hit._raw) showInspector(hit._raw);
+      onPick();
     });
   });
 }
 
 function showInspector(n) {
+  if (!n) return;
   inspector.classList.add('open');
-  document.getElementById('ins-title').textContent = n.label || n.id;
-  document.getElementById('ins-body').textContent = n.summary || 'No summary.';
+  document.getElementById('ins-title').textContent = n.label || n.name || n.id;
+  document.getElementById('ins-body').textContent = n.summary || n.role || 'No summary.';
   document.getElementById('ins-meta').textContent = [
     n.kind && `kind: ${n.kind}`,
+    n.level && `level: ${n.level}`,
     n.layer && `layer: ${n.layer}`,
+    n.role && `role: ${n.role}`,
     n.source && `source: ${n.source}`,
     n.id && `id: ${n.id}`,
   ].filter(Boolean).join('\n');
 }
 
-function mermaidForCurrent() {
-  const nm = nodeMap();
-  if (view === 'agents') {
-    const agents = inferAgents();
-    if (focusId === '__fleet__' || !focusId) {
-      const roots = agents.filter(a => a.level === 'system' || a.level === 'orchestrator');
-      const lines = ['flowchart TB'];
-      roots.forEach((a, i) => {
-        lines.push(`  A${i}["${escM(a.name)}"]`);
+function mermaidAgents() {
+  const agents = inferAgents();
+  const roots = agents.filter(a => a.level === 'system' || a.level === 'orchestrator');
+  sideTitle.textContent = 'Agent fleet';
+
+  const side = [
+    { id: '__fleet__', name: 'Fleet overview', summary: `${agents.length} agents · hierarchy + tools + relations` },
+    ...roots.map(a => ({
+      id: a.id,
+      name: a.name,
+      summary: a.role || a.summary || `${(a.flow || []).length} steps · ${(a.tools || []).length} tools`,
+      _raw: a,
+    })),
+  ];
+  if (!focusId) focusId = '__fleet__';
+  bindSide(side, () => render());
+
+  if (focusId === '__fleet__') {
+    setFocusMeta('Agentic architecture', 'Orchestrators, relations, and ownership — Mermaid flowchart.');
+    const lines = ['flowchart TB'];
+    const idx = {};
+    roots.forEach((a, i) => {
+      const id = sid('A', i);
+      idx[a.id] = id;
+      const cls = a.level === 'system' ? 'system' : 'orch';
+      const label = a.role ? `${escM(a.name)}\\n${escM(a.role)}` : escM(a.name);
+      lines.push(`  ${id}(["${label}"]):::${cls}`);
+    });
+    roots.forEach(a => {
+      if (a.parent_id && idx[a.parent_id] && idx[a.id]) {
+        lines.push(`  ${idx[a.parent_id]} -->|owns| ${idx[a.id]}`);
+      }
+      (a.relations || []).forEach(r => {
+        if (!idx[a.id] || !idx[r.target]) return;
+        lines.push(`  ${idx[a.id]} -->|${escM(r.label || r.kind || 'relates')}| ${idx[r.target]}`);
       });
-      roots.forEach((a, i) => {
-        (a.relations || []).forEach(r => {
-          const j = roots.findIndex(x => x.id === r.target);
-          if (j >= 0) lines.push(`  A${i} -->|${escM(r.label || r.kind)}| A${j}`);
-        });
-        if (a.parent_id) {
-          const j = roots.findIndex(x => x.id === a.parent_id);
-          if (j >= 0) lines.push(`  A${j} --> A${i}`);
-        }
+    });
+    // preview first tools under each orch as compact nodes
+    roots.forEach((a, i) => {
+      const kids = agents.filter(c => c.parent_id === a.id || (a.flow || []).includes(c.id)).slice(0, 5);
+      kids.forEach((c, j) => {
+        const kid = sid(`S${i}_`, j);
+        lines.push(`  ${kid}["${escM(c.name)}"]:::sub`);
+        lines.push(`  ${idx[a.id]} --> ${kid}`);
       });
-      return lines.join('\n') || 'flowchart TB\n  A[No agents]';
-    }
-    const current = agents.find(a => a.id === focusId) || agents[0];
-    if (!current) return 'flowchart LR\n  A[No agents]';
-    const kids = agents.filter(a => a.parent_id === current.id || (current.flow||[]).includes(a.id));
-    const lines = ['flowchart LR', `  ORCH["${escM(current.name)}"]:::agent`];
+    });
+    lines.push(classBlock());
+    return lines.join('\n');
+  }
+
+  const current = agents.find(a => a.id === focusId) || roots[0];
+  setFocusMeta(current.name, [current.role, current.summary].filter(Boolean).join(' — '));
+  const kids = agents.filter(a => a.parent_id === current.id || (current.flow || []).includes(a.id));
+  const lines = ['flowchart LR'];
+  const cls = current.level === 'system' ? 'system' : 'orch';
+  lines.push(`  ORCH(["${escM(current.name)}\\n${escM(current.role || current.level)}"]):::${cls}`);
+
+  if (!kids.length && (current.tools || []).length) {
+    (current.tools || []).forEach((t, i) => {
+      lines.push(`  T${i}["${escM(t.name)}"]:::tool`);
+      lines.push(`  ORCH -->|uses| T${i}`);
+    });
+  } else {
     kids.forEach((c, i) => {
-      lines.push(`  S${i}["${escM(c.name)}"]:::sub`);
-      lines.push(`  ORCH --> S${i}`);
+      lines.push(`  S${i}(["${escM(c.name)}"]):::sub`);
+      lines.push(`  ORCH -->|${i === 0 ? 'runs' : 'then'}| S${i}`);
+      if (i > 0) lines.push(`  S${i - 1} --> S${i}`);
       (c.tools || []).forEach((t, ti) => {
         lines.push(`  T${i}_${ti}["${escM(t.name)}"]:::tool`);
-        lines.push(`  S${i} --> T${i}_${ti}`);
+        lines.push(`  S${i} -->|tool| T${i}_${ti}`);
       });
     });
     (current.tools || []).forEach((t, i) => {
       lines.push(`  OT${i}["${escM(t.name)}"]:::tool`);
-      lines.push(`  ORCH --> OT${i}`);
+      lines.push(`  ORCH -->|uses| OT${i}`);
     });
-    lines.push('  classDef agent fill:#2a1f18,stroke:#ff9f6b,color:#fff');
-    lines.push('  classDef sub fill:#2a2418,stroke:#e2b15c,color:#fff');
-    lines.push('  classDef tool fill:#152028,stroke:#9ad7ff,color:#fff');
-    return lines.join('\n');
   }
-  let items = [];
-  let mode = view;
-  if (view === 'journeys') items = DATA.journeys || [];
-  else if (view === 'requests') items = DATA.requests || [];
-  else if (view === 'data') items = DATA.data_flows || [];
-  else {
-    // architecture overview
-    return [
-      'flowchart LR',
-      '  E[Experience] --> I[Interface]',
-      '  I --> A[Application]',
-      '  A --> D[Data]',
-      '  A --> X[Infra]',
-    ].join('\n');
-  }
-  const current = items.find(i => i.id === focusId) || items[0];
-  if (!current) return 'sequenceDiagram\n  participant A as Empty';
-  let stepIds = [];
-  if (mode === 'journeys') stepIds = (current.steps || []).map(s => s.node_id || s);
-  else if (mode === 'requests') stepIds = current.steps || [];
-  else stepIds = [current.origin, ...(current.through||[]), current.destination].filter(Boolean);
-  const lines = ['sequenceDiagram'];
-  const actors = [];
-  stepIds.forEach(id => {
-    const n = nm[id] || { id, label: id };
-    const key = 'N' + actors.length;
-    actors.push({ key, label: (n.label || id).slice(0, 28) });
-    lines.push(`  participant ${key} as ${escM(actors[actors.length-1].label)}`);
+  (current.relations || []).forEach((r, i) => {
+    const target = agents.find(a => a.id === r.target);
+    if (!target) return;
+    lines.push(`  R${i}(["${escM(target.name)}"]):::orch`);
+    lines.push(`  ORCH -->|${escM(r.label || r.kind)}| R${i}`);
   });
-  for (let i = 0; i < actors.length - 1; i++) {
-    lines.push(`  ${actors[i].key}->>${actors[i+1].key}: step`);
-  }
+  lines.push(classBlock());
   return lines.join('\n');
 }
 
-async function updateMermaid() {
+function mermaidArchitecture() {
+  sideTitle.textContent = 'Layers';
+  const nodes = (DATA.nodes || []).filter(n => n.kind !== 'layer');
+  const by = {};
+  LAYER_ORDER.forEach(l => { by[l] = []; });
+  nodes.forEach(n => {
+    const layer = by[n.layer] ? n.layer : 'application';
+    by[layer].push(n);
+  });
+  const side = LAYER_ORDER.map(l => ({
+    id: `layer:${l}`,
+    name: l,
+    summary: `${by[l].length} nodes`,
+  }));
+  if (!focusId) focusId = 'layer:all';
+  bindSide([{ id: 'layer:all', name: 'All layers', summary: `${nodes.length} nodes` }, ...side], () => render());
+
+  const nm = nodeMap();
+  const keep = new Set();
+  if (focusId === 'layer:all') {
+    LAYER_ORDER.forEach(l => by[l].slice(0, 8).forEach(n => keep.add(n.id)));
+    setFocusMeta('Architecture', 'Layered map of the highest-signal nodes (capped for readability).');
+  } else {
+    const layer = focusId.split(':')[1];
+    by[layer].slice(0, 18).forEach(n => keep.add(n.id));
+    // include neighbors
+    (DATA.edges || []).forEach(e => {
+      if (keep.has(e.source)) keep.add(e.target);
+      if (keep.has(e.target)) keep.add(e.source);
+    });
+    setFocusMeta(`${layer} layer`, (DATA.layers || []).find(x => x.id === layer)?.blurb || '');
+  }
+
+  const lines = ['flowchart LR'];
+  LAYER_ORDER.forEach((l, li) => {
+    const items = [...keep].map(id => nm[id]).filter(n => n && n.layer === l);
+    if (!items.length) return;
+    lines.push(`  subgraph L${li}["${l}"]`);
+    items.forEach((n, i) => {
+      const id = `N${li}_${i}`;
+      n._mid = id;
+      lines.push(`    ${id}["${escM(n.label)}"]:::${kindClass(n.kind, n.layer)}`);
+    });
+    lines.push('  end');
+  });
+  const idOf = {};
+  LAYER_ORDER.forEach((l, li) => {
+    [...keep].map(id => nm[id]).filter(n => n && n.layer === l).forEach((n, i) => {
+      idOf[n.id] = `N${li}_${i}`;
+    });
+  });
+  (DATA.edges || []).filter(e => e.kind !== 'contains' && idOf[e.source] && idOf[e.target]).slice(0, 40).forEach(e => {
+    lines.push(`  ${idOf[e.source]} -->|${escM(e.label || e.kind)}| ${idOf[e.target]}`);
+  });
+  lines.push(classBlock());
+  return lines.join('\n');
+}
+
+function mermaidPath(mode) {
+  const nm = nodeMap();
+  let items = [];
+  if (mode === 'journeys') {
+    sideTitle.textContent = 'User journeys';
+    items = (DATA.journeys || []).map(j => ({
+      id: j.id, name: j.name, summary: j.summary || '', _raw: j, _mode: 'journeys'
+    }));
+  } else if (mode === 'requests') {
+    sideTitle.textContent = 'Request paths';
+    items = (DATA.requests || []).map(r => ({
+      id: r.id,
+      name: r.name,
+      summary: `${r.method || ''} ${r.route || ''}`.trim() || r.summary || '',
+      _raw: r,
+      _mode: 'requests',
+    }));
+  } else {
+    sideTitle.textContent = 'Data flows';
+    items = (DATA.data_flows || []).map(d => ({
+      id: d.id, name: d.name, summary: d.summary || d.shape || '', _raw: d, _mode: 'data'
+    }));
+  }
+  if (!items.length) {
+    bindSide([], () => {});
+    setFocusMeta(`No ${mode}`, 'Re-run /okad so the model can author this view.');
+    return 'flowchart LR\n  X[Nothing authored yet]';
+  }
+  if (!focusId || !items.find(i => i.id === focusId)) focusId = items[0].id;
+  bindSide(items, () => render());
+  const current = items.find(i => i.id === focusId)._raw;
+  setFocusMeta(current.name, current.summary || `${current.method || ''} ${current.route || ''}`.trim() || current.shape || '');
+
+  let stepIds = [];
+  if (mode === 'journeys') stepIds = (current.steps || []).map(s => s.node_id || s);
+  else if (mode === 'requests') stepIds = current.steps || [];
+  else stepIds = [current.origin, ...(current.through || []), current.destination].filter(Boolean);
+
+  const unique = [];
+  stepIds.forEach(id => { if (id && !unique.includes(id)) unique.push(id); });
+
+  // Prefer sequence diagrams for request/journey — this is what people expect
+  if (mode === 'requests' || mode === 'journeys') {
+    const lines = ['sequenceDiagram'];
+    if (mode === 'requests' && current.method) {
+      lines.push(`  autonumber`);
+    }
+    const actors = unique.map((id, i) => {
+      const n = nm[id] || { id, label: id, kind: 'service' };
+      const key = `N${i}`;
+      lines.push(`  participant ${key} as ${escM(n.label || id)}`);
+      return { key, n, note: (current.steps || [])[i]?.note };
+    });
+    for (let i = 0; i < actors.length - 1; i++) {
+      const note = (current.steps && current.steps[i] && current.steps[i].note) || (mode === 'requests' ? 'calls' : 'next');
+      lines.push(`  ${actors[i].key}->>${actors[i + 1].key}: ${escM(note)}`);
+    }
+    if (current.status && current.status.length) {
+      lines.push(`  Note over ${actors[actors.length - 1].key}: status ${escM(current.status.join(' / '))}`);
+    }
+    return lines.join('\n');
+  }
+
+  // data flow: LR flowchart
+  const lines = ['flowchart LR'];
+  unique.forEach((id, i) => {
+    const n = nm[id] || { id, label: id, kind: 'service', layer: 'application' };
+    lines.push(`  N${i}["${escM(n.label || id)}"]:::${kindClass(n.kind, n.layer)}`);
+    if (i > 0) lines.push(`  N${i - 1} --> N${i}`);
+  });
+  if (current.shape) {
+    lines.push(`  SHAPE["${escM(current.shape)}"]:::tool`);
+    if (unique.length) lines.push(`  N${unique.length - 1} -.-> SHAPE`);
+  }
+  lines.push(classBlock());
+  return lines.join('\n');
+}
+
+function mermaidForCurrent() {
+  if (view === 'agents') return mermaidAgents();
+  if (view === 'architecture') return mermaidArchitecture();
+  if (view === 'journeys') return mermaidPath('journeys');
+  if (view === 'requests') return mermaidPath('requests');
+  return mermaidPath('data');
+}
+
+async function render() {
   const code = mermaidForCurrent();
-  const id = 'mmd-' + Date.now();
+  lastMermaid = code;
+  sourcePre.textContent = code;
+  diagram.innerHTML = '<div class="empty">Rendering Mermaid…</div>';
+  const id = 'okad-mmd-' + Date.now();
   try {
-    const { svg: out } = await mermaid.render(id, code);
-    mermaidTarget.innerHTML = out;
+    const { svg } = await mermaid.render(id, code);
+    diagram.innerHTML = svg;
+    const svgEl = diagram.querySelector('svg');
+    if (svgEl) {
+      svgEl.removeAttribute('height');
+      svgEl.style.width = '100%';
+      svgEl.style.maxWidth = 'none';
+      svgEl.style.height = 'auto';
+    }
   } catch (err) {
-    mermaidTarget.textContent = code + '\n\n// render error: ' + err;
+    diagram.innerHTML = `<pre class="error">${esc(String(err))}\n\n${esc(code)}</pre>`;
   }
 }
 
-function el(name, attrs={}) {
-  const node = document.createElementNS('http://www.w3.org/2000/svg', name);
-  Object.entries(attrs).forEach(([k,v]) => {
-    if (k === 'style') node.setAttribute('style', v);
-    else node.setAttribute(k, v);
-  });
-  return node;
-}
-function esc(s) {
-  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function escM(s) {
-  return String(s||'').replace(/[\[\]#;"]/g, ' ');
-}
-
-window.addEventListener('resize', () => { render(); });
 render();
 </script>
 </body>

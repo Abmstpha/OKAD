@@ -67,16 +67,17 @@ Priority when capping: nodes referenced by journeys / requests / data flows win.
 | `inferred` | Strongly suggested by structure / naming / call patterns |
 | `ambiguous` | Plausible but unsure — still useful, marked honestly |
 
-## Viz views
+## Viz views (Mermaid-first)
 
-1. **Architecture** — columns by layer, pan/zoom, animated cards  
-2. **Agents & tools** — each agent and the tools it calls (from `agents` or inferred)  
-3. **Journeys** — one sequence at a time  
-4. **Requests** — handler chain left → right  
-5. **Data flow** — payload movement pipeline  
-6. **Mermaid** — toggle panel for sequence / flowchart of the current focus  
+`story.html` renders **Mermaid** diagrams as the primary map:
 
-Story schema `version` is `2` when agents are supported. 
+1. **Agents & tools** — fleet hierarchy + orchestrator → subagent → tool flowcharts  
+2. **Architecture** — layered flowchart of capped high-signal nodes  
+3. **Journeys** — sequenceDiagram per journey  
+4. **Requests** — sequenceDiagram per request path  
+5. **Data flow** — LR flowchart (+ optional payload shape)
+
+Toolbar: show / copy Mermaid source. Story schema `version` is `2` when agents are supported. 
 
 ## Extension points
 
