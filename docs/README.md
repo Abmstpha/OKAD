@@ -1,7 +1,7 @@
 # OKAD documentation
 
 <p align="center">
-  <img src="../assets/okad-logo.png" alt="OKAD — عُقَد" width="200" />
+  <img src="../assets/okad-logo-transparent.png" alt="OKAD — عُقَد" width="200" />
 </p>
 
 | Doc | What you’ll find |
