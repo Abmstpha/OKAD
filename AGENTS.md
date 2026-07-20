@@ -6,3 +6,9 @@ and `okad explain` over grepping the whole repo once `okad-out/story.json` exist
 
 Install: `pip install okad && okad install`
 
+## Local agent memory
+
+If `memory/` exists (gitignored), read `memory/INDEX.md` first, then `PRODUCT.md`,
+`ARCHITECTURE.md`, `CONVENTIONS.md`, and `SESSION.md` before changing the project.
+Update `SESSION.md` when you finish meaningful work.
+

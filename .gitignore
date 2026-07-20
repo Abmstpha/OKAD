@@ -8,10 +8,11 @@ build/
 venv/
 .okad/
 okad-out/
+**/okad-out/
+memory/
 .pytest_cache/
 .ruff_cache/
 .DS_Store
-*.html
-!skill/**
 .coverage
 htmlcov/
+.mypy_cache/

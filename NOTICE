@@ -1,0 +1,14 @@
+OKAD
+Copyright (c) 2026 Abmstpha
+
+This product is licensed under the MIT License. See LICENSE.
+
+Third-party runtime dependencies (installed separately) use their own licenses,
+including but not limited to:
+
+- Typer (MIT)
+- Rich (MIT)
+- NetworkX (BSD-3-Clause)
+
+OKAD does not bundle those packages in the source tree; they are declared in
+pyproject.toml and fetched by your installer (pip / uv / pipx).

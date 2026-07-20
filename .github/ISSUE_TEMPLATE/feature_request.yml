@@ -1,0 +1,31 @@
+---
+name: Feature request
+description: An idea that keeps maps readable
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Remember OKAD’s guardrail — elegance over milky-way density.
+        See [PHILOSOPHY.md](../blob/main/docs/PHILOSOPHY.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      placeholder: What is hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      placeholder: How should OKAD behave?
+    validations:
+      required: true
+  - type: checkboxes
+    id: caps
+    attributes:
+      label: Elegance check
+      options:
+        - label: This does not require dumping every file/import into the graph
+          required: true

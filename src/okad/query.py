@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 
@@ -65,7 +64,7 @@ def query(question: str, graph: StoryGraph | None = None, budget: int = 1800) ->
                 seeds.extend(s.node_id for s in j.steps[:3])
         seeds = seeds[:5]
 
-    lines = [f"# OKAD query", f"Q: {question}", ""]
+    lines = ["# OKAD query", f"Q: {question}", ""]
     if graph.journeys:
         hits = [
             j

@@ -1,0 +1,50 @@
+---
+name: Bug report
+description: Something broken in OKAD
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please check [FAQ](../blob/main/docs/FAQ.md) first.
+  - type: input
+    id: version
+    attributes:
+      label: OKAD version
+      description: Output of `okad version`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Where did you run it?
+      options:
+        - Claude Code
+        - Codex
+        - Cursor
+        - Terminal only
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      placeholder: Expected vs actual…
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. okad skeleton .
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      render: shell

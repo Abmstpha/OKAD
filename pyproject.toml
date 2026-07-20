@@ -46,6 +46,8 @@ okad = "okad.cli:app"
 Homepage = "https://github.com/Abmstpha/OKAD"
 Repository = "https://github.com/Abmstpha/OKAD"
 Issues = "https://github.com/Abmstpha/OKAD/issues"
+Changelog = "https://github.com/Abmstpha/OKAD/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/Abmstpha/OKAD/tree/main/docs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/okad"]
@@ -54,8 +56,14 @@ packages = ["src/okad"]
 include = [
   "src/okad",
   "skill",
+  "docs",
+  "examples",
+  "tests",
   "README.md",
   "LICENSE",
+  "NOTICE",
+  "CHANGELOG.md",
+  "CONTRIBUTING.md",
 ]
 
 [tool.ruff]

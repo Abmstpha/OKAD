@@ -1,0 +1,164 @@
+{
+  "system_name": "Mini Shop",
+  "summary": "A tiny catalog and checkout demo. Users browse products, place an order, and can fetch order status. Built so OKAD can show a readable story map.",
+  "nodes": [
+    {
+      "id": "screen:catalog",
+      "label": "Catalog",
+      "kind": "screen",
+      "layer": "experience",
+      "summary": "Browse products",
+      "source": "app.py"
+    },
+    {
+      "id": "screen:checkout",
+      "label": "Checkout",
+      "kind": "screen",
+      "layer": "experience",
+      "summary": "Confirm cart and pay",
+      "source": "app.py"
+    },
+    {
+      "id": "route:GET:/catalog",
+      "label": "GET /catalog",
+      "kind": "route",
+      "layer": "interface",
+      "summary": "List products",
+      "source": "app.py"
+    },
+    {
+      "id": "route:POST:/orders",
+      "label": "POST /orders",
+      "kind": "route",
+      "layer": "interface",
+      "summary": "Create an order",
+      "source": "app.py"
+    },
+    {
+      "id": "route:GET:/orders/:id",
+      "label": "GET /orders/:id",
+      "kind": "route",
+      "layer": "interface",
+      "summary": "Fetch order status",
+      "source": "app.py"
+    },
+    {
+      "id": "service:orders",
+      "label": "Order service",
+      "kind": "service",
+      "layer": "application",
+      "summary": "Totals cart and creates orders",
+      "source": "services/orders.py"
+    },
+    {
+      "id": "entity:order",
+      "label": "Order",
+      "kind": "entity",
+      "layer": "data",
+      "summary": "Persisted order record",
+      "source": "models/order.py"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "screen:catalog",
+      "target": "route:GET:/catalog",
+      "kind": "triggers",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e2",
+      "source": "screen:checkout",
+      "target": "route:POST:/orders",
+      "kind": "triggers",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e3",
+      "source": "route:POST:/orders",
+      "target": "service:orders",
+      "kind": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e4",
+      "source": "service:orders",
+      "target": "entity:order",
+      "kind": "writes",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e5",
+      "source": "route:GET:/orders/:id",
+      "target": "service:orders",
+      "kind": "calls",
+      "confidence": "inferred"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "j-buy",
+      "name": "Browse & buy",
+      "summary": "Shopper picks a product and places an order",
+      "actor": "shopper",
+      "steps": [
+        { "node_id": "screen:catalog", "note": "browse" },
+        { "node_id": "screen:checkout", "note": "confirm" },
+        { "node_id": "route:POST:/orders", "note": "submit" },
+        { "node_id": "entity:order", "note": "persisted" }
+      ]
+    },
+    {
+      "id": "j-status",
+      "name": "Check order",
+      "summary": "Shopper looks up order status",
+      "actor": "shopper",
+      "steps": [
+        { "node_id": "route:GET:/orders/:id", "note": "fetch" },
+        { "node_id": "service:orders", "note": "load" },
+        { "node_id": "entity:order", "note": "read" }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "id": "req-catalog",
+      "name": "List catalog",
+      "method": "GET",
+      "route": "/catalog",
+      "summary": "Returns sellable products",
+      "steps": ["route:GET:/catalog"],
+      "status": ["200"]
+    },
+    {
+      "id": "req-create",
+      "name": "Create order",
+      "method": "POST",
+      "route": "/orders",
+      "summary": "Creates an order from cart lines",
+      "steps": ["route:POST:/orders", "service:orders", "entity:order"],
+      "status": ["201", "400"]
+    },
+    {
+      "id": "req-get",
+      "name": "Get order",
+      "method": "GET",
+      "route": "/orders/{id}",
+      "summary": "Returns order by id",
+      "steps": ["route:GET:/orders/:id", "service:orders", "entity:order"],
+      "status": ["200", "404"]
+    }
+  ],
+  "data_flows": [
+    {
+      "id": "df-order",
+      "name": "Order payload",
+      "summary": "Checkout cart becomes a stored order",
+      "origin": "screen:checkout",
+      "through": ["route:POST:/orders", "service:orders"],
+      "destination": "entity:order",
+      "shape": "Order { items[], total, currency }"
+    }
+  ]
+}

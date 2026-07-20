@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "system_name": "Sample",
+  "summary": "A standalone story graph shipped with OKAD so you can open a map without scanning a repo.",
+  "layers": [
+    { "id": "experience", "label": "Experience", "blurb": "What the user sees and does" },
+    { "id": "interface", "label": "Interface", "blurb": "Routes and entrypoints" },
+    { "id": "application", "label": "Application", "blurb": "Business logic" },
+    { "id": "data", "label": "Data", "blurb": "Stores and entities" },
+    { "id": "infra", "label": "Infra", "blurb": "External services" }
+  ],
+  "nodes": [
+    {
+      "id": "screen:home",
+      "label": "Home",
+      "kind": "screen",
+      "layer": "experience",
+      "summary": "Landing screen"
+    },
+    {
+      "id": "screen:signup",
+      "label": "Sign up",
+      "kind": "screen",
+      "layer": "experience",
+      "summary": "Create an account"
+    },
+    {
+      "id": "route:POST:/auth/signup",
+      "label": "POST /auth/signup",
+      "kind": "route",
+      "layer": "interface",
+      "summary": "Register endpoint"
+    },
+    {
+      "id": "service:auth",
+      "label": "Auth service",
+      "kind": "service",
+      "layer": "application",
+      "summary": "Validates and creates users"
+    },
+    {
+      "id": "store:users",
+      "label": "Users store",
+      "kind": "store",
+      "layer": "data",
+      "summary": "User records"
+    },
+    {
+      "id": "infra:email",
+      "label": "Email provider",
+      "kind": "external",
+      "layer": "infra",
+      "summary": "Sends welcome mail"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "screen:home",
+      "target": "screen:signup",
+      "kind": "navigates",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e2",
+      "source": "screen:signup",
+      "target": "route:POST:/auth/signup",
+      "kind": "triggers",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e3",
+      "source": "route:POST:/auth/signup",
+      "target": "service:auth",
+      "kind": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e4",
+      "source": "service:auth",
+      "target": "store:users",
+      "kind": "writes",
+      "confidence": "inferred"
+    },
+    {
+      "id": "e5",
+      "source": "service:auth",
+      "target": "infra:email",
+      "kind": "calls",
+      "confidence": "ambiguous"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "j-signup",
+      "name": "Sign up",
+      "summary": "Visitor creates an account and gets a welcome email",
+      "actor": "visitor",
+      "steps": [
+        { "node_id": "screen:home", "note": "land" },
+        { "node_id": "screen:signup", "note": "fill form" },
+        { "node_id": "route:POST:/auth/signup", "note": "submit" },
+        { "node_id": "store:users", "note": "saved" },
+        { "node_id": "infra:email", "note": "welcome" }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "id": "req-signup",
+      "name": "Sign up",
+      "method": "POST",
+      "route": "/auth/signup",
+      "summary": "Creates a user and triggers email",
+      "steps": [
+        "route:POST:/auth/signup",
+        "service:auth",
+        "store:users",
+        "infra:email"
+      ],
+      "status": ["201", "400", "409"]
+    }
+  ],
+  "data_flows": [
+    {
+      "id": "df-user",
+      "name": "User record",
+      "summary": "Signup form becomes a stored user",
+      "origin": "screen:signup",
+      "through": ["route:POST:/auth/signup", "service:auth"],
+      "destination": "store:users",
+      "shape": "User { email, password_hash }"
+    }
+  ],
+  "meta": { "demo": true }
+}
