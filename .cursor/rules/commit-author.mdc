@@ -1,0 +1,18 @@
+---
+description: Git commits must be authored only by Abmstpha — never Cursor
+alwaysApply: true
+---
+
+# Commit authorship (OKAD)
+
+When creating git commits in this repository:
+
+- **Author and committer must be only Abmstpha** `<21007@esp.mr>`.
+- **Never** add `Co-authored-by: Cursor` or any Cursor / cursoragent trailer.
+- Prefer `git commit-tree` with explicit:
+  - `GIT_AUTHOR_NAME=Abmstpha`
+  - `GIT_AUTHOR_EMAIL=21007@esp.mr`
+  - `GIT_COMMITTER_NAME=Abmstpha`
+  - `GIT_COMMITTER_EMAIL=21007@esp.mr`
+- Do not use a plain `git commit` if the environment would inject Cursor as co-author.
+- Do not amend authorship to add tooling credits.

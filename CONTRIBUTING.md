@@ -46,6 +46,12 @@ More in [docs/DESIGN.md](docs/DESIGN.md) and [docs/PHILOSOPHY.md](docs/PHILOSOPH
 
 Imperative subject, optional body for why. Write like a normal open-source project — not agent checklists or vibe-coding status lines.
 
+**Author is always Abmstpha only.** Never add `Co-authored-by: Cursor` (or any Cursor bot). Enable the repo hooks:
+
+```bash
+git config core.hooksPath .githooks   # once per clone
+```
+
 Good:
 
 ```

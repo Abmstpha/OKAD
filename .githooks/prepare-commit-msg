@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Strip AI / Cursor co-author trailers. Only Abmstpha is the committer on this repo.
+# Installed as prepare-commit-msg (and mirrored under .githooks/).
+set -euo pipefail
+
+MSG_FILE="${1:-}"
+if [[ -z "$MSG_FILE" || ! -f "$MSG_FILE" ]]; then
+  exit 0
+fi
+
+# Remove Co-authored-by / Signed-off-by lines that mention Cursor or Cursor bots
+tmp="$(mktemp)"
+grep -v -E -i \
+  '^[[:space:]]*(Co-authored-by|Signed-off-by):[[:space:]].*(Cursor|cursoragent|Cursor Agent)' \
+  "$MSG_FILE" > "$tmp" || true
+mv "$tmp" "$MSG_FILE"

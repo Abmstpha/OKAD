@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Reject commits that still credit Cursor (or any non-Abmstpha co-author trailer we don't want).
+set -euo pipefail
+
+MSG_FILE="${1:-}"
+if [[ -z "$MSG_FILE" || ! -f "$MSG_FILE" ]]; then
+  exit 0
+fi
+
+if grep -E -i -q '^[[:space:]]*Co-authored-by:[[:space:]].*(Cursor|cursoragent|Cursor Agent)' "$MSG_FILE"; then
+  echo "error: commit message must not include Cursor as Co-authored-by." >&2
+  echo "       Only Abmstpha (<21007@esp.mr>) is the author/contributor on OKAD." >&2
+  exit 1
+fi
