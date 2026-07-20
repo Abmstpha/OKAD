@@ -297,6 +297,12 @@
     border-radius: 999px; padding: 0.08rem 0.34rem;
     box-shadow: 0 2px 8px rgba(0,0,0,.4);
   }
+  .gnote {
+    color: var(--muted);
+    font-size: 0.64rem;
+    line-height: 1.3;
+    margin-top: 0.2rem;
+  }
 
   /* Agents org graph */
   .gnode.sys {
@@ -368,162 +374,6 @@
     padding: 0.1rem 0.4rem;
   }
 
-  /* ——— Data pipeline ——— */
-  .pipe {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-  }
-  .pipe-step {
-    flex: 0 0 190px;
-    position: relative;
-    padding-right: 34px;
-  }
-  .pipe-step::after {
-    content: "→";
-    position: absolute;
-    right: 8px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--accent);
-    font-size: 1.1rem;
-  }
-  .pipe-step:last-child::after { display: none; }
-  .pipe-card {
-    height: 100%;
-    border: 1px solid var(--line);
-    background: var(--bg-card);
-    border-radius: 12px;
-    padding: 0.85rem;
-    cursor: pointer;
-  }
-  .pipe-card:hover { border-color: var(--accent); }
-  .pipe-card .i {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--accent);
-  }
-  .pipe-card h4 { margin: 0.3rem 0; font-size: 0.95rem; }
-  .pipe-card p { margin: 0; color: var(--muted); font-size: 0.74rem; line-height: 1.4; }
-
-  .layer-pill {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 0.12rem 0.35rem;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-  }
-  .layer-pill.experience { color: var(--experience); border-color: color-mix(in srgb, var(--experience) 45%, var(--line)); }
-  .layer-pill.interface { color: var(--interface); border-color: color-mix(in srgb, var(--interface) 45%, var(--line)); }
-  .layer-pill.application { color: var(--application); border-color: color-mix(in srgb, var(--application) 45%, var(--line)); }
-  .layer-pill.data { color: var(--data); border-color: color-mix(in srgb, var(--data) 45%, var(--line)); }
-  .layer-pill.infra { color: var(--infra); border-color: color-mix(in srgb, var(--infra) 45%, var(--line)); }
-
-  /* ——— Vertical story rail ——— */
-  .rail {
-    max-width: 720px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    position: relative;
-    padding-left: 0.2rem;
-  }
-  .rail-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-  }
-  .badge {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--muted);
-    border: 1px solid var(--line);
-    padding: 0.18rem 0.45rem;
-    border-radius: 999px;
-  }
-  .badge.ok { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
-  .rail-step {
-    display: grid;
-    grid-template-columns: 44px 1fr;
-    gap: 0.85rem;
-    position: relative;
-    padding-bottom: 1.15rem;
-    animation: rise .4s ease both;
-  }
-  .rail-step:last-child { padding-bottom: 0; }
-  .rail-step::before {
-    content: "";
-    position: absolute;
-    left: 15px;
-    top: 34px;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, var(--line-strong), transparent);
-  }
-  .rail-step:last-child::before { display: none; }
-  .rail-idx {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid var(--accent);
-    background: var(--bg-elev);
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 600;
-    display: grid;
-    place-items: center;
-    z-index: 1;
-  }
-  .rail-card {
-    border: 1px solid var(--line);
-    background: var(--bg-card);
-    border-radius: 12px;
-    padding: 0.85rem 0.95rem;
-    cursor: pointer;
-    transition: border-color .15s, transform .15s, box-shadow .15s;
-  }
-  .rail-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-1px);
-    box-shadow: 0 10px 28px rgba(0,0,0,.25);
-  }
-  .rail-card .top {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    align-items: center;
-    margin-bottom: 0.35rem;
-  }
-  .rail-card h4 {
-    margin: 0;
-    font-size: 1.02rem;
-    font-weight: 650;
-    letter-spacing: -0.01em;
-  }
-  .rail-card .sum {
-    margin: 0.25rem 0 0;
-    color: var(--muted);
-    font-size: 0.8rem;
-    line-height: 1.45;
-  }
-  .rail-card .arrow {
-    margin-top: 0.55rem;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--orange);
-  }
-
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: none; }
-  }
-
   @media (max-width: 980px) {
     header { grid-template-columns: 1fr; }
     main { grid-template-columns: 1fr; grid-template-rows: minmax(100px, 20vh) 1fr; }
@@ -545,7 +395,7 @@
     </div>
     <p class="tagline">__SUMMARY__</p>
   </div>
-  <div class="tabs" role="tablist" title="Org graph · Journey-scoped layer graphs · Story rails — zero libraries">
+  <div class="tabs" role="tablist" title="Org graph · Layered story graphs — zero libraries">
     <button class="tab" data-view="agents" aria-selected="true">Agents &amp; tools</button>
     <button class="tab" data-view="architecture">Architecture</button>
     <button class="tab" data-view="journeys">Journeys</button>
@@ -1350,10 +1200,7 @@ function renderArchitecture() {
   sideTitle.textContent = 'Scope';
   bindSide(side);
 
-  const bands = LAYERS.map(l => {
-    const meta = (DATA.layers || []).find(x => x.id === l) || {};
-    return { id: l, label: meta.label || l, color: LAYER_COLOR[l] };
-  });
+  const bands = layerBands();
   const realNodes = (DATA.nodes || []).filter(n => n.kind !== 'layer');
   const realEdges = (DATA.edges || []).filter(e => e.kind !== 'contains');
   const deg = {};
@@ -1429,59 +1276,39 @@ function renderArchitecture() {
   });
 }
 
-/* ═══════════════════ Data pipeline ═══════════════════ */
-function renderData() {
-  useBoard('Pipeline');
-  const nm = nodeMap();
-  const items = (DATA.data_flows || []).map(d => ({
-    id: d.id, name: d.name, summary: d.summary || d.shape || '', _raw: d
-  }));
-  sideTitle.textContent = 'Data flows';
-  if (!items.length) {
-    bindSide([]);
-    setMeta('No data flows', 'Re-run /okad to author data flows.');
-    board.innerHTML = '<div class="empty">Nothing authored yet.</div>';
-    return;
-  }
-  if (!focusId || !items.find(i => i.id === focusId)) focusId = items[0].id;
-  bindSide(items);
-  const current = items.find(i => i.id === focusId)._raw;
-  setMeta(current.name, current.summary || current.shape || '');
-  const stepIds = [current.origin, ...(current.through || []), current.destination].filter(Boolean);
-  const unique = [];
-  stepIds.forEach(id => { if (id && !unique.includes(id)) unique.push(id); });
-  board.innerHTML = `<div class="pipe">${unique.map((id, i) => {
-    const n = nm[id] || { id, label: id, summary: '', layer: 'application' };
-    return `<div class="pipe-step">
-      <div class="pipe-card" data-id="${esc(id)}">
-        <div class="i">0${i + 1}</div>
-        <h4>${esc(n.label || id)}</h4>
-        <p>${esc(n.summary || n.layer || '')}</p>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
-  board.querySelectorAll('.pipe-card').forEach(el => {
-    el.addEventListener('click', e => { e.stopPropagation(); showInspector(nm[el.dataset.id]); });
+/* ═══════════ Journeys / Requests / Data: sequence graphs ═══════════
+   The same layered engine, scoped to exactly one story sequence.
+   Structural edges are reused (kind color + label) when the story
+   follows them; gaps become dashed inferred steps. */
+function structuralEdgeBetween(a, b) {
+  return (DATA.edges || []).find(e => e.kind !== 'contains' &&
+    ((e.source === a && e.target === b) || (e.source === b && e.target === a)));
+}
+function layerBands() {
+  return LAYERS.map(l => {
+    const meta = (DATA.layers || []).find(x => x.id === l) || {};
+    return { id: l, label: meta.label || l, color: LAYER_COLOR[l] };
   });
 }
-
-/* ═══════════════════ Journey / request rails ═══════════════════ */
-function renderStoryRail(mode) {
-  useBoard(mode === 'journeys' ? 'Journey rail' : 'Request rail');
+function renderSequenceGraph(mode) {
   const nm = nodeMap();
-  let items = [];
+  let items = [], engine, listTitle;
   if (mode === 'journeys') {
-    sideTitle.textContent = 'User journeys';
+    engine = 'Journey graph'; listTitle = 'User journeys';
     items = (DATA.journeys || []).map(j => ({ id: j.id, name: j.name, summary: j.summary || '', _raw: j }));
-  } else {
-    sideTitle.textContent = 'Request paths';
+  } else if (mode === 'requests') {
+    engine = 'Request graph'; listTitle = 'Request paths';
     items = (DATA.requests || []).map(r => ({
-      id: r.id,
-      name: r.name,
+      id: r.id, name: r.name,
       summary: `${r.method || ''} ${r.route || ''}`.trim() || r.summary || '',
       _raw: r,
     }));
+  } else {
+    engine = 'Data flow graph'; listTitle = 'Data flows';
+    items = (DATA.data_flows || []).map(d => ({ id: d.id, name: d.name, summary: d.summary || d.shape || '', _raw: d }));
   }
+  useBoard(engine);
+  sideTitle.textContent = listTitle;
   if (!items.length) {
     bindSide([]);
     setMeta(`No ${mode}`, 'Re-run /okad to author this view.');
@@ -1491,52 +1318,74 @@ function renderStoryRail(mode) {
   if (!focusId || !items.find(i => i.id === focusId)) focusId = items[0].id;
   bindSide(items);
   const current = items.find(i => i.id === focusId)._raw;
-  setMeta(
-    current.name,
-    current.summary || `${current.method || ''} ${current.route || ''}`.trim()
-  );
+  setMeta(current.name, current.summary || `${current.method || ''} ${current.route || ''}`.trim() || current.shape || '');
 
-  let steps = [];
+  /* — the ordered sequence + per-node notes — */
+  let seq = [];
+  const noteOf = {};
   if (mode === 'journeys') {
-    steps = journeySteps(current).map(s => ({ id: s.node_id, note: s.note || '' }));
+    journeySteps(current).forEach(s => {
+      seq.push(s.node_id);
+      if (s.note && !noteOf[s.node_id]) noteOf[s.node_id] = s.note;
+    });
+  } else if (mode === 'requests') {
+    seq = (current.steps || []).slice();
   } else {
-    steps = (current.steps || []).map(id => ({ id, note: '' }));
+    seq = [current.origin, ...(current.through || []), current.destination].filter(Boolean);
   }
-  const unique = [];
-  steps.forEach(s => {
-    if (s.id && !unique.find(u => u.id === s.id)) unique.push(s);
+  seq = seq.filter(id => nm[id]);
+  if (!seq.length) {
+    board.innerHTML = '<div class="empty">No resolvable steps in this story.</div>';
+    setLegend('');
+    return;
+  }
+
+  const orderIds = [];
+  const stepNums = {};
+  seq.forEach((id, i) => {
+    if (!orderIds.includes(id)) orderIds.push(id);
+    (stepNums[id] = stepNums[id] || []).push(i + 1);
   });
 
-  const badges = [];
-  if (current.method) badges.push(`<span class="badge ok">${esc(current.method)}</span>`);
-  if (current.route) badges.push(`<span class="badge">${esc(current.route)}</span>`);
-  if (current.status && current.status.length) {
-    badges.push(`<span class="badge ok">${esc(current.status.join(' / '))}</span>`);
+  const edges = [];
+  const seen = new Set();
+  for (let i = 0; i < seq.length - 1; i++) {
+    const a = seq[i], b = seq[i + 1];
+    if (a === b) continue;
+    const key = `${a}→${b}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const hit = structuralEdgeBetween(a, b);
+    edges.push(hit
+      ? { id: `seq:${key}`, source: a, target: b, kind: hit.kind, label: hit.label || '', flow: true }
+      : { id: `seq:${key}`, source: a, target: b, kind: 'flow', label: '', flow: true });
   }
-  badges.push(`<span class="badge">${unique.length} steps</span>`);
 
-  board.innerHTML = `<div class="rail">
-    <div class="rail-meta">${badges.join('')}</div>
-    ${unique.map((s, i) => {
-      const n = nm[s.id] || { id: s.id, label: s.id, layer: 'application', kind: 'service', summary: '' };
-      const next = unique[i + 1];
-      const nextLabel = next ? ((nm[next.id] && nm[next.id].label) || next.id) : '';
-      return `<div class="rail-step" style="animation-delay:${i * 0.04}s">
-        <div class="rail-idx">${String(i + 1).padStart(2,'0')}</div>
-        <div class="rail-card" data-id="${esc(n.id)}">
-          <div class="top">
-            <span class="layer-pill ${esc(n.layer || 'application')}">${esc(n.layer || 'application')}</span>
-            <span class="badge">${esc(n.kind || 'node')}</span>
-          </div>
-          <h4>${esc(n.label || n.id)}</h4>
-          <p class="sum">${esc(s.note || n.summary || '')}</p>
-          ${next ? `<div class="arrow">↓ then ${esc(nextLabel)}</div>` : `<div class="arrow">■ end</div>`}
-        </div>
-      </div>`;
-    }).join('')}
-  </div>`;
-  board.querySelectorAll('.rail-card').forEach(el => {
-    el.addEventListener('click', e => { e.stopPropagation(); showInspector(nm[el.dataset.id]); });
+  const nodes = orderIds.map(id => {
+    const n = nm[id];
+    const band = LAYERS.includes(n.layer) ? n.layer : 'application';
+    return {
+      id, band, cls: band,
+      badgeOrder: stepNums[id][0] - 1,
+      html: `<span class="gstep">${stepNums[id].join('·')}</span>
+        <div class="kind">${esc(n.kind || 'node')}</div>
+        <div class="title">${esc(n.label || id)}</div>
+        ${noteOf[id] ? `<div class="gnote">${esc(noteOf[id])}</div>` : ''}`,
+    };
+  });
+
+  const chips = [`${seq.length} steps`];
+  if (current.actor) chips.push(`actor: ${current.actor}`);
+  if (current.method) chips.push(`${current.method} ${current.route || ''}`.trim());
+  if (current.status && current.status.length) chips.push(current.status.join(' / '));
+  if (current.shape) chips.push(current.shape.length > 64 ? current.shape.slice(0, 61) + '…' : current.shape);
+
+  setLegend(archLegend(edges, chips));
+  board.innerHTML = '<div id="ghost"></div>';
+  drawLayeredGraph(board.querySelector('#ghost'), {
+    bands: layerBands(), nodes, edges,
+    showLabels: 'always',
+    onNode: id => showInspector(nm[id]),
   });
 }
 
@@ -1546,9 +1395,7 @@ function render() {
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === view)));
   if (view === 'agents') return renderAgents();
   if (view === 'architecture') return renderArchitecture();
-  if (view === 'data') return renderData();
-  if (view === 'journeys') return renderStoryRail('journeys');
-  return renderStoryRail('requests');
+  return renderSequenceGraph(view);
 }
 
 render();
