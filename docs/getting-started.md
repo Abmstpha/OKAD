@@ -3,10 +3,15 @@
 ## 60-second version
 
 ```bash
-# Install the CLI (pick one — do NOT use bare Homebrew pip)
-pipx install "git+https://github.com/Abmstpha/OKAD.git"   # brew install pipx
-# or: uv tool install "git+https://github.com/Abmstpha/OKAD.git"
+curl -fsSL https://raw.githubusercontent.com/Abmstpha/OKAD/main/install.sh | bash
+```
 
+Manual (Homebrew Mac — this is the reliable form):
+
+```bash
+brew install pipx && pipx ensurepath
+pipx install --backend pip "git+https://github.com/Abmstpha/OKAD.git"
+export PATH="$HOME/.local/bin:$PATH"
 okad install
 ```
 

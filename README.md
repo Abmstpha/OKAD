@@ -29,21 +29,31 @@ It works with **Claude Code**, **OpenAI Codex**, **Cursor**, and any agent that 
 
 ## Download & install
 
-**Requirements:** Python 3.10+, and one of: [uv](https://github.com/astral-sh/uv) or [pipx](https://pipx.pypa.io/).
-
-> **Do not** run bare `pip install …` into Homebrew Python — macOS will reject it (`externally-managed-environment` / PEP 668). Use **pipx** or **uv** so the CLI lives in its own env.
-
-### Fast path (CLI on your PATH)
+**One command** (macOS / Linux):
 
 ```bash
-# pipx (Homebrew: brew install pipx && pipx ensurepath)
-pipx install "git+https://github.com/Abmstpha/OKAD.git"
-okad install
+curl -fsSL https://raw.githubusercontent.com/Abmstpha/OKAD/main/install.sh | bash
+```
 
-# or uv
+That installs the `okad` CLI onto your PATH and runs `okad install` (wires `/okad` into Claude / Codex / Cursor).
+
+### Manual (if you prefer)
+
+```bash
+# Recommended on Homebrew Macs — --backend pip avoids broken uv/pipx version fights
+brew install pipx && pipx ensurepath
+pipx install --backend pip "git+https://github.com/Abmstpha/OKAD.git"
+export PATH="$HOME/.local/bin:$PATH"
+okad install
+```
+
+```bash
+# Or with a recent uv (0.9.17+)
 uv tool install "git+https://github.com/Abmstpha/OKAD.git"
 okad install
 ```
+
+> **Do not** use bare `pip install …` into Homebrew Python — macOS rejects it (`externally-managed-environment`).
 
 ### Dev install (from a clone)
 
@@ -53,23 +63,14 @@ cd OKAD
 uv venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 uv pip install -e .
 okad version   # → 0.1.0
-```
-
-### Wire the `/okad` skill into your LLM app
-
-(Already covered by the fast-path one-liners above.) To install or reinstall the skill alone:
-
-```bash
 okad install
 ```
 
-Target one platform:
+Re-wire the skill only:
 
 ```bash
-okad install --platform claude    # Claude Code  →  ~/.claude/skills/okad + /okad command
-okad install --platform codex     # OpenAI Codex →  ~/.codex/skills/okad + AGENTS.md
-okad install --platform cursor    # Cursor       →  ~/.cursor/skills/okad
-okad install --platform agents    # generic AGENTS.md hosts
+okad install
+okad install --platform cursor    # or: claude | codex | agents
 ```
 
 More detail: [docs/getting-started.md](docs/getting-started.md) · [docs/agents.md](docs/agents.md)
