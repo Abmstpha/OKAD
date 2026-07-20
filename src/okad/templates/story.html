@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   :root {
     --bg: #070a09;
@@ -183,22 +182,18 @@
     line-height: 1.45;
     max-width: 90ch;
   }
-  #board, #mmd {
+  #board {
     width: 100%;
     height: 100%;
     min-height: 0;
     overflow: auto;
     display: none;
-  }
-  #board.active, #mmd.active { display: block; }
-  #mmd { padding: 1.1rem 1.2rem 2rem; }
-  #mmd svg { max-width: 100%; height: auto; }
-  #board {
     padding: 1.1rem 1.2rem 2rem;
     background:
       linear-gradient(to right, color-mix(in srgb, var(--line) 28%, transparent) 1px, transparent 1px) 0 0 / 56px 56px,
       linear-gradient(to bottom, color-mix(in srgb, var(--line) 28%, transparent) 1px, transparent 1px) 0 0 / 56px 56px;
   }
+  #board.active { display: block; }
   .empty { padding: 2rem; color: var(--muted); }
   .inspector {
     position: absolute; right: 0.9rem; top: 4.4rem; width: min(360px, calc(100% - 1.8rem));
@@ -546,6 +541,103 @@
     margin-right: 0.3rem;
   }
 
+
+  /* ——— Vertical story rail (no diagrams) ——— */
+  .rail {
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 0.2rem;
+  }
+  .rail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 0.18rem 0.45rem;
+    border-radius: 999px;
+  }
+  .badge.ok { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  .rail-step {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 0.85rem;
+    position: relative;
+    padding-bottom: 1.15rem;
+    animation: rise .4s ease both;
+  }
+  .rail-step:last-child { padding-bottom: 0; }
+  .rail-step::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 34px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--line-strong), transparent);
+  }
+  .rail-step:last-child::before { display: none; }
+  .rail-idx {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg-elev);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: grid;
+    place-items: center;
+    z-index: 1;
+  }
+  .rail-card {
+    border: 1px solid var(--line);
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 0.85rem 0.95rem;
+    cursor: pointer;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .rail-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.25);
+  }
+  .rail-card .top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+  .rail-card h4 {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .rail-card .sum {
+    margin: 0.25rem 0 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+  .rail-card .arrow {
+    margin-top: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: #ff9f6b;
+  }
+
   @keyframes rise {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: none; }
@@ -581,7 +673,7 @@
       <div class="chips">
         <span class="chip accent">okad __OKAD_VERSION__</span>
         <span class="chip">story v__STORY_VERSION__</span>
-        <span class="chip" id="chip-engine">Story maps</span>
+        <span class="chip" id="chip-engine">Zero diagrams</span>
         <span class="chip" id="chip-stats"></span>
       </div>
     </div>
@@ -596,7 +688,7 @@
   </div>
   <div class="toolbar">
     <button class="toolbtn" id="btn-top" type="button">Top</button>
-    <span class="hint" id="engine-hint">Agents = org chart · Architecture = journey lanes · Journeys/Requests = sequence</span>
+    <span class="hint" id="engine-hint">Zero diagrams · Agents org · Journey rails · Layer lanes</span>
   </div>
 </header>
 <main>
@@ -610,7 +702,6 @@
       <p id="focus-summary"></p>
     </div>
     <div id="board" class="active"></div>
-    <div id="mmd"></div>
     <div class="inspector" id="inspector">
       <button class="close" id="ins-close" type="button" aria-label="Close">×</button>
       <h3 id="ins-title"></h3>
@@ -629,34 +720,12 @@ let focusId = null;
 const sideList = document.getElementById('side-list');
 const sideTitle = document.getElementById('side-title');
 const board = document.getElementById('board');
-const mmdEl = document.getElementById('mmd');
 const focusTitle = document.getElementById('focus-title');
 const focusSummary = document.getElementById('focus-summary');
 const inspector = document.getElementById('inspector');
 
 document.getElementById('chip-stats').textContent =
   `${(DATA.nodes||[]).filter(n => n.kind !== 'layer').length} nodes · ${(DATA.agents||[]).length} agents · ${(DATA.journeys||[]).length} journeys · ${(DATA.requests||[]).length} requests`;
-
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'dark',
-  securityLevel: 'loose',
-  fontFamily: 'IBM Plex Sans, Segoe UI, sans-serif',
-  themeVariables: {
-    darkMode: true,
-    background: '#0e1411',
-    primaryColor: '#1a2420',
-    primaryTextColor: '#f2f6f3',
-    primaryBorderColor: '#3dba8a',
-    lineColor: '#8d9b92',
-    actorBkg: '#141c18',
-    actorBorder: '#3dba8a',
-    actorTextColor: '#f2f6f3',
-    signalColor: '#c9d4cc',
-    signalTextColor: '#f2f6f3',
-  },
-  sequence: { mirrorActors: false, messageMargin: 42, actorMargin: 60, useMaxWidth: true },
-});
 
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -668,7 +737,7 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 document.getElementById('btn-top').onclick = () => {
-  (board.classList.contains('active') ? board : mmdEl).scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  board.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
 };
 document.getElementById('ins-close').onclick = () => inspector.classList.remove('open');
 
@@ -728,17 +797,9 @@ function bindSide(items) {
     });
   });
 }
-function useBoard() {
+function useBoard(engine = 'Story map') {
   board.classList.add('active');
-  mmdEl.classList.remove('active');
-  mmdEl.innerHTML = '';
-  document.getElementById('chip-engine').textContent = 'HTML story map';
-}
-function useMermaid() {
-  board.classList.remove('active');
-  mmdEl.classList.add('active');
-  board.innerHTML = '';
-  document.getElementById('chip-engine').textContent = 'Mermaid sequence';
+  document.getElementById('chip-engine').textContent = engine;
 }
 function wireClicks(root, selector, lookup) {
   root.querySelectorAll(selector).forEach(el => {
@@ -924,10 +985,6 @@ function renderArchitecture() {
     (by[n.layer] ? by[n.layer] : by.application).push(n);
   });
 
-  const edges = (DATA.edges || [])
-    .filter(e => e.kind !== 'contains' && keep.has(e.source) && keep.has(e.target))
-    .slice(0, 14);
-
   const pathHtml = steps.map((s, i) => {
     const n = nm[s.node_id] || { id: s.node_id, label: s.node_id, layer: 'application', kind: 'service' };
     return `<div class="step">
@@ -949,17 +1006,6 @@ function renderArchitecture() {
       <div class="legend" style="margin-bottom:.55rem"><span>Touched layers</span></div>
       <div class="lanes">${LAYERS.map(l => laneHtml(l, by[l])).join('')}</div>
     </div>
-    ${edges.length ? `<div class="edge-list">
-      <h5>Calls in this story</h5>
-      ${edges.map(e => {
-        const a = nm[e.source]; const b = nm[e.target];
-        return `<div class="edge">
-          <span class="src">${esc((a && a.label) || e.source)}</span>
-          <span class="mid">${esc(e.label || e.kind || 'calls')}</span>
-          <span class="tgt">${esc((b && b.label) || e.target)}</span>
-        </div>`;
-      }).join('')}
-    </div>` : ''}
   </div>`;
   wireNodeClicks(nm);
   wireClicks(board, '.step-card', id => nm[id]);
@@ -1014,8 +1060,8 @@ function renderData() {
   wireNodeClicks(nm);
 }
 
-async function renderMermaidSequence(mode) {
-  useMermaid();
+function renderStoryRail(mode) {
+  useBoard(mode === 'journeys' ? 'Journey rail' : 'Request rail');
   const nm = nodeMap();
   let items = [];
   if (mode === 'journeys') {
@@ -1033,51 +1079,69 @@ async function renderMermaidSequence(mode) {
   if (!items.length) {
     bindSide([]);
     setMeta(`No ${mode}`, 'Re-run /okad to author this view.');
-    mmdEl.innerHTML = `<div class="empty">Nothing authored yet.</div>`;
+    board.innerHTML = `<div class="empty">Nothing authored yet.</div>`;
     return;
   }
   if (!focusId || !items.find(i => i.id === focusId)) focusId = items[0].id;
   bindSide(items);
   const current = items.find(i => i.id === focusId)._raw;
-  setMeta(current.name, current.summary || `${current.method || ''} ${current.route || ''}`.trim());
+  setMeta(
+    current.name,
+    current.summary || `${current.method || ''} ${current.route || ''}`.trim()
+  );
 
-  let stepIds = [];
-  if (mode === 'journeys') stepIds = journeySteps(current).map(s => s.node_id);
-  else stepIds = current.steps || [];
+  let steps = [];
+  if (mode === 'journeys') {
+    steps = journeySteps(current).map(s => ({
+      id: s.node_id,
+      note: s.note || '',
+    }));
+  } else {
+    steps = (current.steps || []).map(id => ({ id, note: '' }));
+  }
   const unique = [];
-  stepIds.forEach(id => { if (id && !unique.includes(id)) unique.push(id); });
-
-  const lines = ['sequenceDiagram', '  autonumber'];
-  unique.forEach((id, i) => {
-    const n = nm[id] || { id, label: id };
-    lines.push(`  participant N${i} as ${escM(n.label || id)}`);
+  steps.forEach(s => {
+    if (s.id && !unique.find(u => u.id === s.id)) unique.push(s);
   });
-  for (let i = 0; i < unique.length - 1; i++) {
-    const note = (mode === 'journeys'
-      ? (journeySteps(current)[i] && journeySteps(current)[i].note)
-      : '') || (mode === 'requests' ? 'calls' : 'next');
-    lines.push(`  N${i}->>N${i + 1}: ${escM(note || 'next')}`);
-  }
+
+  const badges = [];
+  if (current.method) badges.push(`<span class="badge ok">${esc(current.method)}</span>`);
+  if (current.route) badges.push(`<span class="badge">${esc(current.route)}</span>`);
   if (current.status && current.status.length) {
-    lines.push(`  Note over N${Math.max(unique.length - 1, 0)}: ${escM(current.status.join(' / '))}`);
+    badges.push(`<span class="badge ok">${esc(current.status.join(' / '))}</span>`);
   }
-  const code = lines.join('\n');
-  mmdEl.innerHTML = '<div class="empty">Rendering sequence…</div>';
-  try {
-    const { svg } = await mermaid.render('okad-seq-' + Date.now(), code);
-    mmdEl.innerHTML = svg;
-  } catch (err) {
-    mmdEl.innerHTML = `<pre class="empty">${esc(String(err))}\n\n${esc(code)}</pre>`;
-  }
+  badges.push(`<span class="badge">${unique.length} steps</span>`);
+
+  board.innerHTML = `<div class="rail">
+    <div class="rail-meta">${badges.join('')}</div>
+    ${unique.map((s, i) => {
+      const n = nm[s.id] || { id: s.id, label: s.id, layer: 'application', kind: 'service', summary: '' };
+      const next = unique[i + 1];
+      const nextLabel = next ? ((nm[next.id] && nm[next.id].label) || next.id) : '';
+      return `<div class="rail-step" style="animation-delay:${i * 0.04}s">
+        <div class="rail-idx">${String(i + 1).padStart(2,'0')}</div>
+        <div class="rail-card" data-id="${esc(n.id)}">
+          <div class="top">
+            <span class="layer-pill ${esc(n.layer || 'application')}">${esc(n.layer || 'application')}</span>
+            <span class="badge">${esc(n.kind || 'node')}</span>
+          </div>
+          <h4>${esc(n.label || n.id)}</h4>
+          <p class="sum">${esc(s.note || n.summary || '')}</p>
+          ${next ? `<div class="arrow">↓ then ${esc(nextLabel)}</div>` : `<div class="arrow">■ end</div>`}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+  wireClicks(board, '.rail-card', id => nm[id]);
 }
 
-async function render() {
+function render() {
   inspector.classList.remove('open');
   if (view === 'agents') return renderAgents();
   if (view === 'architecture') return renderArchitecture();
   if (view === 'data') return renderData();
-  if (view === 'journeys') return renderMermaidSequence('journeys');
-  return renderMermaidSequence('requests');
+  if (view === 'journeys') return renderStoryRail('journeys');
+  return renderStoryRail('requests');
 }
 
 render();
