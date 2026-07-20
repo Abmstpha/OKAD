@@ -4,12 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>OKAD — __SYSTEM_NAME__</title>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.4/dist/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   :root {
-    --bg: #0b0f0d;
-    --bg-elev: #121816;
-    --bg-card: #18201c;
+    --bg: #090c0b;
+    --bg-elev: #101614;
+    --bg-card: #171f1b;
     --ink: #eef4ef;
     --muted: #8b9a90;
     --line: #2a3530;
@@ -23,74 +26,74 @@
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font-body); }
   body {
     background:
-      radial-gradient(900px 480px at 8% -8%, #152820 0%, transparent 55%),
-      radial-gradient(700px 420px at 100% 0%, #1a1524 0%, transparent 50%),
+      radial-gradient(900px 480px at 8% -8%, #13241c 0%, transparent 55%),
+      radial-gradient(700px 420px at 100% 0%, #181426 0%, transparent 50%),
       var(--bg);
     overflow: hidden;
   }
   header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.75rem 1.25rem;
+    gap: 0.7rem 1.1rem;
     align-items: center;
-    padding: 0.85rem 1.1rem;
+    padding: 0.8rem 1.05rem;
     border-bottom: 1px solid var(--line);
-    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
     backdrop-filter: blur(8px);
+    z-index: 5;
   }
-  .brand-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.55rem 0.85rem; }
+  .brand-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.8rem; }
   .brand {
     font-family: var(--font-display);
-    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+    font-size: clamp(1.3rem, 2.3vw, 1.8rem);
     letter-spacing: 0.04em;
-    line-height: 1;
     margin: 0;
+    line-height: 1;
   }
   .brand span { color: var(--accent); }
-  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .chip {
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     color: var(--muted);
     border: 1px solid var(--line);
-    padding: 0.18rem 0.45rem;
+    padding: 0.16rem 0.42rem;
     border-radius: 999px;
   }
   .chip.accent { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
   .tagline {
     color: var(--muted);
-    margin: 0.35rem 0 0;
+    margin: 0.3rem 0 0;
     max-width: 72ch;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .tabs { display: flex; gap: 0.3rem; flex-wrap: wrap; justify-content: flex-end; }
+  .tabs { display: flex; gap: 0.28rem; flex-wrap: wrap; justify-content: flex-end; }
   .tab {
     background: transparent;
     color: var(--muted);
     border: 1px solid var(--line);
-    padding: 0.4rem 0.7rem;
+    padding: 0.38rem 0.65rem;
     font: inherit;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     cursor: pointer;
     border-radius: 4px;
   }
-  .tab:hover { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
   .tab[aria-selected="true"] {
     color: var(--bg);
     background: var(--accent);
     border-color: var(--accent);
   }
   .toolbar {
+    grid-column: 1 / -1;
     display: flex;
     gap: 0.35rem;
     align-items: center;
     justify-content: flex-end;
-    grid-column: 1 / -1;
   }
   .toolbtn {
     background: var(--bg-elev);
@@ -98,153 +101,110 @@
     border: 1px solid var(--line);
     padding: 0.28rem 0.55rem;
     font: inherit;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     cursor: pointer;
     border-radius: 4px;
   }
   .toolbtn:hover { border-color: var(--accent); }
-  .hint { color: var(--muted); font-size: 0.72rem; margin-left: 0.35rem; }
+  .hint { color: var(--muted); font-size: 0.7rem; margin-left: 0.3rem; }
   main {
     display: grid;
     grid-template-columns: minmax(220px, 280px) 1fr;
-    height: calc(100vh - 118px);
+    height: calc(100vh - 112px);
   }
   aside {
     border-right: 1px solid var(--line);
     padding: 0.85rem;
     overflow: auto;
-    background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
+    background: color-mix(in srgb, var(--bg-elev) 94%, transparent);
   }
   aside h2 {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: var(--muted);
-    margin: 0 0 0.65rem;
+    margin: 0 0 0.6rem;
   }
-  .list { display: flex; flex-direction: column; gap: 0.35rem; }
+  .list { display: flex; flex-direction: column; gap: 0.32rem; }
   .item {
     text-align: left;
     width: 100%;
     background: transparent;
     border: 1px solid transparent;
     color: var(--ink);
-    padding: 0.55rem 0.6rem;
+    padding: 0.5rem 0.55rem;
     cursor: pointer;
     font: inherit;
     border-radius: 6px;
   }
-  .item:hover, .item.active {
-    border-color: var(--line);
-    background: var(--bg-card);
-  }
+  .item:hover, .item.active { border-color: var(--line); background: var(--bg-card); }
   .item.active {
     border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
     box-shadow: 0 0 0 1px var(--accent-soft);
   }
-  .item small { display: block; color: var(--muted); margin-top: 0.18rem; font-size: 0.72rem; line-height: 1.35; }
+  .item small { display: block; color: var(--muted); margin-top: 0.15rem; font-size: 0.7rem; line-height: 1.35; }
   .stage {
     position: relative;
-    overflow: auto;
-    padding: 1rem 1.25rem 2rem;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 0;
   }
   .stage-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: flex-start;
-    margin-bottom: 0.85rem;
+    padding: 0.75rem 1rem 0.35rem;
+    border-bottom: 1px solid var(--line);
   }
   .stage-head h2 {
     margin: 0;
     font-family: var(--font-display);
     font-weight: 500;
-    font-size: 1.35rem;
+    font-size: 1.25rem;
   }
   .stage-head p {
-    margin: 0.35rem 0 0;
+    margin: 0.3rem 0 0;
     color: var(--muted);
-    font-size: 0.9rem;
-    line-height: 1.45;
-    max-width: 70ch;
+    font-size: 0.86rem;
+    line-height: 1.4;
+    max-width: 80ch;
   }
-  #diagram {
-    min-height: 55vh;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background:
-      linear-gradient(transparent 23px, color-mix(in srgb, var(--line) 28%, transparent) 24px),
-      linear-gradient(90deg, transparent 23px, color-mix(in srgb, var(--line) 28%, transparent) 24px),
-      var(--bg-elev);
-    background-size: 24px 24px, 24px 24px, auto;
-    padding: 1.25rem;
+  #cy, #mmd {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+  #mmd {
     overflow: auto;
-  }
-  #diagram .mermaid,
-  #diagram svg {
-    width: 100% !important;
-    max-width: none !important;
-    height: auto !important;
-  }
-  #diagram .error {
-    color: #e87a6b;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    white-space: pre-wrap;
-  }
-  .source-panel {
-    margin-top: 0.85rem;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--bg-elev);
+    padding: 1rem;
     display: none;
   }
-  .source-panel.open { display: block; }
-  .source-panel header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.55rem 0.75rem;
-    border-bottom: 1px solid var(--line);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .source-panel pre {
-    margin: 0;
-    padding: 0.85rem 1rem;
-    overflow: auto;
-    max-height: 28vh;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    line-height: 1.45;
-    color: #c9d4cc;
-  }
+  #mmd.active { display: block; }
+  #cy.active { display: block; }
+  #cy { display: none; background: transparent; }
+  #mmd svg { max-width: 100%; height: auto; }
   .empty { padding: 2rem; color: var(--muted); }
   .inspector {
-    position: absolute; right: 1rem; top: 1rem; width: min(340px, calc(100% - 2rem));
+    position: absolute; right: 0.85rem; top: 4.2rem; width: min(340px, calc(100% - 1.7rem));
     background: color-mix(in srgb, var(--bg-elev) 96%, transparent);
     border: 1px solid var(--line);
-    padding: 0.9rem;
+    padding: 0.85rem;
     display: none;
     border-radius: 8px;
     backdrop-filter: blur(10px);
-    z-index: 3;
+    z-index: 4;
+    max-height: calc(100% - 5rem);
+    overflow: auto;
   }
   .inspector.open { display: block; }
-  .inspector h3 { margin: 0 0 0.35rem; font-family: var(--font-display); font-weight: 500; }
-  .inspector p { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.45; }
-  .inspector .meta { margin-top: 0.7rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); white-space: pre-wrap; }
+  .inspector h3 { margin: 0 0 0.3rem; font-family: var(--font-display); font-weight: 500; }
+  .inspector p { margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.45; }
+  .inspector .meta { margin-top: 0.65rem; font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); white-space: pre-wrap; }
   .inspector .close {
-    position: absolute; top: 0.45rem; right: 0.55rem;
+    position: absolute; top: 0.4rem; right: 0.5rem;
     background: transparent; border: 0; color: var(--muted); cursor: pointer; font-size: 1rem;
   }
   @media (max-width: 900px) {
     header { grid-template-columns: 1fr; }
-    main { grid-template-columns: 1fr; grid-template-rows: minmax(140px, 28vh) 1fr; height: calc(100vh - 150px); }
+    main { grid-template-columns: 1fr; grid-template-rows: minmax(130px, 26vh) 1fr; height: calc(100vh - 150px); }
     aside { border-right: 0; border-bottom: 1px solid var(--line); }
-    .tabs { justify-content: flex-start; }
   }
 </style>
 </head>
@@ -256,6 +216,7 @@
       <div class="chips">
         <span class="chip accent">okad __OKAD_VERSION__</span>
         <span class="chip">story v__STORY_VERSION__</span>
+        <span class="chip" id="chip-engine">Cytoscape · Mermaid</span>
         <span class="chip" id="chip-stats"></span>
       </div>
     </div>
@@ -269,9 +230,9 @@
     <button class="tab" data-view="data">Data flow</button>
   </div>
   <div class="toolbar">
-    <button class="toolbtn" id="btn-source" type="button">Show Mermaid source</button>
-    <button class="toolbtn" id="btn-copy" type="button">Copy source</button>
-    <span class="hint">diagrams rendered with Mermaid</span>
+    <button class="toolbtn" id="btn-fit" type="button">Fit</button>
+    <button class="toolbtn" id="btn-png" type="button">Export PNG</button>
+    <span class="hint" id="engine-hint">Agents/Architecture/Data → Cytoscape graph · Journeys/Requests → Mermaid sequence</span>
   </div>
 </header>
 <main>
@@ -281,18 +242,11 @@
   </aside>
   <section class="stage">
     <div class="stage-head">
-      <div>
-        <h2 id="focus-title">Loading…</h2>
-        <p id="focus-summary"></p>
-      </div>
+      <h2 id="focus-title">Loading…</h2>
+      <p id="focus-summary"></p>
     </div>
-    <div id="diagram"><div class="empty">Rendering…</div></div>
-    <div class="source-panel" id="source-panel">
-      <header>
-        <span>Mermaid source</span>
-      </header>
-      <pre id="source-pre"></pre>
-    </div>
+    <div id="cy" class="active"></div>
+    <div id="mmd"></div>
     <div class="inspector" id="inspector">
       <button class="close" id="ins-close" type="button" aria-label="Close">×</button>
       <h3 id="ins-title"></h3>
@@ -304,23 +258,38 @@
 <script>
 const DATA = __DATA__;
 const LAYER_ORDER = ['experience','interface','application','data','infra'];
+const COLORS = {
+  experience: '#6eb8ff',
+  interface: '#3dba8a',
+  application: '#e2b15c',
+  data: '#e87a6b',
+  infra: '#c49bff',
+  system: '#c49bff',
+  orch: '#ff9f6b',
+  sub: '#e2b15c',
+  tool: '#9ad7ff',
+};
 
 let view = 'agents';
 let focusId = null;
-let lastMermaid = '';
-let showSource = false;
+let cy = null;
 
 const sideList = document.getElementById('side-list');
 const sideTitle = document.getElementById('side-title');
-const diagram = document.getElementById('diagram');
+const cyEl = document.getElementById('cy');
+const mmdEl = document.getElementById('mmd');
 const focusTitle = document.getElementById('focus-title');
 const focusSummary = document.getElementById('focus-summary');
-const sourcePanel = document.getElementById('source-panel');
-const sourcePre = document.getElementById('source-pre');
 const inspector = document.getElementById('inspector');
 
 document.getElementById('chip-stats').textContent =
   `${(DATA.nodes||[]).filter(n => n.kind !== 'layer').length} nodes · ${(DATA.agents||[]).length} agents · ${(DATA.journeys||[]).length} journeys · ${(DATA.requests||[]).length} requests`;
+
+if (typeof cytoscapeDagre !== 'undefined') {
+  cytoscape.use(cytoscapeDagre);
+} else if (typeof window['cytoscape-dagre'] !== 'undefined') {
+  cytoscape.use(window['cytoscape-dagre']);
+}
 
 mermaid.initialize({
   startOnLoad: false,
@@ -329,35 +298,18 @@ mermaid.initialize({
   fontFamily: 'IBM Plex Sans, Segoe UI, sans-serif',
   themeVariables: {
     darkMode: true,
-    background: '#121816',
+    background: '#101614',
     primaryColor: '#1a2420',
     primaryTextColor: '#eef4ef',
     primaryBorderColor: '#3dba8a',
     lineColor: '#8a9a90',
-    secondaryColor: '#1c221f',
-    tertiaryColor: '#151b18',
-    noteBkgColor: '#18201c',
-    noteTextColor: '#eef4ef',
     actorBkg: '#1a2420',
     actorBorder: '#3dba8a',
     actorTextColor: '#eef4ef',
     signalColor: '#c9d4cc',
     signalTextColor: '#eef4ef',
   },
-  flowchart: {
-    curve: 'basis',
-    htmlLabels: true,
-    nodeSpacing: 42,
-    rankSpacing: 56,
-    padding: 16,
-  },
-  sequence: {
-    mirrorActors: false,
-    bottomMarginAdj: 8,
-    messageMargin: 36,
-    actorMargin: 48,
-    useMaxWidth: true,
-  },
+  sequence: { mirrorActors: false, messageMargin: 40, actorMargin: 56, useMaxWidth: true },
 });
 
 document.querySelectorAll('.tab').forEach(btn => {
@@ -369,18 +321,14 @@ document.querySelectorAll('.tab').forEach(btn => {
     render();
   });
 });
-
-document.getElementById('btn-source').onclick = () => {
-  showSource = !showSource;
-  sourcePanel.classList.toggle('open', showSource);
-  document.getElementById('btn-source').textContent = showSource ? 'Hide Mermaid source' : 'Show Mermaid source';
-};
-document.getElementById('btn-copy').onclick = async () => {
-  try {
-    await navigator.clipboard.writeText(lastMermaid || '');
-    document.getElementById('btn-copy').textContent = 'Copied';
-    setTimeout(() => { document.getElementById('btn-copy').textContent = 'Copy source'; }, 1200);
-  } catch (_) {}
+document.getElementById('btn-fit').onclick = () => { if (cy) cy.fit(undefined, 48); };
+document.getElementById('btn-png').onclick = () => {
+  if (!cy) return;
+  const png = cy.png({ full: true, scale: 2, bg: '#090c0b' });
+  const a = document.createElement('a');
+  a.href = png;
+  a.download = `okad-${view}.png`;
+  a.click();
 };
 document.getElementById('ins-close').onclick = () => inspector.classList.remove('open');
 
@@ -390,69 +338,46 @@ function nodeMap() {
   return m;
 }
 
-function inferAgents() {
-  if (Array.isArray(DATA.agents) && DATA.agents.length) {
-    return DATA.agents.map(a => ({
-      id: a.id,
-      name: a.name,
-      summary: a.summary || '',
-      role: a.role || '',
-      level: a.level || 'orchestrator',
-      parent_id: a.parent_id || null,
-      node_id: a.node_id || null,
-      flow: a.flow || [],
-      relations: a.relations || [],
-      tools: a.tools || [],
-    }));
-  }
-  return [];
+function agents() {
+  return (DATA.agents || []).map(a => ({
+    id: a.id,
+    name: a.name,
+    summary: a.summary || '',
+    role: a.role || '',
+    level: a.level || 'orchestrator',
+    parent_id: a.parent_id || null,
+    node_id: a.node_id || null,
+    flow: a.flow || [],
+    relations: a.relations || [],
+    tools: a.tools || [],
+  }));
 }
 
 function esc(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 function escM(s) {
-  return String(s || '')
-    .replace(/[\[\]#;{}()<>|"]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 48);
+  return String(s || '').replace(/[\[\]#;{}()<>|"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 42);
 }
-
-function sid(prefix, i) {
-  return `${prefix}${i}`;
-}
-
-function classBlock() {
-  return [
-    '  classDef system fill:#241a2a,stroke:#c49bff,color:#fff,stroke-width:2px',
-    '  classDef orch fill:#2a1f18,stroke:#ff9f6b,color:#fff,stroke-width:2px',
-    '  classDef sub fill:#2a2418,stroke:#e2b15c,color:#fff,stroke-width:1.8px',
-    '  classDef tool fill:#152028,stroke:#9ad7ff,color:#fff,stroke-width:1.5px',
-    '  classDef screen fill:#15202a,stroke:#6eb8ff,color:#fff',
-    '  classDef route fill:#15241c,stroke:#3dba8a,color:#fff',
-    '  classDef service fill:#242014,stroke:#e2b15c,color:#fff',
-    '  classDef store fill:#241816,stroke:#e87a6b,color:#fff',
-    '  classDef infra fill:#1e1828,stroke:#c49bff,color:#fff',
-  ].join('\n');
-}
-
-function kindClass(kind, layer) {
-  if (kind === 'screen' || kind === 'action') return 'screen';
-  if (kind === 'route' || kind === 'handler') return 'route';
-  if (kind === 'store' || kind === 'entity') return 'store';
-  if (kind === 'external' || layer === 'infra') return 'infra';
-  if (kind === 'service' || kind === 'agent') return 'service';
-  return 'service';
-}
-
-function setFocusMeta(title, summary) {
-  focusTitle.textContent = title || 'Map';
+function setMeta(title, summary) {
+  focusTitle.textContent = title || '';
   focusSummary.textContent = summary || '';
 }
-
-function bindSide(items, onPick) {
+function showInspector(obj) {
+  if (!obj) return;
+  inspector.classList.add('open');
+  document.getElementById('ins-title').textContent = obj.label || obj.name || obj.id;
+  document.getElementById('ins-body').textContent = obj.summary || obj.role || 'No summary.';
+  document.getElementById('ins-meta').textContent = [
+    obj.kind && `kind: ${obj.kind}`,
+    obj.level && `level: ${obj.level}`,
+    obj.layer && `layer: ${obj.layer}`,
+    obj.role && `role: ${obj.role}`,
+    obj.source && `source: ${obj.source}`,
+    obj.id && `id: ${obj.id}`,
+  ].filter(Boolean).join('\n');
+}
+function bindSide(items) {
   sideList.innerHTML = items.map(it =>
     `<button class="item ${it.id === focusId ? 'active' : ''}" data-id="${esc(it.id)}"><strong>${esc(it.name)}</strong><small>${esc(it.summary || '')}</small></button>`
   ).join('') || `<div class="empty">Nothing here yet.</div>`;
@@ -461,276 +386,470 @@ function bindSide(items, onPick) {
       focusId = btn.dataset.id;
       const hit = items.find(i => i.id === focusId);
       if (hit && hit._raw) showInspector(hit._raw);
-      onPick();
+      render();
     });
   });
 }
 
-function showInspector(n) {
-  if (!n) return;
-  inspector.classList.add('open');
-  document.getElementById('ins-title').textContent = n.label || n.name || n.id;
-  document.getElementById('ins-body').textContent = n.summary || n.role || 'No summary.';
-  document.getElementById('ins-meta').textContent = [
-    n.kind && `kind: ${n.kind}`,
-    n.level && `level: ${n.level}`,
-    n.layer && `layer: ${n.layer}`,
-    n.role && `role: ${n.role}`,
-    n.source && `source: ${n.source}`,
-    n.id && `id: ${n.id}`,
-  ].filter(Boolean).join('\n');
+function useGraph() {
+  cyEl.classList.add('active');
+  mmdEl.classList.remove('active');
+  mmdEl.innerHTML = '';
+  document.getElementById('chip-engine').textContent = 'Cytoscape · dagre';
+}
+function useMermaid() {
+  cyEl.classList.remove('active');
+  mmdEl.classList.add('active');
+  if (cy) { cy.destroy(); cy = null; }
+  document.getElementById('chip-engine').textContent = 'Mermaid sequence';
 }
 
-function mermaidAgents() {
-  const agents = inferAgents();
-  const roots = agents.filter(a => a.level === 'system' || a.level === 'orchestrator');
-  sideTitle.textContent = 'Agent fleet';
+function cyStyle() {
+  return [
+    {
+      selector: 'node',
+      style: {
+        'shape': 'ellipse',
+        'background-color': '#151c19',
+        'background-opacity': 1,
+        'border-width': 3,
+        'border-color': '#3dba8a',
+        'label': 'data(label)',
+        'color': '#eef4ef',
+        'text-valign': 'center',
+        'text-halign': 'center',
+        'text-wrap': 'wrap',
+        'text-max-width': 110,
+        'font-size': 12,
+        'font-family': 'IBM Plex Sans, Segoe UI, sans-serif',
+        'font-weight': 600,
+        'width': 'data(size)',
+        'height': 'data(size)',
+        'overlay-padding': 6,
+        'z-index': 10,
+      }
+    },
+    {
+      selector: 'node[kind = "system"]',
+      style: { 'border-color': COLORS.system, 'width': 92, 'height': 92, 'font-size': 13 }
+    },
+    {
+      selector: 'node[kind = "orch"]',
+      style: { 'border-color': COLORS.orch, 'width': 84, 'height': 84 }
+    },
+    {
+      selector: 'node[kind = "sub"]',
+      style: { 'border-color': COLORS.sub, 'width': 72, 'height': 72, 'font-size': 11 }
+    },
+    {
+      selector: 'node[kind = "tool"]',
+      style: {
+        'border-color': COLORS.tool,
+        'background-color': '#121820',
+        'width': 58,
+        'height': 58,
+        'font-size': 10,
+        'font-weight': 500,
+      }
+    },
+    {
+      selector: 'node[kind = "screen"]',
+      style: { 'border-color': COLORS.experience }
+    },
+    {
+      selector: 'node[kind = "route"]',
+      style: { 'border-color': COLORS.interface }
+    },
+    {
+      selector: 'node[kind = "service"]',
+      style: { 'border-color': COLORS.application }
+    },
+    {
+      selector: 'node[kind = "store"]',
+      style: { 'border-color': COLORS.data }
+    },
+    {
+      selector: 'node[kind = "infra"]',
+      style: { 'border-color': COLORS.infra }
+    },
+    {
+      selector: 'node:selected',
+      style: { 'border-width': 5, 'border-color': '#ffffff' }
+    },
+    {
+      selector: 'edge',
+      style: {
+        'curve-style': 'bezier',
+        'target-arrow-shape': 'triangle',
+        'target-arrow-color': '#8a9a90',
+        'line-color': '#5a6a60',
+        'width': 2.4,
+        'arrow-scale': 1.15,
+        'label': 'data(label)',
+        'font-size': 9,
+        'color': '#a8b7ad',
+        'text-background-color': '#101614',
+        'text-background-opacity': 0.85,
+        'text-background-padding': 2,
+        'text-rotation': 'autorotate',
+      }
+    },
+    {
+      selector: 'edge[kind = "owns"]',
+      style: { 'line-color': '#c49bff', 'target-arrow-color': '#c49bff' }
+    },
+    {
+      selector: 'edge[kind = "uses"]',
+      style: { 'line-color': '#9ad7ff', 'target-arrow-color': '#9ad7ff', 'line-style': 'solid' }
+    },
+    {
+      selector: 'edge[kind = "feeds"], edge[kind = "invokes"], edge[kind = "relates"]',
+      style: { 'line-color': '#ff9f6b', 'target-arrow-color': '#ff9f6b' }
+    },
+  ];
+}
 
+function mountCy(elements, rankDir = 'TB') {
+  useGraph();
+  if (cy) { cy.destroy(); cy = null; }
+  let layout = {
+    name: 'dagre',
+    rankDir,
+    nodeSep: 36,
+    edgeSep: 24,
+    rankSep: 70,
+    padding: 40,
+    animate: false,
+    fit: true,
+  };
+  // fallback if dagre extension missing
+  try {
+    cy = cytoscape({
+      container: cyEl,
+      elements,
+      style: cyStyle(),
+      minZoom: 0.2,
+      maxZoom: 2.8,
+      wheelSensitivity: 0.25,
+      layout,
+    });
+  } catch (err) {
+    layout = { name: 'breadthfirst', directed: true, padding: 40, spacingFactor: 1.15, animate: false, fit: true };
+    cy = cytoscape({
+      container: cyEl,
+      elements,
+      style: cyStyle(),
+      minZoom: 0.2,
+      maxZoom: 2.8,
+      wheelSensitivity: 0.25,
+      layout,
+    });
+  }
+  cy.on('tap', 'node', (evt) => {
+    const d = evt.target.data();
+    showInspector({
+      id: d.id,
+      name: d.fullLabel || d.label,
+      label: d.fullLabel || d.label,
+      summary: d.summary || '',
+      role: d.role || '',
+      kind: d.kind,
+      level: d.level,
+      layer: d.layer,
+      source: d.sourcePath || null,
+    });
+  });
+  cy.on('tap', (evt) => {
+    if (evt.target === cy) inspector.classList.remove('open');
+  });
+  requestAnimationFrame(() => cy && cy.fit(undefined, 48));
+}
+
+function shortLabel(s, n = 18) {
+  const t = String(s || '').trim();
+  return t.length <= n ? t : t.slice(0, n - 1) + '…';
+}
+
+function renderAgentsGraph() {
+  const all = agents();
+  const roots = all.filter(a => a.level === 'system' || a.level === 'orchestrator');
+  sideTitle.textContent = 'Agent fleet';
   const side = [
-    { id: '__fleet__', name: 'Fleet overview', summary: `${agents.length} agents · hierarchy + tools + relations` },
+    { id: '__fleet__', name: 'Fleet overview', summary: `${all.length} agents · real graph` },
     ...roots.map(a => ({
       id: a.id,
       name: a.name,
-      summary: a.role || a.summary || `${(a.flow || []).length} steps · ${(a.tools || []).length} tools`,
+      summary: a.role || a.summary || `${(a.flow||[]).length} steps · ${(a.tools||[]).length} tools`,
       _raw: a,
     })),
   ];
   if (!focusId) focusId = '__fleet__';
-  bindSide(side, () => render());
+  bindSide(side);
+
+  const elements = [];
+  const addNode = (a, kind) => {
+    elements.push({
+      data: {
+        id: a.id,
+        label: shortLabel(a.name, kind === 'tool' ? 14 : 16),
+        fullLabel: a.name,
+        summary: a.summary || '',
+        role: a.role || '',
+        kind,
+        level: a.level || kind,
+        size: kind === 'system' ? 92 : kind === 'orch' ? 84 : kind === 'sub' ? 72 : 58,
+        sourcePath: a.node_id || a.source || null,
+      }
+    });
+  };
+  const addEdge = (src, tgt, label, kind) => {
+    elements.push({
+      data: {
+        id: `${src}->${tgt}:${kind}:${label || ''}`,
+        source: src,
+        target: tgt,
+        label: label || '',
+        kind: kind || 'relates',
+      }
+    });
+  };
 
   if (focusId === '__fleet__') {
-    setFocusMeta('Agentic architecture', 'Orchestrators, relations, and ownership — Mermaid flowchart.');
-    const lines = ['flowchart TB'];
-    const idx = {};
-    roots.forEach((a, i) => {
-      const id = sid('A', i);
-      idx[a.id] = id;
-      const cls = a.level === 'system' ? 'system' : 'orch';
-      const label = a.role ? `${escM(a.name)}\\n${escM(a.role)}` : escM(a.name);
-      lines.push(`  ${id}(["${label}"]):::${cls}`);
-    });
+    setMeta('Agentic architecture', 'Cytoscape + dagre — hierarchy, relations, subagents.');
+    roots.forEach(a => addNode(a, a.level === 'system' ? 'system' : 'orch'));
     roots.forEach(a => {
-      if (a.parent_id && idx[a.parent_id] && idx[a.id]) {
-        lines.push(`  ${idx[a.parent_id]} -->|owns| ${idx[a.id]}`);
+      if (a.parent_id && roots.some(r => r.id === a.parent_id)) {
+        addEdge(a.parent_id, a.id, 'owns', 'owns');
       }
       (a.relations || []).forEach(r => {
-        if (!idx[a.id] || !idx[r.target]) return;
-        lines.push(`  ${idx[a.id]} -->|${escM(r.label || r.kind || 'relates')}| ${idx[r.target]}`);
+        if (roots.some(x => x.id === r.target)) {
+          addEdge(a.id, r.target, r.label || r.kind || 'relates', r.kind || 'relates');
+        }
+      });
+      const kids = all.filter(c => c.parent_id === a.id || (a.flow || []).includes(c.id)).slice(0, 6);
+      kids.forEach(c => {
+        addNode(c, 'sub');
+        addEdge(a.id, c.id, 'runs', 'invokes');
       });
     });
-    // preview first tools under each orch as compact nodes
-    roots.forEach((a, i) => {
-      const kids = agents.filter(c => c.parent_id === a.id || (a.flow || []).includes(c.id)).slice(0, 5);
-      kids.forEach((c, j) => {
-        const kid = sid(`S${i}_`, j);
-        lines.push(`  ${kid}["${escM(c.name)}"]:::sub`);
-        lines.push(`  ${idx[a.id]} --> ${kid}`);
-      });
-    });
-    lines.push(classBlock());
-    return lines.join('\n');
+    mountCy(elements, 'TB');
+    return;
   }
 
-  const current = agents.find(a => a.id === focusId) || roots[0];
-  setFocusMeta(current.name, [current.role, current.summary].filter(Boolean).join(' — '));
-  const kids = agents.filter(a => a.parent_id === current.id || (current.flow || []).includes(a.id));
-  const lines = ['flowchart LR'];
-  const cls = current.level === 'system' ? 'system' : 'orch';
-  lines.push(`  ORCH(["${escM(current.name)}\\n${escM(current.role || current.level)}"]):::${cls}`);
-
-  if (!kids.length && (current.tools || []).length) {
-    (current.tools || []).forEach((t, i) => {
-      lines.push(`  T${i}["${escM(t.name)}"]:::tool`);
-      lines.push(`  ORCH -->|uses| T${i}`);
+  const current = all.find(a => a.id === focusId) || roots[0];
+  setMeta(current.name, [current.role, current.summary].filter(Boolean).join(' — '));
+  addNode(current, current.level === 'system' ? 'system' : 'orch');
+  const kids = all.filter(a => a.parent_id === current.id || (current.flow || []).includes(a.id));
+  if (!kids.length) {
+    (current.tools || []).forEach(t => {
+      addNode({ id: t.id, name: t.name, summary: t.summary || '', source: t.source }, 'tool');
+      addEdge(current.id, t.id, 'uses', 'uses');
     });
   } else {
     kids.forEach((c, i) => {
-      lines.push(`  S${i}(["${escM(c.name)}"]):::sub`);
-      lines.push(`  ORCH -->|${i === 0 ? 'runs' : 'then'}| S${i}`);
-      if (i > 0) lines.push(`  S${i - 1} --> S${i}`);
-      (c.tools || []).forEach((t, ti) => {
-        lines.push(`  T${i}_${ti}["${escM(t.name)}"]:::tool`);
-        lines.push(`  S${i} -->|tool| T${i}_${ti}`);
+      addNode(c, 'sub');
+      addEdge(current.id, c.id, i === 0 ? 'runs' : 'then', 'invokes');
+      if (i > 0) addEdge(kids[i - 1].id, c.id, '→', 'invokes');
+      (c.tools || []).forEach(t => {
+        const tid = `${c.id}::${t.id}`;
+        addNode({ id: tid, name: t.name, summary: t.summary || '', source: t.source }, 'tool');
+        addEdge(c.id, tid, 'tool', 'uses');
       });
     });
-    (current.tools || []).forEach((t, i) => {
-      lines.push(`  OT${i}["${escM(t.name)}"]:::tool`);
-      lines.push(`  ORCH -->|uses| OT${i}`);
+    (current.tools || []).forEach(t => {
+      addNode({ id: t.id, name: t.name, summary: t.summary || '', source: t.source }, 'tool');
+      addEdge(current.id, t.id, 'uses', 'uses');
     });
   }
-  (current.relations || []).forEach((r, i) => {
-    const target = agents.find(a => a.id === r.target);
+  (current.relations || []).forEach(r => {
+    const target = all.find(a => a.id === r.target);
     if (!target) return;
-    lines.push(`  R${i}(["${escM(target.name)}"]):::orch`);
-    lines.push(`  ORCH -->|${escM(r.label || r.kind)}| R${i}`);
+    addNode(target, target.level === 'system' ? 'system' : 'orch');
+    addEdge(current.id, target.id, r.label || r.kind || 'relates', r.kind || 'relates');
   });
-  lines.push(classBlock());
-  return lines.join('\n');
+  mountCy(elements, 'LR');
 }
 
-function mermaidArchitecture() {
-  sideTitle.textContent = 'Layers';
+function renderArchitectureGraph() {
+  const nm = nodeMap();
   const nodes = (DATA.nodes || []).filter(n => n.kind !== 'layer');
   const by = {};
   LAYER_ORDER.forEach(l => { by[l] = []; });
-  nodes.forEach(n => {
-    const layer = by[n.layer] ? n.layer : 'application';
-    by[layer].push(n);
-  });
-  const side = LAYER_ORDER.map(l => ({
-    id: `layer:${l}`,
-    name: l,
-    summary: `${by[l].length} nodes`,
-  }));
-  if (!focusId) focusId = 'layer:all';
-  bindSide([{ id: 'layer:all', name: 'All layers', summary: `${nodes.length} nodes` }, ...side], () => render());
+  nodes.forEach(n => { (by[n.layer] ? by[n.layer] : by.application).push(n); });
 
-  const nm = nodeMap();
+  sideTitle.textContent = 'Layers';
+  const side = [
+    { id: 'layer:all', name: 'All layers', summary: `${nodes.length} nodes (capped)` },
+    ...LAYER_ORDER.map(l => ({ id: `layer:${l}`, name: l, summary: `${by[l].length} nodes` })),
+  ];
+  if (!focusId) focusId = 'layer:all';
+  bindSide(side);
+
   const keep = new Set();
   if (focusId === 'layer:all') {
-    LAYER_ORDER.forEach(l => by[l].slice(0, 8).forEach(n => keep.add(n.id)));
-    setFocusMeta('Architecture', 'Layered map of the highest-signal nodes (capped for readability).');
+    LAYER_ORDER.forEach(l => by[l].slice(0, 7).forEach(n => keep.add(n.id)));
+    setMeta('Architecture graph', 'High-signal nodes by layer — Cytoscape dagre.');
   } else {
     const layer = focusId.split(':')[1];
-    by[layer].slice(0, 18).forEach(n => keep.add(n.id));
-    // include neighbors
+    by[layer].slice(0, 16).forEach(n => keep.add(n.id));
     (DATA.edges || []).forEach(e => {
       if (keep.has(e.source)) keep.add(e.target);
       if (keep.has(e.target)) keep.add(e.source);
     });
-    setFocusMeta(`${layer} layer`, (DATA.layers || []).find(x => x.id === layer)?.blurb || '');
+    setMeta(`${layer} layer`, (DATA.layers || []).find(x => x.id === layer)?.blurb || '');
   }
 
-  const lines = ['flowchart LR'];
-  LAYER_ORDER.forEach((l, li) => {
-    const items = [...keep].map(id => nm[id]).filter(n => n && n.layer === l);
-    if (!items.length) return;
-    lines.push(`  subgraph L${li}["${l}"]`);
-    items.forEach((n, i) => {
-      const id = `N${li}_${i}`;
-      n._mid = id;
-      lines.push(`    ${id}["${escM(n.label)}"]:::${kindClass(n.kind, n.layer)}`);
+  const kindOf = (n) => {
+    if (n.kind === 'screen' || n.kind === 'action') return 'screen';
+    if (n.kind === 'route' || n.kind === 'handler') return 'route';
+    if (n.kind === 'store' || n.kind === 'entity') return 'store';
+    if (n.kind === 'external' || n.layer === 'infra') return 'infra';
+    return 'service';
+  };
+
+  const elements = [];
+  [...keep].forEach(id => {
+    const n = nm[id];
+    if (!n) return;
+    elements.push({
+      data: {
+        id: n.id,
+        label: shortLabel(n.label, 16),
+        fullLabel: n.label,
+        summary: n.summary || '',
+        kind: kindOf(n),
+        layer: n.layer,
+        size: 68,
+        sourcePath: n.source || null,
+      }
     });
-    lines.push('  end');
   });
-  const idOf = {};
-  LAYER_ORDER.forEach((l, li) => {
-    [...keep].map(id => nm[id]).filter(n => n && n.layer === l).forEach((n, i) => {
-      idOf[n.id] = `N${li}_${i}`;
+  (DATA.edges || [])
+    .filter(e => e.kind !== 'contains' && keep.has(e.source) && keep.has(e.target))
+    .slice(0, 50)
+    .forEach(e => {
+      elements.push({
+        data: {
+          id: e.id || `${e.source}->${e.target}`,
+          source: e.source,
+          target: e.target,
+          label: e.label || e.kind || '',
+          kind: e.kind || 'relates',
+        }
+      });
     });
-  });
-  (DATA.edges || []).filter(e => e.kind !== 'contains' && idOf[e.source] && idOf[e.target]).slice(0, 40).forEach(e => {
-    lines.push(`  ${idOf[e.source]} -->|${escM(e.label || e.kind)}| ${idOf[e.target]}`);
-  });
-  lines.push(classBlock());
-  return lines.join('\n');
+  mountCy(elements, 'LR');
 }
 
-function mermaidPath(mode) {
+function renderDataGraph() {
+  const nm = nodeMap();
+  const items = (DATA.data_flows || []).map(d => ({
+    id: d.id, name: d.name, summary: d.summary || d.shape || '', _raw: d
+  }));
+  sideTitle.textContent = 'Data flows';
+  if (!items.length) {
+    bindSide([]);
+    setMeta('No data flows', 'Re-run /okad to author data flows.');
+    useGraph();
+    return;
+  }
+  if (!focusId || !items.find(i => i.id === focusId)) focusId = items[0].id;
+  bindSide(items);
+  const current = items.find(i => i.id === focusId)._raw;
+  setMeta(current.name, current.summary || current.shape || '');
+  const stepIds = [current.origin, ...(current.through || []), current.destination].filter(Boolean);
+  const unique = [];
+  stepIds.forEach(id => { if (id && !unique.includes(id)) unique.push(id); });
+  const elements = [];
+  unique.forEach(id => {
+    const n = nm[id] || { id, label: id, kind: 'service', layer: 'application' };
+    elements.push({
+      data: {
+        id,
+        label: shortLabel(n.label || id, 16),
+        fullLabel: n.label || id,
+        summary: n.summary || '',
+        kind: n.kind === 'store' || n.kind === 'entity' ? 'store' : (n.layer === 'infra' ? 'infra' : 'service'),
+        size: 70,
+      }
+    });
+  });
+  for (let i = 0; i < unique.length - 1; i++) {
+    elements.push({
+      data: {
+        id: `e${i}`,
+        source: unique[i],
+        target: unique[i + 1],
+        label: 'flows',
+        kind: 'feeds',
+      }
+    });
+  }
+  mountCy(elements, 'LR');
+}
+
+async function renderMermaidSequence(mode) {
+  useMermaid();
   const nm = nodeMap();
   let items = [];
   if (mode === 'journeys') {
     sideTitle.textContent = 'User journeys';
-    items = (DATA.journeys || []).map(j => ({
-      id: j.id, name: j.name, summary: j.summary || '', _raw: j, _mode: 'journeys'
-    }));
-  } else if (mode === 'requests') {
+    items = (DATA.journeys || []).map(j => ({ id: j.id, name: j.name, summary: j.summary || '', _raw: j }));
+  } else {
     sideTitle.textContent = 'Request paths';
     items = (DATA.requests || []).map(r => ({
       id: r.id,
       name: r.name,
       summary: `${r.method || ''} ${r.route || ''}`.trim() || r.summary || '',
       _raw: r,
-      _mode: 'requests',
-    }));
-  } else {
-    sideTitle.textContent = 'Data flows';
-    items = (DATA.data_flows || []).map(d => ({
-      id: d.id, name: d.name, summary: d.summary || d.shape || '', _raw: d, _mode: 'data'
     }));
   }
   if (!items.length) {
-    bindSide([], () => {});
-    setFocusMeta(`No ${mode}`, 'Re-run /okad so the model can author this view.');
-    return 'flowchart LR\n  X[Nothing authored yet]';
+    bindSide([]);
+    setMeta(`No ${mode}`, 'Re-run /okad to author this view.');
+    mmdEl.innerHTML = `<div class="empty">Nothing authored yet.</div>`;
+    return;
   }
   if (!focusId || !items.find(i => i.id === focusId)) focusId = items[0].id;
-  bindSide(items, () => render());
+  bindSide(items);
   const current = items.find(i => i.id === focusId)._raw;
-  setFocusMeta(current.name, current.summary || `${current.method || ''} ${current.route || ''}`.trim() || current.shape || '');
+  setMeta(current.name, current.summary || `${current.method || ''} ${current.route || ''}`.trim());
 
   let stepIds = [];
   if (mode === 'journeys') stepIds = (current.steps || []).map(s => s.node_id || s);
-  else if (mode === 'requests') stepIds = current.steps || [];
-  else stepIds = [current.origin, ...(current.through || []), current.destination].filter(Boolean);
-
+  else stepIds = current.steps || [];
   const unique = [];
   stepIds.forEach(id => { if (id && !unique.includes(id)) unique.push(id); });
 
-  // Prefer sequence diagrams for request/journey — this is what people expect
-  if (mode === 'requests' || mode === 'journeys') {
-    const lines = ['sequenceDiagram'];
-    if (mode === 'requests' && current.method) {
-      lines.push(`  autonumber`);
-    }
-    const actors = unique.map((id, i) => {
-      const n = nm[id] || { id, label: id, kind: 'service' };
-      const key = `N${i}`;
-      lines.push(`  participant ${key} as ${escM(n.label || id)}`);
-      return { key, n, note: (current.steps || [])[i]?.note };
-    });
-    for (let i = 0; i < actors.length - 1; i++) {
-      const note = (current.steps && current.steps[i] && current.steps[i].note) || (mode === 'requests' ? 'calls' : 'next');
-      lines.push(`  ${actors[i].key}->>${actors[i + 1].key}: ${escM(note)}`);
-    }
-    if (current.status && current.status.length) {
-      lines.push(`  Note over ${actors[actors.length - 1].key}: status ${escM(current.status.join(' / '))}`);
-    }
-    return lines.join('\n');
-  }
-
-  // data flow: LR flowchart
-  const lines = ['flowchart LR'];
+  const lines = ['sequenceDiagram', '  autonumber'];
   unique.forEach((id, i) => {
-    const n = nm[id] || { id, label: id, kind: 'service', layer: 'application' };
-    lines.push(`  N${i}["${escM(n.label || id)}"]:::${kindClass(n.kind, n.layer)}`);
-    if (i > 0) lines.push(`  N${i - 1} --> N${i}`);
+    const n = nm[id] || { id, label: id };
+    lines.push(`  participant N${i} as ${escM(n.label || id)}`);
   });
-  if (current.shape) {
-    lines.push(`  SHAPE["${escM(current.shape)}"]:::tool`);
-    if (unique.length) lines.push(`  N${unique.length - 1} -.-> SHAPE`);
+  for (let i = 0; i < unique.length - 1; i++) {
+    const note = (current.steps && current.steps[i] && current.steps[i].note) || (mode === 'requests' ? 'calls' : 'next');
+    lines.push(`  N${i}->>N${i + 1}: ${escM(note)}`);
   }
-  lines.push(classBlock());
-  return lines.join('\n');
-}
-
-function mermaidForCurrent() {
-  if (view === 'agents') return mermaidAgents();
-  if (view === 'architecture') return mermaidArchitecture();
-  if (view === 'journeys') return mermaidPath('journeys');
-  if (view === 'requests') return mermaidPath('requests');
-  return mermaidPath('data');
+  if (current.status && current.status.length) {
+    lines.push(`  Note over N${Math.max(unique.length - 1, 0)}: ${escM(current.status.join(' / '))}`);
+  }
+  const code = lines.join('\n');
+  mmdEl.innerHTML = '<div class="empty">Rendering Mermaid…</div>';
+  try {
+    const { svg } = await mermaid.render('okad-seq-' + Date.now(), code);
+    mmdEl.innerHTML = svg;
+  } catch (err) {
+    mmdEl.innerHTML = `<pre class="empty">${esc(String(err))}\n\n${esc(code)}</pre>`;
+  }
 }
 
 async function render() {
-  const code = mermaidForCurrent();
-  lastMermaid = code;
-  sourcePre.textContent = code;
-  diagram.innerHTML = '<div class="empty">Rendering Mermaid…</div>';
-  const id = 'okad-mmd-' + Date.now();
-  try {
-    const { svg } = await mermaid.render(id, code);
-    diagram.innerHTML = svg;
-    const svgEl = diagram.querySelector('svg');
-    if (svgEl) {
-      svgEl.removeAttribute('height');
-      svgEl.style.width = '100%';
-      svgEl.style.maxWidth = 'none';
-      svgEl.style.height = 'auto';
-    }
-  } catch (err) {
-    diagram.innerHTML = `<pre class="error">${esc(String(err))}\n\n${esc(code)}</pre>`;
-  }
+  inspector.classList.remove('open');
+  if (view === 'agents') return renderAgentsGraph();
+  if (view === 'architecture') return renderArchitectureGraph();
+  if (view === 'data') return renderDataGraph();
+  if (view === 'journeys') return renderMermaidSequence('journeys');
+  return renderMermaidSequence('requests');
 }
 
 render();

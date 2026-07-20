@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "okad"
-version = "0.3.0"
+version = "0.4.0"
 description = "Story-driven architecture maps for any codebase — UX journeys, request paths, and data flows as readable trees and graphs."
 readme = "README.md"
 license = "MIT"

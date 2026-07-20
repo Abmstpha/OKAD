@@ -67,17 +67,16 @@ Priority when capping: nodes referenced by journeys / requests / data flows win.
 | `inferred` | Strongly suggested by structure / naming / call patterns |
 | `ambiguous` | Plausible but unsure — still useful, marked honestly |
 
-## Viz views (Mermaid-first)
+## Viz views
 
-`story.html` renders **Mermaid** diagrams as the primary map:
+`story.html` uses real graph libraries:
 
-1. **Agents & tools** — fleet hierarchy + orchestrator → subagent → tool flowcharts  
-2. **Architecture** — layered flowchart of capped high-signal nodes  
-3. **Journeys** — sequenceDiagram per journey  
-4. **Requests** — sequenceDiagram per request path  
-5. **Data flow** — LR flowchart (+ optional payload shape)
+1. **Agents & tools** — Cytoscape.js + dagre (hierarchy, tools, relations)  
+2. **Architecture** — Cytoscape layered graph (capped high-signal nodes)  
+3. **Data flow** — Cytoscape LR pipeline  
+4. **Journeys / Requests** — Mermaid `sequenceDiagram`
 
-Toolbar: show / copy Mermaid source. Story schema `version` is `2` when agents are supported. 
+Toolbar: Fit, Export PNG. Story schema `version` is `2` when agents are supported. 
 
 ## Extension points
 
