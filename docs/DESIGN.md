@@ -69,10 +69,14 @@ Priority when capping: nodes referenced by journeys / requests / data flows win.
 
 ## Viz views
 
-1. **Architecture** — columns by layer, only non-`contains` edges drawn  
-2. **Journeys** — one sequence tree at a time  
-3. **Requests** — handler chain left → right  
-4. **Data flow** — payload movement pipeline  
+1. **Architecture** — columns by layer, pan/zoom, animated cards  
+2. **Agents & tools** — each agent and the tools it calls (from `agents` or inferred)  
+3. **Journeys** — one sequence at a time  
+4. **Requests** — handler chain left → right  
+5. **Data flow** — payload movement pipeline  
+6. **Mermaid** — toggle panel for sequence / flowchart of the current focus  
+
+Story schema `version` is `2` when agents are supported. 
 
 ## Extension points
 

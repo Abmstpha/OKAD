@@ -13,6 +13,20 @@ OKAD follows [Semantic Versioning](https://semver.org/).
 - SVG / GraphML export
 - PyPI publish (`okad`)
 
+## [0.2.0] — 2026-07-20
+
+### Added
+
+- Story map v2 viz: pan/zoom fit-to-laptop, animated node cards, flowing edges
+- **Agents & tools** tab (+ `agents` in story draft / `story.json`)
+- Mermaid sequence panel for journeys, requests, agents
+- `okad render` to rebuild `story.html` from existing `story.json`
+- Version chips in the HTML header (`okad X.Y.Z` · `story vN`)
+
+### Changed
+
+- Install path documents `pipx --backend pip` / `curl | bash` for Homebrew Macs
+
 ## [0.1.0] — 2026-07-20
 
 ### Added

@@ -98,7 +98,7 @@ Read enough of the codebase to understand **real** flows — but stay surgical:
 
 1. Read `okad-out/skeleton.md`.
 2. Open the highest-signal entrypoints only (routers, `app/` pages, main services, schema files). Use the skeleton `source` paths.
-3. Infer **3–7 user journeys**, **5–15 request paths**, **3–8 data flows**.
+3. Infer **3–7 user journeys**, **5–15 request paths**, **3–8 data flows**, and **agents with tools** (LangGraph / AI workers).
 4. Keep total nodes ≤ 60.
 
 Write JSON with this schema:
@@ -162,13 +162,28 @@ Write JSON with this schema:
       "destination": "store:orders",
       "shape": "Order { items[], total, currency }"
     }
+  ],
+  "agents": [
+    {
+      "id": "agent:seller-engine",
+      "name": "Seller Deal Engine",
+      "summary": "LangGraph that builds a deal package from an address",
+      "node_id": "service:seller-graph",
+      "tools": [
+        {"id": "tool:verify-address", "name": "Verify address", "summary": "Normalizes and validates the property"},
+        {"id": "tool:valuation", "name": "Valuation", "summary": "Comps + estimate"},
+        {"id": "tool:str-roi", "name": "STR ROI", "summary": "Airbnb revenue model"}
+      ]
+    }
   ]
 }
 ```
 
-Allowed `kind`: `journey|screen|action|route|handler|service|store|entity|external|layer|system`  
+Allowed `kind`: `journey|screen|action|route|handler|service|store|entity|external|layer|system|agent|tool`  
 Allowed edge `kind`: `navigates|triggers|calls|reads|writes|transforms|returns|contains|depends_on`  
 Allowed `layer`: `experience|interface|application|data|infra`
+
+**Always author `agents` when the codebase has LangGraph / LLM workers** — each agent lists its tools (graph nodes, retrieval, externals). The Agents & tools view depends on this.
 
 **Reuse skeleton node ids when they match.** Add new story ids when the skeleton is incomplete.
 

@@ -6,7 +6,7 @@ layers, journeys, request paths, and data flows — labeled by role, not filenam
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from typing import Any, Literal
 
 
@@ -23,6 +23,8 @@ NodeKind = Literal[
     "external",
     "layer",
     "system",
+    "agent",
+    "tool",
 ]
 EdgeKind = Literal[
     "navigates",
@@ -131,6 +133,37 @@ class DataFlow:
 
 
 @dataclass
+class AgentTool:
+    id: str
+    name: str
+    summary: str = ""
+    source: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class Agent:
+    """An orchestration agent and the tools it can call."""
+
+    id: str
+    name: str
+    summary: str = ""
+    tools: list[AgentTool] = field(default_factory=list)
+    node_id: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "summary": self.summary,
+            "node_id": self.node_id,
+            "tools": [t.to_dict() for t in self.tools],
+        }
+
+
+@dataclass
 class StoryGraph:
     """The OKAD story graph — curated, layered, narrative."""
 
@@ -141,12 +174,14 @@ class StoryGraph:
     journeys: list[Journey] = field(default_factory=list)
     requests: list[RequestPath] = field(default_factory=list)
     data_flows: list[DataFlow] = field(default_factory=list)
+    agents: list[Agent] = field(default_factory=list)
     layers: list[dict[str, str]] = field(default_factory=lambda: list(LAYERS))
     meta: dict[str, Any] = field(default_factory=dict)
+    version: int = 2
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "version": 1,
+            "version": self.version,
             "system_name": self.system_name,
             "summary": self.summary,
             "layers": self.layers,
@@ -155,13 +190,22 @@ class StoryGraph:
             "journeys": [j.to_dict() for j in self.journeys],
             "requests": [r.to_dict() for r in self.requests],
             "data_flows": [d.to_dict() for d in self.data_flows],
+            "agents": [a.to_dict() for a in self.agents],
             "meta": self.meta,
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> StoryGraph:
-        nodes = [Node(**n) for n in data.get("nodes", [])]
-        edges = [Edge(**e) for e in data.get("edges", [])]
+        nodes = []
+        allowed = {f.name for f in fields(Node)}
+        for n in data.get("nodes", []):
+            payload = {k: v for k, v in dict(n).items() if k in allowed}
+            nodes.append(Node(**payload))
+        edge_allowed = {f.name for f in fields(Edge)}
+        edges = []
+        for e in data.get("edges", []):
+            payload = {k: v for k, v in dict(e).items() if k in edge_allowed}
+            edges.append(Edge(**payload))
         journeys = []
         for j in data.get("journeys", []):
             steps = [JourneyStep(**s) for s in j.get("steps", [])]
@@ -176,6 +220,18 @@ class StoryGraph:
             )
         requests = [RequestPath(**r) for r in data.get("requests", [])]
         data_flows = [DataFlow(**d) for d in data.get("data_flows", [])]
+        agents: list[Agent] = []
+        for a in data.get("agents", []) or []:
+            tools = [AgentTool(**t) if isinstance(t, dict) else AgentTool(id=str(t), name=str(t)) for t in a.get("tools", [])]
+            agents.append(
+                Agent(
+                    id=str(a.get("id") or a.get("name") or "agent"),
+                    name=str(a.get("name") or "Agent"),
+                    summary=str(a.get("summary") or ""),
+                    node_id=a.get("node_id"),
+                    tools=tools,
+                )
+            )
         return cls(
             system_name=data.get("system_name", "System"),
             summary=data.get("summary", ""),
@@ -184,8 +240,10 @@ class StoryGraph:
             journeys=journeys,
             requests=requests,
             data_flows=data_flows,
+            agents=agents,
             layers=data.get("layers", list(LAYERS)),
             meta=data.get("meta", {}),
+            version=int(data.get("version") or 2),
         )
 
     def node_map(self) -> dict[str, Node]:

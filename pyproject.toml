@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "okad"
-version = "0.1.0"
+version = "0.2.0"
 description = "Story-driven architecture maps for any codebase — UX journeys, request paths, and data flows as readable trees and graphs."
 readme = "README.md"
 license = "MIT"
@@ -69,3 +69,6 @@ include = [
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/okad/templates" = "okad/templates"

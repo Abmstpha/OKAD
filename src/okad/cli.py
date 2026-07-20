@@ -192,6 +192,25 @@ def install_cmd(
         console.print(f"[green]Installed[/green] → {t}")
 
 
+@app.command("render")
+def render_cmd(
+    path: Path = typer.Argument(Path("."), help="Project root containing okad-out/story.json"),
+) -> None:
+    """Re-render story.html from an existing story.json (no LLM)."""
+    root = path.resolve()
+    out = _out_dir(root)
+    story_path = out / "story.json"
+    if not story_path.exists():
+        console.print("[red]Missing okad-out/story.json. Run /okad or `okad finalize` first.[/red]")
+        raise typer.Exit(1)
+    graph = load_story(story_path)
+    # Bump map schema version when re-rendering with a newer OKAD
+    graph.version = max(int(graph.version or 1), 2)
+    save_story(graph, story_path)
+    html = render_html(graph, out / "story.html")
+    console.print(f"[green]Re-rendered[/green] {html}  (okad {__version__}, story v{graph.version})")
+
+
 @app.command("open")
 def open_cmd(
     path: Path = typer.Argument(Path("."), help="Project root containing okad-out/"),

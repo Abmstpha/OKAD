@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any
 
 from okad.model import (
+    Agent,
+    AgentTool,
     DataFlow,
     Edge,
     Journey,
@@ -109,6 +111,31 @@ def merge_story(skeleton: StoryGraph, story: dict[str, Any]) -> StoryGraph:
             )
         )
 
+    agents: list[Agent] = []
+    for raw in story.get("agents", []) or []:
+        tools: list[AgentTool] = []
+        for t in raw.get("tools", []) or []:
+            if isinstance(t, dict):
+                tools.append(
+                    AgentTool(
+                        id=str(t.get("id") or t.get("name") or "tool"),
+                        name=str(t.get("name") or t.get("id") or "Tool"),
+                        summary=str(t.get("summary") or ""),
+                        source=t.get("source"),
+                    )
+                )
+            else:
+                tools.append(AgentTool(id=str(t), name=_human(str(t))))
+        agents.append(
+            Agent(
+                id=str(raw.get("id") or _slug(raw.get("name", "agent"))),
+                name=str(raw.get("name") or "Agent"),
+                summary=str(raw.get("summary") or ""),
+                node_id=raw.get("node_id"),
+                tools=tools,
+            )
+        )
+
     # Ensure journey/request/data nodes exist as references when missing
     for j in journeys:
         for step in j.steps:
@@ -129,12 +156,15 @@ def merge_story(skeleton: StoryGraph, story: dict[str, Any]) -> StoryGraph:
         journeys=journeys,
         requests=requests,
         data_flows=data_flows,
+        agents=agents,
+        version=2,
         meta={
             **skeleton.meta,
             "phase": "story",
             "journey_count": len(journeys),
             "request_count": len(requests),
             "data_flow_count": len(data_flows),
+            "agent_count": len(agents),
             "node_count": len(nodes),
             "edge_count": len(edges),
         },
