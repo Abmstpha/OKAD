@@ -164,6 +164,7 @@
     display: block;
     cursor: grab;
     touch-action: none;
+    shape-rendering: geometricPrecision;
   }
   #canvas.dragging { cursor: grabbing; }
   .layer-label {
@@ -173,57 +174,61 @@
     text-transform: uppercase;
     font-family: var(--font-body);
   }
-  .node-card {
-    cursor: pointer;
-  }
+  .node-card { cursor: pointer; }
   .node-card circle.orb {
-    filter: drop-shadow(0 8px 18px rgba(0,0,0,0.45));
-    transition: filter 180ms ease, stroke-width 180ms ease;
+    paint-order: stroke fill;
+    transition: stroke-width 160ms ease, stroke 160ms ease;
   }
-  .node-card:hover circle.orb {
-    filter: drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 65%, transparent));
-    stroke-width: 3.2;
+  .node-card:hover circle.orb { stroke-width: 3.25; }
+  .node-card .halo {
+    pointer-events: none;
+    opacity: 0.18;
   }
   .node-card text {
-    fill: var(--ink);
-    font-size: 12px;
     pointer-events: none;
     font-family: var(--font-body);
   }
-  .node-card .sub { fill: var(--muted); font-size: 10px; }
+  .node-card .node-title {
+    fill: var(--ink);
+    font-size: 12.5px;
+    font-weight: 560;
+  }
+  .node-card .node-sub {
+    fill: var(--muted);
+    font-size: 10px;
+    font-family: var(--font-mono);
+  }
+  .node-card .node-idx {
+    fill: #0c100e;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font-body);
+  }
   .edge {
     fill: none;
-    stroke-opacity: 0.55;
-    stroke-width: 2;
+    stroke-opacity: 0.92;
+    stroke-width: 2.25;
     stroke-linecap: round;
-    animation: dashflow 1.8s linear infinite;
-    stroke-dasharray: 5 9;
+    stroke-linejoin: round;
   }
-  .edge.hot {
-    stroke-opacity: 0.95;
-    stroke-width: 2.6;
-    stroke-dasharray: 4 7;
-    animation-duration: 1.05s;
+  .edge.flow {
+    stroke-dasharray: 1;
   }
-  .edge.dim { stroke-opacity: 0.08; animation: none; }
+  .edge.hot { stroke-width: 2.5; stroke-opacity: 1; }
+  .edge.dim { stroke-opacity: 0.12; }
   .edge-label {
-    fill: #b7c4ba;
+    fill: #a8b7ad;
     font-size: 10px;
     font-family: var(--font-mono);
     pointer-events: none;
   }
-  .node-card.dim { opacity: 0.22; }
-  @keyframes dashflow {
-    to { stroke-dashoffset: -28; }
-  }
-  @keyframes popin {
-    from { opacity: 0; transform: scale(0.86); }
-    to { opacity: 1; transform: scale(1); }
+  .node-card.dim { opacity: 0.28; }
+  @keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   .pop {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: popin 420ms cubic-bezier(.2,.9,.2,1) both;
+    animation: fadein 280ms ease both;
   }
   .legend {
     position: absolute; left: 0.75rem; bottom: 0.75rem;
@@ -518,20 +523,24 @@ function ensureMarkers(parent) {
   const defs = el('defs', { id: 'okad-markers' });
   const mk = (id, fill) => {
     const marker = el('marker', {
-      id, viewBox: '0 0 10 10', refX: '9', refY: '5',
-      markerWidth: '7', markerHeight: '7', orient: 'auto-start-reverse'
+      id, viewBox: '0 0 12 12', refX: '10', refY: '6',
+      markerWidth: '10', markerHeight: '10', orient: 'auto',
+      markerUnits: 'userSpaceOnUse'
     });
-    marker.appendChild(el('path', { d: 'M 0 0 L 10 5 L 0 10 z', fill }));
+    marker.appendChild(el('path', {
+      d: 'M 1 1 L 10 6 L 1 11 z', fill, stroke: fill, 'stroke-linejoin': 'round'
+    }));
     defs.appendChild(marker);
   };
   mk('arrow', '#ff9f6b');
   mk('arrow-tool', '#9ad7ff');
   mk('arrow-arch', '#3dba8a');
+  mk('arrow-flow', '#e2b15c');
   parent.insertBefore(defs, parent.firstChild);
 }
 
 function shortLabel(s, n) {
-  const t = String(s || '');
+  const t = String(s || '').replace(/\s+/g, ' ').trim();
   return t.length <= n ? t : t.slice(0, n - 1) + '…';
 }
 
@@ -545,29 +554,71 @@ function drawCircleNode(parent, p, opts={}) {
     transform: `translate(${p.x},${p.y})`,
     style: `animation-delay:${opts.delay||0}ms`
   });
-  const pulse = el('circle', {
-    cx: 0, cy: 0, r: r + 10,
-    fill: 'none', stroke: color, opacity: 0.22, 'stroke-dasharray': '4 8'
-  });
-  pulse.style.animation = 'dashflow 2.4s linear infinite';
-  const orb = el('circle', {
+  // soft halo (no dash spam)
+  g.appendChild(el('circle', {
+    class: 'halo', cx: 0, cy: 0, r: r + 8,
+    fill: color, opacity: 0.12
+  }));
+  g.appendChild(el('circle', {
     class: 'orb', cx: 0, cy: 0, r,
-    fill: opts.fill || '#141b18', stroke: color, 'stroke-width': 2.4
+    fill: opts.fill || '#151c19',
+    stroke: color,
+    'stroke-width': opts.strokeWidth || 2.75
+  }));
+
+  // Inside: step index OR short monogram — never dump long titles into the orb
+  if (opts.index != null) {
+    const idx = el('text', {
+      class: 'node-idx', x: 0, y: 5, 'text-anchor': 'middle',
+      fill: color, 'font-size': Math.max(13, Math.min(18, r * 0.38))
+    });
+    idx.textContent = String(opts.index);
+    g.appendChild(idx);
+  } else {
+    const mono = el('text', {
+      x: 0, y: 5, 'text-anchor': 'middle', fill: color,
+      'font-size': Math.max(11, Math.min(15, r * 0.28)),
+      'font-family': 'IBM Plex Mono, ui-monospace, monospace', 'font-weight': '600'
+    });
+    mono.textContent = (opts.monogram || (label || '?').slice(0, 2)).toUpperCase();
+    g.appendChild(mono);
+  }
+
+  // Labels live UNDER the circle — readable, no truncation garbage inside
+  const titleY = r + 18;
+  const title = el('text', {
+    class: 'node-title', x: 0, y: titleY, 'text-anchor': 'middle',
+    'font-size': opts.titleSize || 12.5
   });
-  const t = el('text', {
-    x: 0, y: sub ? -4 : 4, 'text-anchor': 'middle', fill: '#eef4ef',
-    'font-size': opts.titleSize || 12, 'font-family': 'Georgia, serif'
+  // wrap to ~18 chars / 2 lines
+  const words = String(label).split(/\s+/);
+  let line1 = '', line2 = '';
+  words.forEach(w => {
+    const t = line1 ? line1 + ' ' + w : w;
+    if (t.length <= 18 || !line1) line1 = t;
+    else if (!line2 || (line2 + ' ' + w).length <= 18) line2 = line2 ? line2 + ' ' + w : w;
   });
-  t.textContent = label;
-  g.appendChild(pulse); g.appendChild(orb); g.appendChild(t);
+  if (line2) {
+    title.setAttribute('y', titleY - 6);
+    title.textContent = line1;
+    const t2 = el('text', {
+      class: 'node-title', x: 0, y: titleY + 10, 'text-anchor': 'middle',
+      'font-size': opts.titleSize || 12.5
+    });
+    t2.textContent = line2;
+    g.appendChild(title); g.appendChild(t2);
+  } else {
+    title.textContent = line1;
+    g.appendChild(title);
+  }
   if (sub) {
     const s = el('text', {
-      x: 0, y: 14, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 9,
-      'font-family': 'IBM Plex Mono, monospace'
+      class: 'node-sub', x: 0, y: titleY + (line2 ? 24 : 14), 'text-anchor': 'middle'
     });
     s.textContent = sub;
     g.appendChild(s);
   }
+
   if (opts.onClick) g.addEventListener('click', (ev) => { ev.stopPropagation(); opts.onClick(); });
   parent.appendChild(g);
   p.r = r;
@@ -584,13 +635,17 @@ function drawBigAgent(parent, p, opts={}) {
     toolN ? `${toolN} tools` : null,
     childN ? `${childN} steps` : null,
   ].filter(Boolean).join(' · ') || (a.level || 'agent');
+  const words = String(a.name || '').trim().split(/\s+/);
+  const mono = (words[0] || 'A').slice(0, 1) + (words[1] ? words[1].slice(0, 1) : (words[0] || 'G').slice(1, 2));
   drawCircleNode(parent, p, {
-    label: shortLabel(a.name, 16),
+    label: a.name,
     sub: meta,
     color,
     r,
     delay: opts.delay || 0,
-    titleSize: a.level === 'subagent' ? 11 : 13,
+    titleSize: a.level === 'subagent' ? 12 : 13,
+    monogram: mono,
+    strokeWidth: 3,
     onClick: () => {
       focusId = a.id;
       showInspector({
@@ -604,14 +659,17 @@ function drawBigAgent(parent, p, opts={}) {
 }
 
 function drawToolPill(parent, p, tool, delay=0) {
+  const name = tool.name || tool.id || 'tool';
   drawCircleNode(parent, p, {
-    label: shortLabel(tool.name || tool.id, 14),
+    label: name,
     sub: 'tool',
     color: COLORS.tool,
-    r: 36,
+    r: 34,
     delay,
-    titleSize: 10,
+    titleSize: 11,
     fill: '#121820',
+    monogram: String(name).replace(/^tool:/i,'').slice(0, 2),
+    strokeWidth: 2.5,
     onClick: () => {
       showInspector({
         id: tool.id, label: tool.name, kind: 'tool', layer: 'infra',
@@ -809,8 +867,8 @@ function drawLabeledEdge(parent, a, b, label, opts={}) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const dist = Math.max(Math.hypot(dx, dy), 1);
-  const ra = a.r || opts.ra || 60;
-  const rb = b.r || opts.rb || 40;
+  const ra = (a.r || opts.ra || 48) + 1;
+  const rb = (b.r || opts.rb || 48) + 1 + 6; // leave room for arrowhead
   const ux = dx / dist;
   const uy = dy / dist;
   const x1 = a.x + ux * ra;
@@ -819,20 +877,27 @@ function drawLabeledEdge(parent, a, b, label, opts={}) {
   const y2 = b.y - uy * rb;
   const mx = (x1 + x2) / 2;
   const my = (y1 + y2) / 2;
-  const nx = -uy * Math.min(70, dist * 0.2);
-  const ny = ux * Math.min(70, dist * 0.2);
+  // gentle bend only when not nearly horizontal
+  const bend = Math.abs(uy) < 0.15 ? 0 : Math.min(48, dist * 0.12);
+  const nx = -uy * bend;
+  const ny = ux * bend;
   const cx = mx + nx;
   const cy = my + ny;
   const color = opts.color || COLORS.agent;
   const path = el('path', {
-    class: `edge ${opts.hot === false ? '' : 'hot'}`.trim(),
-    d: `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`,
+    class: `edge flow ${opts.hot === false ? '' : 'hot'}`.trim(),
+    d: bend ? `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`,
     stroke: color,
     'marker-end': opts.marker || 'url(#arrow)',
   });
   parent.appendChild(path);
   if (label) {
-    const t = el('text', { class: 'edge-label', x: cx, y: cy - 8, 'text-anchor': 'middle' });
+    const t = el('text', {
+      class: 'edge-label',
+      x: bend ? cx : mx,
+      y: (bend ? cy : my) - 10,
+      'text-anchor': 'middle'
+    });
     t.textContent = String(label).slice(0, 28);
     parent.appendChild(t);
   }
@@ -914,9 +979,9 @@ function renderArchitecture() {
 
   const world = worldGroup();
   const padX = 28, padY = 56;
-  const colW = 180;
-  const cardH = 96;
-  const gap = 28;
+  const colW = 200;
+  const cardH = 120;
+  const gap = 36;
   const maxCount = Math.max(1, ...LAYER_ORDER.map(l => byLayer[l].length));
   contentW = padX * 2 + LAYER_ORDER.length * colW;
   contentH = padY + maxCount * (cardH + gap) + 40;
@@ -989,15 +1054,15 @@ function renderPathView(mode) {
   const unique = [];
   stepIds.forEach(id => { if (id && !unique.includes(id)) unique.push(id); });
 
-  const padX = 90, rowY = 220;
-  const gap = 190;
-  contentW = Math.max(800, padX * 2 + Math.max(unique.length - 1, 1) * gap + 80);
-  contentH = 420;
+  const padX = 110, rowY = 210;
+  const gap = 210;
+  contentW = Math.max(960, padX * 2 + Math.max(unique.length - 1, 0) * gap + 140);
+  contentH = 520;
 
-  const title = el('text', { x: 40, y: 48, fill: '#eef4ef', 'font-size': 20, 'font-family': 'Georgia, serif' });
+  const title = el('text', { x: 40, y: 44, fill: '#eef4ef', 'font-size': 22, 'font-family': 'Georgia, serif' });
   title.textContent = current.name;
   world.appendChild(title);
-  const s = el('text', { x: 40, y: 70, fill: '#8a9a90', 'font-size': 12 });
+  const s = el('text', { x: 40, y: 68, fill: '#8a9a90', 'font-size': 12.5 });
   s.textContent = current.summary || `${current.method || ''} ${current.route || ''}`.trim();
   world.appendChild(s);
 
@@ -1006,24 +1071,51 @@ function renderPathView(mode) {
   const positions = {};
   unique.forEach((id, i) => {
     const n = nm[id] || { id, label: id, layer: 'application', kind: 'service', summary: '' };
-    positions[id] = { x: padX + i * gap, y: rowY + (i % 2 === 0 ? -28 : 28), n };
+    // single baseline — no zigzag that breaks edge quality
+    positions[id] = { x: padX + i * gap, y: rowY, n, r: 46 };
   });
-  Object.values(positions).forEach((p, i) => drawNode(world, p, true, i * 40));
+  // draw edges under nodes
   for (let i = 0; i < unique.length - 1; i++) {
-    drawEdge(world, positions[unique[i]], positions[unique[i+1]], { kind: 'calls', label: '' }, true);
+    const a = positions[unique[i]];
+    const b = positions[unique[i + 1]];
+    drawLabeledEdge(world, a, b, '', {
+      hot: true,
+      color: COLORS[(a.n && a.n.layer) || 'application'] || COLORS.application,
+      marker: 'url(#arrow-flow)',
+      ra: 46,
+      rb: 46,
+    });
   }
+  unique.forEach((id, i) => {
+    const p = positions[id];
+    const n = p.n;
+    const color = COLORS[n.layer] || COLORS.application;
+    drawCircleNode(world, p, {
+      label: n.label || n.id,
+      sub: n.kind || '',
+      color,
+      r: 46,
+      index: i + 1,
+      delay: i * 35,
+      titleSize: 12.5,
+      onClick: () => showInspector(n),
+    });
+  });
 }
 
 function drawNode(parent, p, hot=false, delay=0, strokeOverride=null) {
   const n = p.n;
   const color = strokeOverride || COLORS[n.layer] || COLORS.application;
+  const words = String(n.label || n.id || '').trim().split(/\s+/);
+  const mono = (words[0] || '?').slice(0, 1) + (words[1] ? words[1].slice(0, 1) : (words[0] || '').slice(1, 2));
   drawCircleNode(parent, p, {
-    label: shortLabel(n.label || n.id, 14),
+    label: n.label || n.id,
     sub: n.kind || '',
     color,
-    r: hot ? 48 : 42,
+    r: hot ? 46 : 40,
     delay,
-    titleSize: 11,
+    titleSize: 12,
+    monogram: mono,
     onClick: () => showInspector(n),
   });
 }
@@ -1033,8 +1125,8 @@ function drawEdge(parent, a, b, e, hot=false) {
     hot,
     color: COLORS[(a.n && a.n.layer) || 'application'] || COLORS.application,
     marker: 'url(#arrow-arch)',
-    ra: a.r || 42,
-    rb: b.r || 42,
+    ra: a.r || 40,
+    rb: b.r || 40,
   });
 }
 
