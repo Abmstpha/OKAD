@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/okad-logo.png" alt="OKAD — عُقَد" width="280" />
+  <img src="assets/okad-logo-transparent.png" alt="OKAD — عُقَد" width="280" />
 </p>
 
 # OKAD
