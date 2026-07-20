@@ -50,7 +50,7 @@ OKAD runs on your machine. The host LLM authors narrative. No SaaS, no telemetry
 
 - Force-directed spaghetti as the default viz
 - “Show everything” as a product goal
-- Replacing Graphify — different job, different tool
+- Exhaustive file/symbol inventories posing as architecture maps
 
 ## Aesthetic
 

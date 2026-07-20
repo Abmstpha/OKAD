@@ -7,7 +7,7 @@ description: "Build a story-driven architecture map of any codebase — UX journ
 
 Turn any codebase into a **story map**: layered architecture, user journeys, request paths, and data flows.
 
-OKAD is **not** Graphify. Graphify indexes symbols and every connection (a milky-way). OKAD curates a small narrative graph so a stranger can understand the system from the viz alone.
+OKAD curates a small narrative graph — role-labeled journeys, request paths, and data flows — so a stranger can understand the system from the viz alone. It refuses milky-way dumps of every file link.
 
 ## Usage
 
@@ -235,4 +235,3 @@ Answer using only graph output. Cite `source` paths when present.
 - Do **not** name nodes after filenames or class names unless that name is the user-facing concept.
 - Do **not** skip the elegance cap — if unsure, drop the node.
 - Do **not** ask for an API key. You (the host model) author the story.
-- Do **not** confuse OKAD with Graphify; if both exist, OKAD owns flow/story questions, Graphify owns exhaustive symbol graphs.

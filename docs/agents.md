@@ -1,6 +1,6 @@
 # Agent integration
 
-OKAD is built to be invoked **inside** coding agents the same way Graphify popularized `/graphify`.
+OKAD is built to be invoked **inside** coding agents via a skill and `/okad` command.
 
 ## Install targets
 
@@ -44,7 +44,3 @@ okad query "How does X work?"
 2. Copy to `src/okad/_skill/SKILL.md`  
 3. Run `okad install` again on your machine  
 4. Mention skill changes in the PR  
-
-## Coexistence with Graphify
-
-If both skills are installed, prefer OKAD for flow/UX/request questions and Graphify for exhaustive symbol graphs. See [comparison-graphify.md](comparison-graphify.md).

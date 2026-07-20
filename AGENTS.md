@@ -12,3 +12,6 @@ If `memory/` exists (gitignored), read `memory/INDEX.md` first, then `PRODUCT.md
 `ARCHITECTURE.md`, `CONVENTIONS.md`, and `SESSION.md` before changing the project.
 Update `SESSION.md` when you finish meaningful work.
 
+Do not narrate work as checklist theater (`Scaffold…`, `✔ Build…`). Prefer normal
+engineering updates and conventional commit messages (see CONTRIBUTING.md).
+

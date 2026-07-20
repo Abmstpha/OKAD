@@ -27,7 +27,7 @@ ruff check src tests
 
 ## Design guardrails (please read)
 
-1. **Do not turn OKAD into Graphify.** No milky-way of every import edge.
+1. **Keep maps readable.** No milky-way of every import edge.
 2. **Label by role**, not filename (`Checkout`, not `checkout_controller.ts`).
 3. **Cap the graph** — top-level story stays around ≤60 nodes.
 4. **Honesty** — mark edges `extracted` | `inferred` | `ambiguous`.
@@ -44,13 +44,23 @@ More in [docs/DESIGN.md](docs/DESIGN.md) and [docs/PHILOSOPHY.md](docs/PHILOSOPH
 
 ## Commit style
 
-Short imperative subject, why in the body when needed:
+Imperative subject, optional body for why. Write like a normal open-source project — not agent checklists or vibe-coding status lines.
+
+Good:
 
 ```
 fix skeleton: detect NestJS @Get routes
 
 Nest handlers were missed because the decorator regex
 required a quoted path; optional path is now accepted.
+```
+
+Bad (never):
+
+```
+Scaffold Python package: CLI, extractors, viz, skill
+✔ Build flow extraction + elegant HTML viz
+✔ Add /okad skill for Claude Code & Codex
 ```
 
 ## Code of conduct

@@ -41,7 +41,6 @@ SKIP_DIRS = {
     "coverage",
     ".okad",
     "okad-out",
-    "graphify-out",
     ".turbo",
     "vendor",
     "target",

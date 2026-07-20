@@ -201,21 +201,6 @@ For the full story map, use `/okad` inside Claude Code / Codex / Cursor.
 
 ---
 
-## vs Graphify
-
-| | Graphify | OKAD |
-|---|---|---|
-| Goal | Exhaustive knowledge graph | Narrative system map |
-| Nodes | Many symbols / files | Curated roles (`Checkout`, `Auth gate`) |
-| Edges | Dense connections | Story-significant only |
-| Viz feel | Milky-way / force graph | Layered columns + journey trees |
-| Primary question | “What connects to X?” | “How does a user / request / datum move?” |
-| Agent command | `/graphify` | `/okad` |
-
-Full writeup: [docs/comparison-graphify.md](docs/comparison-graphify.md)
-
----
-
 ## Documentation
 
 | Doc | |

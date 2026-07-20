@@ -4,10 +4,6 @@
 
 No. The CLI is local. The story is authored by whatever LLM app you’re already using (`/okad`).
 
-## Is OKAD a Graphify fork?
-
-No. Inspired by the *distribution idea* (CLI + agent skill), different product goals. See [comparison-graphify.md](comparison-graphify.md).
-
 ## Why so few nodes?
 
 That’s the point. Dense graphs look smart and teach nothing. Caps are intentional — see [PHILOSOPHY.md](PHILOSOPHY.md).

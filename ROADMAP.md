@@ -26,7 +26,7 @@ OKAD is young on purpose. The north star stays fixed: **a stranger can understan
 
 ## Explicit non-goals
 
-- Replacing Graphify’s exhaustive symbol graph
+- Exhaustive symbol / file dependency graphs as the product
 - Embedding / vector RAG
 - SaaS lock-in or telemetry
 
