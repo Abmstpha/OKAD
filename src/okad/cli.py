@@ -192,17 +192,74 @@ def install_cmd(
         console.print(f"[green]Installed[/green] → {t}")
 
 
+REPO_URL = "https://github.com/Abmstpha/OKAD"
+
+
+def _dev_checkout() -> Path | None:
+    """Return the repo root when okad runs from an editable/source checkout."""
+    import okad as _pkg
+
+    src = Path(_pkg.__file__).resolve()
+    for parent in src.parents:
+        if (parent / "pyproject.toml").exists() and (parent / ".git").exists():
+            return parent
+    return None
+
+
+def _self_upgrade() -> bool:
+    """Upgrade the okad package itself to the latest published version."""
+    import shutil
+    import subprocess
+    import sys
+
+    if sys.prefix and "pipx" in sys.prefix:
+        pipx = shutil.which("pipx") or "pipx"
+        cmd = [pipx, "install", "--force", f"git+{REPO_URL}"]
+    elif shutil.which("uv"):
+        cmd = ["uv", "pip", "install", "-p", sys.executable, "-U", f"git+{REPO_URL}"]
+    else:
+        cmd = [sys.executable, "-m", "pip", "install", "-U", f"git+{REPO_URL}"]
+    console.print(f"[dim]$ {' '.join(cmd)}[/dim]")
+    return subprocess.run(cmd).returncode == 0
+
+
 @app.command("update")
 def update_cmd(
     platform: str = typer.Option("auto", "--platform", help="claude|codex|cursor|agents|auto"),
+    skill_only: bool = typer.Option(
+        False, "--skill-only", help="Only refresh skill copies, skip the package upgrade"
+    ),
 ) -> None:
-    """Refresh installed /okad skill copies so they match this OKAD version."""
+    """Update OKAD to the latest published version and refresh /okad skill copies."""
     from okad.install import install
 
-    targets = install(platform)
-    for t in targets:
-        console.print(f"[green]Refreshed[/green] → {t}")
-    console.print(f"okad {__version__} — skill copies now match the installed package.")
+    dev = _dev_checkout()
+    upgraded = False
+    if dev:
+        console.print(f"[yellow]Editable dev install[/yellow] ({dev}) — already tracks source, skipping package upgrade.")
+    elif skill_only:
+        console.print("[dim]Skipping package upgrade (--skill-only).[/dim]")
+    elif not _self_upgrade():
+        console.print(f"[red]Package upgrade failed.[/red] Try manually: pip install -U git+{REPO_URL}")
+        raise typer.Exit(1)
+    else:
+        upgraded = True
+
+    if upgraded:
+        # The running process is still the old version — let the freshly
+        # installed binary write its own (new) skill copies.
+        import shutil
+        import subprocess
+        import sys
+
+        okad_bin = shutil.which("okad") or sys.argv[0]
+        subprocess.run([okad_bin, "install", "--platform", platform])
+        console.print("[green]Updated.[/green] Run `okad version` in a new shell to confirm.")
+    else:
+        targets = install(platform)
+        for t in targets:
+            console.print(f"[green]Refreshed[/green] → {t}")
+        console.print(f"okad {__version__} — skill copies now match the installed package.")
     console.print("[dim]Tip: `okad render <project>` re-renders story.html with the latest viewer.[/dim]")
 
 
