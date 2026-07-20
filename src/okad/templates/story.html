@@ -176,13 +176,13 @@
   .node-card {
     cursor: pointer;
   }
-  .node-card rect.card {
-    stroke-width: 1.5;
-    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
-    transition: filter 180ms ease;
+  .node-card circle.orb {
+    filter: drop-shadow(0 8px 18px rgba(0,0,0,0.45));
+    transition: filter 180ms ease, stroke-width 180ms ease;
   }
-  .node-card:hover rect.card {
-    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 55%, transparent));
+  .node-card:hover circle.orb {
+    filter: drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 65%, transparent));
+    stroke-width: 3.2;
   }
   .node-card text {
     fill: var(--ink);
@@ -193,18 +193,25 @@
   .node-card .sub { fill: var(--muted); font-size: 10px; }
   .edge {
     fill: none;
-    stroke-opacity: 0.45;
-    stroke-width: 1.5;
-    stroke-dasharray: 6 8;
+    stroke-opacity: 0.55;
+    stroke-width: 2;
+    stroke-linecap: round;
     animation: dashflow 1.8s linear infinite;
+    stroke-dasharray: 5 9;
   }
   .edge.hot {
     stroke-opacity: 0.95;
-    stroke-width: 2.4;
-    stroke-dasharray: 4 6;
-    animation-duration: 1.1s;
+    stroke-width: 2.6;
+    stroke-dasharray: 4 7;
+    animation-duration: 1.05s;
   }
   .edge.dim { stroke-opacity: 0.08; animation: none; }
+  .edge-label {
+    fill: #b7c4ba;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    pointer-events: none;
+  }
   .node-card.dim { opacity: 0.22; }
   @keyframes dashflow {
     to { stroke-dashoffset: -28; }
@@ -506,99 +513,112 @@ function wrapText(parent, text, x, y, maxWidth, lineHeight, fill, size, anchor='
   return lines.length;
 }
 
-function drawBigAgent(parent, p, opts={}) {
-  const a = p.agent;
-  const w = opts.w || 240;
-  const h = opts.h || 150;
-  const color = opts.color || (a.level === 'subagent' ? '#e2b15c' : COLORS.agent);
+function ensureMarkers(parent) {
+  if (parent.querySelector('defs#okad-markers')) return;
+  const defs = el('defs', { id: 'okad-markers' });
+  const mk = (id, fill) => {
+    const marker = el('marker', {
+      id, viewBox: '0 0 10 10', refX: '9', refY: '5',
+      markerWidth: '7', markerHeight: '7', orient: 'auto-start-reverse'
+    });
+    marker.appendChild(el('path', { d: 'M 0 0 L 10 5 L 0 10 z', fill }));
+    defs.appendChild(marker);
+  };
+  mk('arrow', '#ff9f6b');
+  mk('arrow-tool', '#9ad7ff');
+  mk('arrow-arch', '#3dba8a');
+  parent.insertBefore(defs, parent.firstChild);
+}
+
+function shortLabel(s, n) {
+  const t = String(s || '');
+  return t.length <= n ? t : t.slice(0, n - 1) + '…';
+}
+
+function drawCircleNode(parent, p, opts={}) {
+  const label = opts.label || '';
+  const sub = opts.sub || '';
+  const color = opts.color || COLORS.agent;
+  const r = opts.r || 54;
   const g = el('g', {
     class: 'node-card pop',
     transform: `translate(${p.x},${p.y})`,
     style: `animation-delay:${opts.delay||0}ms`
   });
-  const glow = el('rect', {
-    x: -w/2, y: -h/2, width: w, height: h, rx: 14,
-    fill: 'none', stroke: color, opacity: 0.28, 'stroke-dasharray': '5 9'
+  const pulse = el('circle', {
+    cx: 0, cy: 0, r: r + 10,
+    fill: 'none', stroke: color, opacity: 0.22, 'stroke-dasharray': '4 8'
   });
-  glow.style.animation = 'dashflow 2.2s linear infinite';
-  const rect = el('rect', {
-    class: 'card', x: -w/2, y: -h/2, width: w, height: h, rx: 14,
-    fill: '#141b18', stroke: color, 'stroke-width': 2.2
+  pulse.style.animation = 'dashflow 2.4s linear infinite';
+  const orb = el('circle', {
+    class: 'orb', cx: 0, cy: 0, r,
+    fill: opts.fill || '#141b18', stroke: color, 'stroke-width': 2.4
   });
-  const badge = el('rect', {
-    x: -w/2 + 12, y: -h/2 + 12, width: Math.min(110, (a.level||'agent').length * 8 + 18), height: 18, rx: 9,
-    fill: color, opacity: 0.2
+  const t = el('text', {
+    x: 0, y: sub ? -4 : 4, 'text-anchor': 'middle', fill: '#eef4ef',
+    'font-size': opts.titleSize || 12, 'font-family': 'Georgia, serif'
   });
-  const badgeT = el('text', {
-    x: -w/2 + 20, y: -h/2 + 25, fill: color, 'font-size': 10,
-    'font-family': 'IBM Plex Mono, monospace', 'letter-spacing': '0.06em'
-  });
-  badgeT.textContent = (a.level || 'agent').toUpperCase();
-  const title = el('text', {
-    x: 0, y: -h/2 + 52, 'text-anchor': 'middle', fill: '#eef4ef',
-    'font-size': 15, 'font-family': 'Georgia, serif'
-  });
-  title.textContent = (a.name || '').slice(0, 28);
-  g.appendChild(glow); g.appendChild(rect); g.appendChild(badge); g.appendChild(badgeT); g.appendChild(title);
-  if (a.role) {
-    const role = el('text', {
-      x: 0, y: -h/2 + 70, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 11
+  t.textContent = label;
+  g.appendChild(pulse); g.appendChild(orb); g.appendChild(t);
+  if (sub) {
+    const s = el('text', {
+      x: 0, y: 14, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 9,
+      'font-family': 'IBM Plex Mono, monospace'
     });
-    role.textContent = a.role.slice(0, 36);
-    g.appendChild(role);
+    s.textContent = sub;
+    g.appendChild(s);
   }
-  wrapText(g, a.summary || 'No description.', 0, -h/2 + 92, w - 28, 13, '#9aab9f', 11);
+  if (opts.onClick) g.addEventListener('click', (ev) => { ev.stopPropagation(); opts.onClick(); });
+  parent.appendChild(g);
+  p.r = r;
+  return r;
+}
+
+function drawBigAgent(parent, p, opts={}) {
+  const a = p.agent;
+  const color = opts.color || (a.level === 'subagent' ? '#e2b15c' : (a.level === 'system' ? '#c49bff' : COLORS.agent));
+  const r = opts.r || (a.level === 'system' ? 78 : a.level === 'subagent' ? 58 : 70);
   const toolN = (a.tools || []).length;
   const childN = (a.flow || []).length;
-  const foot = el('text', {
-    x: 0, y: h/2 - 14, 'text-anchor': 'middle', fill: color, 'font-size': 11,
-    'font-family': 'IBM Plex Mono, monospace'
-  });
-  foot.textContent = [
+  const meta = [
     toolN ? `${toolN} tools` : null,
     childN ? `${childN} steps` : null,
-  ].filter(Boolean).join(' · ') || 'agent';
-  g.appendChild(foot);
-  g.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    focusId = a.id;
-    showInspector({
-      id: a.id, label: a.name, kind: a.level || 'agent', layer: 'application',
-      summary: [a.role, a.summary].filter(Boolean).join(' — '),
-      source: a.node_id || null,
-    });
-    render();
+  ].filter(Boolean).join(' · ') || (a.level || 'agent');
+  drawCircleNode(parent, p, {
+    label: shortLabel(a.name, 16),
+    sub: meta,
+    color,
+    r,
+    delay: opts.delay || 0,
+    titleSize: a.level === 'subagent' ? 11 : 13,
+    onClick: () => {
+      focusId = a.id;
+      showInspector({
+        id: a.id, label: a.name, kind: a.level || 'agent', layer: 'application',
+        summary: [a.role, a.summary].filter(Boolean).join(' — '),
+        source: a.node_id || null,
+      });
+      render();
+    },
   });
-  parent.appendChild(g);
 }
 
 function drawToolPill(parent, p, tool, delay=0) {
-  const label = (tool.name || tool.id || '').slice(0, 22);
-  const w = Math.max(120, label.length * 7.2 + 24);
-  const h = 44;
-  const g = el('g', {
-    class: 'node-card pop',
-    transform: `translate(${p.x},${p.y})`,
-    style: `animation-delay:${delay}ms`
+  drawCircleNode(parent, p, {
+    label: shortLabel(tool.name || tool.id, 14),
+    sub: 'tool',
+    color: COLORS.tool,
+    r: 36,
+    delay,
+    titleSize: 10,
+    fill: '#121820',
+    onClick: () => {
+      showInspector({
+        id: tool.id, label: tool.name, kind: 'tool', layer: 'infra',
+        summary: tool.summary || '', source: tool.source || null,
+      });
+    },
   });
-  const rect = el('rect', {
-    class: 'card', x: -w/2, y: -h/2, width: w, height: h, rx: 10,
-    fill: '#121820', stroke: COLORS.tool, 'stroke-width': 1.6
-  });
-  const t = el('text', { x: 0, y: -2, 'text-anchor': 'middle', fill: '#eef4ef', 'font-size': 11 });
-  t.textContent = label;
-  const s = el('text', { x: 0, y: 13, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 9 });
-  s.textContent = 'tool';
-  g.appendChild(rect); g.appendChild(t); g.appendChild(s);
-  g.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    showInspector({
-      id: tool.id, label: tool.name, kind: 'tool', layer: 'infra',
-      summary: tool.summary || '', source: tool.source || null,
-    });
-  });
-  parent.appendChild(g);
-  return { w, h };
 }
 
 function renderAgents() {
@@ -651,18 +671,18 @@ function renderAgentFleet(world, agents, roots) {
 
   const systems = roots.filter(a => a.level === 'system');
   const orchs = roots.filter(a => a.level !== 'system');
-  const gapX = 280;
+  const gapX = 220;
   const positions = {};
 
   // Row 0 — system orchestrators
   systems.forEach((a, i) => {
     const total = Math.max(systems.length, 1);
     const x = 200 + i * gapX + (orchs.length > systems.length ? (orchs.length - systems.length) * gapX / 2 : 0);
-    positions[a.id] = { x, y: 190, agent: a };
+    positions[a.id] = { x, y: 190, agent: a, r: 78 };
   });
   // Row 1 — domain orchestrators
   orchs.forEach((a, i) => {
-    positions[a.id] = { x: 160 + i * gapX, y: systems.length ? 420 : 230, agent: a };
+    positions[a.id] = { x: 160 + i * gapX, y: systems.length ? 400 : 220, agent: a, r: 70 };
   });
 
   contentW = Math.max(1100, 160 + Math.max(orchs.length, systems.length, 1) * gapX + 120);
@@ -681,7 +701,7 @@ function renderAgentFleet(world, agents, roots) {
 
   Object.values(positions).forEach((p, i) => {
     const color = p.agent.level === 'system' ? '#c49bff' : COLORS.agent;
-    drawBigAgent(world, p, { delay: i * 50, w: 250, h: 160, color });
+    drawBigAgent(world, p, { delay: i * 50, r: p.r || 70, color });
   });
 
   // Under each orchestrator, preview subagent names
@@ -709,8 +729,8 @@ function renderAgentDetail(world, agents, current) {
   world.appendChild(sub);
 
   // Orchestrator hub on the left
-  const hub = { x: 150, y: 280, agent: current };
-  drawBigAgent(world, hub, { w: 260, h: 170, delay: 0 });
+  const hub = { x: 150, y: 280, agent: current, r: 72 };
+  drawBigAgent(world, hub, { r: 72, delay: 0 });
 
   // Children: from flow ids or parent_id
   let children = agents.filter(a => a.parent_id === current.id);
@@ -741,7 +761,7 @@ function renderAgentDetail(world, agents, current) {
     tools.forEach((t, i) => {
       const tx = 480 + (i % 3) * 180;
       const ty = 160 + Math.floor(i / 3) * 90;
-      drawLabeledEdge(world, hub, { x: tx, y: ty }, 'uses');
+      drawLabeledEdge(world, hub, { x: tx, y: ty, r: 36 }, 'uses', { marker: 'url(#arrow-tool)', color: COLORS.tool, rb: 36 });
       drawToolPill(world, { x: tx, y: ty }, t, 80 + i * 25);
     });
     contentW = Math.max(contentW, 480 + 3 * 180);
@@ -766,7 +786,7 @@ function renderAgentDetail(world, agents, current) {
     tools.forEach((t, j) => {
       const tx = childPos[c.id].x;
       const ty = childPos[c.id].y + 120 + j * 58;
-      drawLabeledEdge(world, childPos[c.id], { x: tx, y: ty }, 'tool');
+      drawLabeledEdge(world, childPos[c.id], { x: tx, y: ty, r: 36 }, 'tool', { marker: 'url(#arrow-tool)', color: COLORS.tool, rb: 36 });
       drawToolPill(world, { x: tx, y: ty }, t, 100 + i * 20 + j * 15);
     });
   });
@@ -779,25 +799,40 @@ function renderAgentDetail(world, agents, current) {
     const ty = 120 + i * 170;
     const tp = { x: tx, y: ty, agent: target };
     drawLabeledEdge(world, hub, tp, r.label || r.kind || 'relates');
-    drawBigAgent(world, tp, { w: 230, h: 140, delay: 200, color: '#c49bff' });
+    tp.r = 64; drawBigAgent(world, tp, { r: 64, delay: 200, color: '#c49bff' });
     contentW = Math.max(contentW, tx + 160);
   });
 }
 
-function drawLabeledEdge(parent, a, b, label) {
+function drawLabeledEdge(parent, a, b, label, opts={}) {
+  ensureMarkers(parent);
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const dist = Math.max(Math.hypot(dx, dy), 1);
+  const ra = a.r || opts.ra || 60;
+  const rb = b.r || opts.rb || 40;
+  const ux = dx / dist;
+  const uy = dy / dist;
+  const x1 = a.x + ux * ra;
+  const y1 = a.y + uy * ra;
+  const x2 = b.x - ux * rb;
+  const y2 = b.y - uy * rb;
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2;
+  const nx = -uy * Math.min(70, dist * 0.2);
+  const ny = ux * Math.min(70, dist * 0.2);
+  const cx = mx + nx;
+  const cy = my + ny;
+  const color = opts.color || COLORS.agent;
   const path = el('path', {
-    class: 'edge hot',
-    d: `M ${a.x} ${a.y} C ${(a.x+b.x)/2} ${a.y}, ${(a.x+b.x)/2} ${b.y}, ${b.x} ${b.y}`,
-    stroke: COLORS.agent
+    class: `edge ${opts.hot === false ? '' : 'hot'}`.trim(),
+    d: `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`,
+    stroke: color,
+    'marker-end': opts.marker || 'url(#arrow)',
   });
   parent.appendChild(path);
   if (label) {
-    const mx = (a.x + b.x) / 2;
-    const my = (a.y + b.y) / 2 - 8;
-    const t = el('text', {
-      x: mx, y: my, 'text-anchor': 'middle', fill: '#b7c4ba', 'font-size': 10,
-      'font-family': 'IBM Plex Mono, monospace'
-    });
+    const t = el('text', { class: 'edge-label', x: cx, y: cy - 8, 'text-anchor': 'middle' });
     t.textContent = String(label).slice(0, 28);
     parent.appendChild(t);
   }
@@ -879,9 +914,9 @@ function renderArchitecture() {
 
   const world = worldGroup();
   const padX = 28, padY = 56;
-  const colW = 210;
-  const cardH = 52;
-  const gap = 14;
+  const colW = 180;
+  const cardH = 96;
+  const gap = 28;
   const maxCount = Math.max(1, ...LAYER_ORDER.map(l => byLayer[l].length));
   contentW = padX * 2 + LAYER_ORDER.length * colW;
   contentH = padY + maxCount * (cardH + gap) + 40;
@@ -907,11 +942,11 @@ function renderArchitecture() {
     });
   });
 
+  Object.values(positions).forEach((p, i) => drawNode(world, p, false, i * 18));
   const edges = (DATA.edges || []).filter(e =>
     positions[e.source] && positions[e.target] && e.kind !== 'contains'
   );
   edges.forEach(e => drawEdge(world, positions[e.source], positions[e.target], e));
-  Object.values(positions).forEach((p, i) => drawNode(world, p, false, i * 18));
 }
 
 function renderPathView(mode) {
@@ -973,51 +1008,34 @@ function renderPathView(mode) {
     const n = nm[id] || { id, label: id, layer: 'application', kind: 'service', summary: '' };
     positions[id] = { x: padX + i * gap, y: rowY + (i % 2 === 0 ? -28 : 28), n };
   });
+  Object.values(positions).forEach((p, i) => drawNode(world, p, true, i * 40));
   for (let i = 0; i < unique.length - 1; i++) {
     drawEdge(world, positions[unique[i]], positions[unique[i+1]], { kind: 'calls', label: '' }, true);
   }
-  Object.values(positions).forEach((p, i) => drawNode(world, p, true, i * 40));
 }
 
 function drawNode(parent, p, hot=false, delay=0, strokeOverride=null) {
   const n = p.n;
-  const g = el('g', {
-    class: 'node-card pop',
-    transform: `translate(${p.x},${p.y})`,
-    style: `animation-delay:${delay}ms`
-  });
-  const label = (n.label || n.id || '').slice(0, 26);
-  const w = Math.max(128, Math.min(176, label.length * 7.4 + 28));
-  const h = 50;
   const color = strokeOverride || COLORS[n.layer] || COLORS.application;
-  const rect = el('rect', {
-    class: 'card',
-    x: -w/2, y: -h/2, width: w, height: h,
-    rx: 8, fill: '#171d1a', stroke: color, opacity: hot ? 1 : 0.96
+  drawCircleNode(parent, p, {
+    label: shortLabel(n.label || n.id, 14),
+    sub: n.kind || '',
+    color,
+    r: hot ? 48 : 42,
+    delay,
+    titleSize: 11,
+    onClick: () => showInspector(n),
   });
-  // subtle animated border glow via second rect
-  const glow = el('rect', {
-    x: -w/2, y: -h/2, width: w, height: h,
-    rx: 8, fill: 'none', stroke: color, opacity: 0.25,
-    'stroke-dasharray': '4 10'
-  });
-  glow.style.animation = 'dashflow 2.4s linear infinite';
-  const t = el('text', { x: 0, y: -2, 'text-anchor': 'middle' });
-  t.textContent = label;
-  const sub = el('text', { x: 0, y: 14, 'text-anchor': 'middle', class: 'sub' });
-  sub.textContent = n.kind || '';
-  g.appendChild(glow); g.appendChild(rect); g.appendChild(t); g.appendChild(sub);
-  g.addEventListener('click', (ev) => { ev.stopPropagation(); showInspector(n); });
-  parent.appendChild(g);
 }
 
 function drawEdge(parent, a, b, e, hot=false) {
-  const path = el('path', {
-    class: `edge ${hot ? 'hot' : ''}`,
-    d: `M ${a.x} ${a.y} C ${(a.x+b.x)/2} ${a.y}, ${(a.x+b.x)/2} ${b.y}, ${b.x} ${b.y}`,
-    stroke: COLORS[a.n.layer] || COLORS.application
+  drawLabeledEdge(parent, a, b, e && e.label ? e.label : '', {
+    hot,
+    color: COLORS[(a.n && a.n.layer) || 'application'] || COLORS.application,
+    marker: 'url(#arrow-arch)',
+    ra: a.r || 42,
+    rb: b.r || 42,
   });
-  parent.appendChild(path);
 }
 
 function bindSide() {
