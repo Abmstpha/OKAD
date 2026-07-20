@@ -3,6 +3,16 @@
 ## 60-second version
 
 ```bash
+# Install the CLI (pick one — do NOT use bare Homebrew pip)
+pipx install "git+https://github.com/Abmstpha/OKAD.git"   # brew install pipx
+# or: uv tool install "git+https://github.com/Abmstpha/OKAD.git"
+
+okad install
+```
+
+Or from a clone (dev):
+
+```bash
 git clone https://github.com/Abmstpha/OKAD.git
 cd OKAD
 uv venv && source .venv/bin/activate

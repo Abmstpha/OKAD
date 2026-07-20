@@ -4,7 +4,7 @@ When the user runs `/okad` or asks for a system / architecture / data-flow / req
 follow the OKAD skill (`okad` skill / `skill/SKILL.md`). Prefer `okad query`, `okad path`,
 and `okad explain` over grepping the whole repo once `okad-out/story.json` exists.
 
-Install: `pip install okad && okad install`
+Install: `pipx install "git+https://github.com/Abmstpha/OKAD.git" && okad install` (or `uv tool install …`)
 
 ## Local agent memory
 

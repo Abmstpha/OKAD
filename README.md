@@ -29,47 +29,41 @@ It works with **Claude Code**, **OpenAI Codex**, **Cursor**, and any agent that 
 
 ## Download & install
 
-**Requirements:** Python 3.10+, and one of: [uv](https://github.com/astral-sh/uv), `pip`, or `pipx`.
+**Requirements:** Python 3.10+, and one of: [uv](https://github.com/astral-sh/uv) or [pipx](https://pipx.pypa.io/).
 
-### 1. Get the code
+> **Do not** run bare `pip install …` into Homebrew Python — macOS will reject it (`externally-managed-environment` / PEP 668). Use **pipx** or **uv** so the CLI lives in its own env.
+
+### Fast path (CLI on your PATH)
+
+```bash
+# pipx (Homebrew: brew install pipx && pipx ensurepath)
+pipx install "git+https://github.com/Abmstpha/OKAD.git"
+okad install
+
+# or uv
+uv tool install "git+https://github.com/Abmstpha/OKAD.git"
+okad install
+```
+
+### Dev install (from a clone)
 
 ```bash
 git clone https://github.com/Abmstpha/OKAD.git
 cd OKAD
-```
-
-### 2. Install the `okad` command
-
-Pick one:
-
-```bash
-# recommended
 uv venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 uv pip install -e .
-
-# or with pip
-python3 -m pip install -e .
-
-# or with pipx (global CLI)
-pipx install -e .
+okad version   # → 0.1.0
 ```
 
-Check it:
+### Wire the `/okad` skill into your LLM app
 
-```bash
-okad version
-# → 0.1.0
-```
-
-### 3. Wire it into your LLM app / CLI
-
-This copies the `/okad` skill so Claude Code, Codex, Cursor, etc. know how to run the full story pipeline:
+(Already covered by the fast-path one-liners above.) To install or reinstall the skill alone:
 
 ```bash
 okad install
 ```
 
-That installs into whatever it finds on your machine. To target one platform:
+Target one platform:
 
 ```bash
 okad install --platform claude    # Claude Code  →  ~/.claude/skills/okad + /okad command
