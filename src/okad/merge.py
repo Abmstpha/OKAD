@@ -9,6 +9,7 @@ from typing import Any
 
 from okad.model import (
     Agent,
+    AgentRelation,
     AgentTool,
     DataFlow,
     Edge,
@@ -126,12 +127,26 @@ def merge_story(skeleton: StoryGraph, story: dict[str, Any]) -> StoryGraph:
                 )
             else:
                 tools.append(AgentTool(id=str(t), name=_human(str(t))))
+        relations = [
+            AgentRelation(
+                target=str(r.get("target") or ""),
+                kind=str(r.get("kind") or "calls"),
+                label=str(r.get("label") or ""),
+            )
+            for r in (raw.get("relations") or [])
+            if isinstance(r, dict) and r.get("target")
+        ]
         agents.append(
             Agent(
                 id=str(raw.get("id") or _slug(raw.get("name", "agent"))),
                 name=str(raw.get("name") or "Agent"),
                 summary=str(raw.get("summary") or ""),
+                role=str(raw.get("role") or ""),
+                level=str(raw.get("level") or "orchestrator"),
+                parent_id=raw.get("parent_id"),
                 node_id=raw.get("node_id"),
+                flow=[str(x) for x in (raw.get("flow") or [])],
+                relations=relations,
                 tools=tools,
             )
         )

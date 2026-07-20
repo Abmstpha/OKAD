@@ -144,21 +144,43 @@ class AgentTool:
 
 
 @dataclass
+class AgentRelation:
+    """Edge between agents (handoff, feeds, invokes, …)."""
+
+    target: str
+    kind: str = "calls"
+    label: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class Agent:
-    """An orchestration agent and the tools it can call."""
+    """An agent in the system — orchestrator or subagent, with tools and hierarchy."""
 
     id: str
     name: str
     summary: str = ""
-    tools: list[AgentTool] = field(default_factory=list)
+    role: str = ""
+    level: str = "orchestrator"  # system | orchestrator | subagent
+    parent_id: str | None = None
     node_id: str | None = None
+    flow: list[str] = field(default_factory=list)  # ordered child agent ids / step names
+    relations: list[AgentRelation] = field(default_factory=list)
+    tools: list[AgentTool] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "name": self.name,
             "summary": self.summary,
+            "role": self.role,
+            "level": self.level,
+            "parent_id": self.parent_id,
             "node_id": self.node_id,
+            "flow": list(self.flow),
+            "relations": [r.to_dict() for r in self.relations],
             "tools": [t.to_dict() for t in self.tools],
         }
 
@@ -222,13 +244,32 @@ class StoryGraph:
         data_flows = [DataFlow(**d) for d in data.get("data_flows", [])]
         agents: list[Agent] = []
         for a in data.get("agents", []) or []:
-            tools = [AgentTool(**t) if isinstance(t, dict) else AgentTool(id=str(t), name=str(t)) for t in a.get("tools", [])]
+            tools = [
+                AgentTool(**{k: v for k, v in dict(t).items() if k in {f.name for f in fields(AgentTool)}})
+                if isinstance(t, dict)
+                else AgentTool(id=str(t), name=str(t))
+                for t in a.get("tools", [])
+            ]
+            relations = [
+                AgentRelation(
+                    target=str(r.get("target") or ""),
+                    kind=str(r.get("kind") or "calls"),
+                    label=str(r.get("label") or ""),
+                )
+                for r in (a.get("relations") or [])
+                if isinstance(r, dict) and r.get("target")
+            ]
             agents.append(
                 Agent(
                     id=str(a.get("id") or a.get("name") or "agent"),
                     name=str(a.get("name") or "Agent"),
                     summary=str(a.get("summary") or ""),
+                    role=str(a.get("role") or ""),
+                    level=str(a.get("level") or "orchestrator"),
+                    parent_id=a.get("parent_id"),
                     node_id=a.get("node_id"),
+                    flow=[str(x) for x in (a.get("flow") or [])],
+                    relations=relations,
                     tools=tools,
                 )
             )

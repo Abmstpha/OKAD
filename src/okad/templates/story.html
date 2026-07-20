@@ -290,8 +290,8 @@
     <p class="tagline">__SUMMARY__</p>
   </div>
   <div class="tabs" role="tablist">
-    <button class="tab" data-view="architecture" aria-selected="true">Architecture</button>
-    <button class="tab" data-view="agents">Agents &amp; tools</button>
+    <button class="tab" data-view="agents" aria-selected="true">Agents &amp; tools</button>
+    <button class="tab" data-view="architecture" aria-selected="false">Architecture</button>
     <button class="tab" data-view="journeys">Journeys</button>
     <button class="tab" data-view="requests">Requests</button>
     <button class="tab" data-view="data">Data flow</button>
@@ -338,7 +338,7 @@ const COLORS = {
 };
 const LAYER_ORDER = ['experience','interface','application','data','infra'];
 
-let view = 'architecture';
+let view = 'agents';
 let focusId = null;
 let showMermaid = false;
 let scale = 1;
@@ -423,7 +423,20 @@ function nodeMap() {
 }
 
 function inferAgents() {
-  if (Array.isArray(DATA.agents) && DATA.agents.length) return DATA.agents;
+  if (Array.isArray(DATA.agents) && DATA.agents.length) {
+    return DATA.agents.map(a => ({
+      id: a.id,
+      name: a.name,
+      summary: a.summary || '',
+      role: a.role || '',
+      level: a.level || 'orchestrator',
+      parent_id: a.parent_id || null,
+      node_id: a.node_id || null,
+      flow: a.flow || [],
+      relations: a.relations || [],
+      tools: a.tools || [],
+    }));
+  }
   const nm = nodeMap();
   const agents = [];
   const re = /(agent|langgraph|graph|underwriter|orchestr)/i;
@@ -444,7 +457,6 @@ function inferAgents() {
         source: t.source || null,
       });
     });
-    // unique tools
     const seen = new Set();
     const uniq = [];
     tools.forEach(t => { if (!seen.has(t.id)) { seen.add(t.id); uniq.push(t); } });
@@ -452,11 +464,343 @@ function inferAgents() {
       id: n.id,
       name: n.label,
       summary: n.summary || '',
+      role: n.kind,
+      level: 'orchestrator',
+      parent_id: null,
       node_id: n.id,
+      flow: [],
+      relations: [],
       tools: uniq,
     });
   });
   return agents;
+}
+
+function agentMap(agents) {
+  const m = {};
+  agents.forEach(a => m[a.id] = a);
+  return m;
+}
+
+function wrapText(parent, text, x, y, maxWidth, lineHeight, fill, size, anchor='middle') {
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  let line = '';
+  let dy = 0;
+  const lines = [];
+  words.forEach(w => {
+    const test = line ? line + ' ' + w : w;
+    if (test.length * (size * 0.55) > maxWidth && line) {
+      lines.push(line);
+      line = w;
+    } else line = test;
+  });
+  if (line) lines.push(line);
+  lines.slice(0, 4).forEach((ln, i) => {
+    const t = el('text', {
+      x, y: y + i * lineHeight, fill, 'font-size': size, 'text-anchor': anchor,
+      'font-family': 'IBM Plex Sans, Segoe UI, sans-serif'
+    });
+    t.textContent = ln;
+    parent.appendChild(t);
+  });
+  return lines.length;
+}
+
+function drawBigAgent(parent, p, opts={}) {
+  const a = p.agent;
+  const w = opts.w || 240;
+  const h = opts.h || 150;
+  const color = opts.color || (a.level === 'subagent' ? '#e2b15c' : COLORS.agent);
+  const g = el('g', {
+    class: 'node-card pop',
+    transform: `translate(${p.x},${p.y})`,
+    style: `animation-delay:${opts.delay||0}ms`
+  });
+  const glow = el('rect', {
+    x: -w/2, y: -h/2, width: w, height: h, rx: 14,
+    fill: 'none', stroke: color, opacity: 0.28, 'stroke-dasharray': '5 9'
+  });
+  glow.style.animation = 'dashflow 2.2s linear infinite';
+  const rect = el('rect', {
+    class: 'card', x: -w/2, y: -h/2, width: w, height: h, rx: 14,
+    fill: '#141b18', stroke: color, 'stroke-width': 2.2
+  });
+  const badge = el('rect', {
+    x: -w/2 + 12, y: -h/2 + 12, width: Math.min(110, (a.level||'agent').length * 8 + 18), height: 18, rx: 9,
+    fill: color, opacity: 0.2
+  });
+  const badgeT = el('text', {
+    x: -w/2 + 20, y: -h/2 + 25, fill: color, 'font-size': 10,
+    'font-family': 'IBM Plex Mono, monospace', 'letter-spacing': '0.06em'
+  });
+  badgeT.textContent = (a.level || 'agent').toUpperCase();
+  const title = el('text', {
+    x: 0, y: -h/2 + 52, 'text-anchor': 'middle', fill: '#eef4ef',
+    'font-size': 15, 'font-family': 'Georgia, serif'
+  });
+  title.textContent = (a.name || '').slice(0, 28);
+  g.appendChild(glow); g.appendChild(rect); g.appendChild(badge); g.appendChild(badgeT); g.appendChild(title);
+  if (a.role) {
+    const role = el('text', {
+      x: 0, y: -h/2 + 70, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 11
+    });
+    role.textContent = a.role.slice(0, 36);
+    g.appendChild(role);
+  }
+  wrapText(g, a.summary || 'No description.', 0, -h/2 + 92, w - 28, 13, '#9aab9f', 11);
+  const toolN = (a.tools || []).length;
+  const childN = (a.flow || []).length;
+  const foot = el('text', {
+    x: 0, y: h/2 - 14, 'text-anchor': 'middle', fill: color, 'font-size': 11,
+    'font-family': 'IBM Plex Mono, monospace'
+  });
+  foot.textContent = [
+    toolN ? `${toolN} tools` : null,
+    childN ? `${childN} steps` : null,
+  ].filter(Boolean).join(' · ') || 'agent';
+  g.appendChild(foot);
+  g.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    focusId = a.id;
+    showInspector({
+      id: a.id, label: a.name, kind: a.level || 'agent', layer: 'application',
+      summary: [a.role, a.summary].filter(Boolean).join(' — '),
+      source: a.node_id || null,
+    });
+    render();
+  });
+  parent.appendChild(g);
+}
+
+function drawToolPill(parent, p, tool, delay=0) {
+  const label = (tool.name || tool.id || '').slice(0, 22);
+  const w = Math.max(120, label.length * 7.2 + 24);
+  const h = 44;
+  const g = el('g', {
+    class: 'node-card pop',
+    transform: `translate(${p.x},${p.y})`,
+    style: `animation-delay:${delay}ms`
+  });
+  const rect = el('rect', {
+    class: 'card', x: -w/2, y: -h/2, width: w, height: h, rx: 10,
+    fill: '#121820', stroke: COLORS.tool, 'stroke-width': 1.6
+  });
+  const t = el('text', { x: 0, y: -2, 'text-anchor': 'middle', fill: '#eef4ef', 'font-size': 11 });
+  t.textContent = label;
+  const s = el('text', { x: 0, y: 13, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 9 });
+  s.textContent = 'tool';
+  g.appendChild(rect); g.appendChild(t); g.appendChild(s);
+  g.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    showInspector({
+      id: tool.id, label: tool.name, kind: 'tool', layer: 'infra',
+      summary: tool.summary || '', source: tool.source || null,
+    });
+  });
+  parent.appendChild(g);
+  return { w, h };
+}
+
+function renderAgents() {
+  sideTitle.textContent = 'Agent fleet';
+  const agents = inferAgents();
+  const world = worldGroup();
+  if (!agents.length) {
+    sideList.innerHTML = `<div class="empty">No agents authored. Re-run /okad and fill the <code>agents</code> list (orchestrators, subagents, tools, relations).</div>`;
+    const t = el('text', { x: 40, y: 80, fill: '#8a9a90', 'font-size': 16 });
+    t.textContent = 'No agentic map yet.';
+    world.appendChild(t);
+    contentW = 700; contentH = 320;
+    return;
+  }
+
+  const am = agentMap(agents);
+  const roots = agents.filter(a => a.level === 'system' || a.level === 'orchestrator');
+  const fallbackRoots = roots.length ? roots : agents.filter(a => !a.parent_id);
+
+  // Sidebar: fleet overview + each orchestrator / system agent
+  const sideItems = [
+    { id: '__fleet__', name: 'Fleet overview', summary: `${agents.length} agents · hierarchy + tools + relations` },
+    ...fallbackRoots.map(a => ({
+      id: a.id,
+      name: a.name,
+      summary: a.role || a.summary || `${(a.flow||[]).length} steps · ${(a.tools||[]).length} tools`,
+    })),
+  ];
+  if (!focusId || (focusId !== '__fleet__' && !am[focusId])) focusId = '__fleet__';
+  sideList.innerHTML = sideItems.map(it =>
+    `<button class="item ${it.id===focusId?'active':''}" data-id="${esc(it.id)}"><strong>${esc(it.name)}</strong><small>${esc(it.summary)}</small></button>`
+  ).join('');
+  bindSide();
+
+  if (focusId === '__fleet__') {
+    renderAgentFleet(world, agents, fallbackRoots);
+  } else {
+    const current = am[focusId] || fallbackRoots[0];
+    renderAgentDetail(world, agents, current);
+  }
+}
+
+function renderAgentFleet(world, agents, roots) {
+  const title = el('text', { x: 36, y: 42, fill: '#eef4ef', 'font-size': 22, 'font-family': 'Georgia, serif' });
+  title.textContent = 'Agentic architecture';
+  world.appendChild(title);
+  const sub = el('text', { x: 36, y: 66, fill: '#8b9a90', 'font-size': 12 });
+  sub.textContent = 'Hierarchy · relations · click an orchestrator to open subagents + tools';
+  world.appendChild(sub);
+
+  const systems = roots.filter(a => a.level === 'system');
+  const orchs = roots.filter(a => a.level !== 'system');
+  const gapX = 280;
+  const positions = {};
+
+  // Row 0 — system orchestrators
+  systems.forEach((a, i) => {
+    const total = Math.max(systems.length, 1);
+    const x = 200 + i * gapX + (orchs.length > systems.length ? (orchs.length - systems.length) * gapX / 2 : 0);
+    positions[a.id] = { x, y: 190, agent: a };
+  });
+  // Row 1 — domain orchestrators
+  orchs.forEach((a, i) => {
+    positions[a.id] = { x: 160 + i * gapX, y: systems.length ? 420 : 230, agent: a };
+  });
+
+  contentW = Math.max(1100, 160 + Math.max(orchs.length, systems.length, 1) * gapX + 120);
+  contentH = systems.length ? 700 : 560;
+
+  // parent_id hierarchy edges + explicit relations
+  roots.forEach(a => {
+    if (a.parent_id && positions[a.parent_id] && positions[a.id]) {
+      drawLabeledEdge(world, positions[a.parent_id], positions[a.id], 'owns');
+    }
+    (a.relations || []).forEach(r => {
+      if (!positions[a.id] || !positions[r.target]) return;
+      drawLabeledEdge(world, positions[a.id], positions[r.target], r.label || r.kind || 'relates');
+    });
+  });
+
+  Object.values(positions).forEach((p, i) => {
+    const color = p.agent.level === 'system' ? '#c49bff' : COLORS.agent;
+    drawBigAgent(world, p, { delay: i * 50, w: 250, h: 160, color });
+  });
+
+  // Under each orchestrator, preview subagent names
+  const previewY = (systems.length ? 420 : 230) + 130;
+  orchs.forEach((a) => {
+    const kids = agents.filter(c => c.parent_id === a.id || (a.flow || []).includes(c.id));
+    const names = kids.length
+      ? kids.map(c => c.name.replace(/ Agent$/, '')).slice(0, 5)
+      : (a.flow || []).slice(0, 5);
+    if (!names.length) return;
+    const t = el('text', {
+      x: positions[a.id].x, y: previewY + 20, 'text-anchor': 'middle', fill: '#8b9a90', 'font-size': 10
+    });
+    t.textContent = names.join(' → ');
+    world.appendChild(t);
+  });
+}
+
+function renderAgentDetail(world, agents, current) {
+  const title = el('text', { x: 36, y: 40, fill: '#eef4ef', 'font-size': 22, 'font-family': 'Georgia, serif' });
+  title.textContent = current.name;
+  world.appendChild(title);
+  const sub = el('text', { x: 36, y: 62, fill: '#8b9a90', 'font-size': 12 });
+  sub.textContent = [current.role, current.summary].filter(Boolean).join(' — ').slice(0, 140);
+  world.appendChild(sub);
+
+  // Orchestrator hub on the left
+  const hub = { x: 150, y: 280, agent: current };
+  drawBigAgent(world, hub, { w: 260, h: 170, delay: 0 });
+
+  // Children: from flow ids or parent_id
+  let children = agents.filter(a => a.parent_id === current.id);
+  if (!children.length && (current.flow || []).length) {
+    const am = agentMap(agents);
+    children = current.flow.map(id => am[id] || {
+      id: `step:${id}`,
+      name: String(id).replace(/_/g, ' '),
+      role: 'graph step',
+      level: 'subagent',
+      summary: `Pipeline step in ${current.name}`,
+      tools: [],
+      flow: [],
+      relations: [],
+    });
+  }
+
+  const gap = 250;
+  const startX = 460;
+  const rowY = 200;
+  contentW = Math.max(1100, startX + Math.max(children.length, 1) * gap + 80);
+  contentH = Math.max(720, 420 + Math.max(...children.map(c => (c.tools || []).length), 1) * 56);
+
+  const childPos = {};
+  if (!children.length) {
+    // leaf agent — fan tools to the right of hub
+    const tools = current.tools || [];
+    tools.forEach((t, i) => {
+      const tx = 480 + (i % 3) * 180;
+      const ty = 160 + Math.floor(i / 3) * 90;
+      drawLabeledEdge(world, hub, { x: tx, y: ty }, 'uses');
+      drawToolPill(world, { x: tx, y: ty }, t, 80 + i * 25);
+    });
+    contentW = Math.max(contentW, 480 + 3 * 180);
+    return;
+  }
+
+  children.forEach((c, i) => {
+    const x = startX + i * gap;
+    const y = rowY + (i % 2 === 0 ? 0 : 40);
+    childPos[c.id] = { x, y, agent: c };
+    drawLabeledEdge(world, hub, childPos[c.id], i === 0 ? 'runs' : 'then');
+  });
+  // sequence edges between children
+  for (let i = 0; i < children.length - 1; i++) {
+    drawLabeledEdge(world, childPos[children[i].id], childPos[children[i+1].id], '→');
+  }
+  children.forEach((c, i) => drawBigAgent(world, childPos[c.id], { w: 220, h: 140, delay: 40 + i * 50, color: '#e2b15c' }));
+
+  // Tools under each subagent
+  children.forEach((c, i) => {
+    const tools = c.tools || [];
+    tools.forEach((t, j) => {
+      const tx = childPos[c.id].x;
+      const ty = childPos[c.id].y + 120 + j * 58;
+      drawLabeledEdge(world, childPos[c.id], { x: tx, y: ty }, 'tool');
+      drawToolPill(world, { x: tx, y: ty }, t, 100 + i * 20 + j * 15);
+    });
+  });
+
+  // Outbound relations to other orchestrators
+  (current.relations || []).forEach((r, i) => {
+    const target = agents.find(a => a.id === r.target);
+    if (!target) return;
+    const tx = startX + children.length * gap + 40;
+    const ty = 120 + i * 170;
+    const tp = { x: tx, y: ty, agent: target };
+    drawLabeledEdge(world, hub, tp, r.label || r.kind || 'relates');
+    drawBigAgent(world, tp, { w: 230, h: 140, delay: 200, color: '#c49bff' });
+    contentW = Math.max(contentW, tx + 160);
+  });
+}
+
+function drawLabeledEdge(parent, a, b, label) {
+  const path = el('path', {
+    class: 'edge hot',
+    d: `M ${a.x} ${a.y} C ${(a.x+b.x)/2} ${a.y}, ${(a.x+b.x)/2} ${b.y}, ${b.x} ${b.y}`,
+    stroke: COLORS.agent
+  });
+  parent.appendChild(path);
+  if (label) {
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2 - 8;
+    const t = el('text', {
+      x: mx, y: my, 'text-anchor': 'middle', fill: '#b7c4ba', 'font-size': 10,
+      'font-family': 'IBM Plex Mono, monospace'
+    });
+    t.textContent = String(label).slice(0, 28);
+    parent.appendChild(t);
+  }
 }
 
 function worldGroup() {
@@ -568,53 +912,6 @@ function renderArchitecture() {
   );
   edges.forEach(e => drawEdge(world, positions[e.source], positions[e.target], e));
   Object.values(positions).forEach((p, i) => drawNode(world, p, false, i * 18));
-}
-
-function renderAgents() {
-  sideTitle.textContent = 'Agents';
-  const agents = inferAgents();
-  if (!agents.length) {
-    sideList.innerHTML = `<div class="empty">No agents found. Next /okad pass should author an <code>agents</code> list (agent → tools).</div>`;
-    const world = worldGroup();
-    const t = el('text', { x: 40, y: 80, fill: '#8a9a90', 'font-size': 16 });
-    t.textContent = 'No agents in this map yet.';
-    world.appendChild(t);
-    contentW = 700; contentH = 320;
-    return;
-  }
-  if (!focusId) focusId = agents[0].id;
-  sideList.innerHTML = agents.map(a =>
-    `<button class="item ${a.id===focusId?'active':''}" data-id="${esc(a.id)}"><strong>${esc(a.name)}</strong><small>${esc(a.summary|| (a.tools||[]).length + ' tools')}</small></button>`
-  ).join('');
-  bindSide();
-
-  const current = agents.find(a => a.id === focusId) || agents[0];
-  const tools = current.tools || [];
-  const world = worldGroup();
-  const ax = 180, ay = 220;
-  contentW = Math.max(900, 280 + tools.length * 170);
-  contentH = Math.max(480, 160 + tools.length * 70);
-
-  // agent hub
-  drawNode(world, {
-    x: ax, y: ay,
-    n: { id: current.id, label: current.name, kind: 'agent', layer: 'application', summary: current.summary }
-  }, true, 0, COLORS.agent);
-
-  tools.forEach((t, i) => {
-    const tx = 420 + (i % 3) * 190;
-    const ty = 110 + Math.floor(i / 3) * 110;
-    const pn = { id: t.id, label: t.name, kind: 'tool', layer: 'infra', summary: t.summary || '' };
-    drawEdge(world, { x: ax, y: ay, n: { layer: 'application' } }, { x: tx, y: ty, n: pn }, { kind: 'calls', label: 'uses' }, true);
-    drawNode(world, { x: tx, y: ty, n: pn }, true, 80 + i * 30, COLORS.tool);
-  });
-
-  const title = el('text', { x: 40, y: 48, fill: '#eef4ef', 'font-size': 20, 'font-family': 'Georgia, serif' });
-  title.textContent = current.name;
-  world.appendChild(title);
-  const sub = el('text', { x: 40, y: 70, fill: '#8a9a90', 'font-size': 12 });
-  sub.textContent = `${tools.length} tools · click a card for detail`;
-  world.appendChild(sub);
 }
 
 function renderPathView(mode) {
@@ -755,14 +1052,42 @@ function mermaidForCurrent() {
   const nm = nodeMap();
   if (view === 'agents') {
     const agents = inferAgents();
+    if (focusId === '__fleet__' || !focusId) {
+      const roots = agents.filter(a => a.level === 'system' || a.level === 'orchestrator');
+      const lines = ['flowchart TB'];
+      roots.forEach((a, i) => {
+        lines.push(`  A${i}["${escM(a.name)}"]`);
+      });
+      roots.forEach((a, i) => {
+        (a.relations || []).forEach(r => {
+          const j = roots.findIndex(x => x.id === r.target);
+          if (j >= 0) lines.push(`  A${i} -->|${escM(r.label || r.kind)}| A${j}`);
+        });
+        if (a.parent_id) {
+          const j = roots.findIndex(x => x.id === a.parent_id);
+          if (j >= 0) lines.push(`  A${j} --> A${i}`);
+        }
+      });
+      return lines.join('\n') || 'flowchart TB\n  A[No agents]';
+    }
     const current = agents.find(a => a.id === focusId) || agents[0];
     if (!current) return 'flowchart LR\n  A[No agents]';
-    const lines = ['flowchart LR', `  A["${escM(current.name)}"]:::agent`];
+    const kids = agents.filter(a => a.parent_id === current.id || (current.flow||[]).includes(a.id));
+    const lines = ['flowchart LR', `  ORCH["${escM(current.name)}"]:::agent`];
+    kids.forEach((c, i) => {
+      lines.push(`  S${i}["${escM(c.name)}"]:::sub`);
+      lines.push(`  ORCH --> S${i}`);
+      (c.tools || []).forEach((t, ti) => {
+        lines.push(`  T${i}_${ti}["${escM(t.name)}"]:::tool`);
+        lines.push(`  S${i} --> T${i}_${ti}`);
+      });
+    });
     (current.tools || []).forEach((t, i) => {
-      lines.push(`  T${i}["${escM(t.name)}"]:::tool`);
-      lines.push(`  A --> T${i}`);
+      lines.push(`  OT${i}["${escM(t.name)}"]:::tool`);
+      lines.push(`  ORCH --> OT${i}`);
     });
     lines.push('  classDef agent fill:#2a1f18,stroke:#ff9f6b,color:#fff');
+    lines.push('  classDef sub fill:#2a2418,stroke:#e2b15c,color:#fff');
     lines.push('  classDef tool fill:#152028,stroke:#9ad7ff,color:#fff');
     return lines.join('\n');
   }

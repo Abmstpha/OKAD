@@ -98,8 +98,8 @@ Read enough of the codebase to understand **real** flows — but stay surgical:
 
 1. Read `okad-out/skeleton.md`.
 2. Open the highest-signal entrypoints only (routers, `app/` pages, main services, schema files). Use the skeleton `source` paths.
-3. Infer **3–7 user journeys**, **5–15 request paths**, **3–8 data flows**, and **agents with tools** (LangGraph / AI workers).
-4. Keep total nodes ≤ 60.
+3. Infer **agents first** (orchestrators, subagents, tools, hierarchy, relations), then **3–7 user journeys**, **5–15 request paths**, **3–8 data flows**.
+4. Keep total architecture nodes ≤ 60 — but **agents are not capped the same way**: list every real subagent + tool that matters.
 
 Write JSON with this schema:
 
@@ -167,12 +167,26 @@ Write JSON with this schema:
     {
       "id": "agent:seller-engine",
       "name": "Seller Deal Engine",
-      "summary": "LangGraph that builds a deal package from an address",
+      "role": "LangGraph orchestrator",
+      "level": "orchestrator",
+      "parent_id": "agent:deal-pipeline",
+      "summary": "Builds a deal package from an address through a gated subagent pipeline",
       "node_id": "service:seller-graph",
+      "flow": ["agent:seller-verify", "agent:seller-valuation", "agent:seller-risk"],
+      "relations": [
+        {"target": "agent:buyer-underwriter", "kind": "feeds", "label": "deal package"}
+      ],
+      "tools": []
+    },
+    {
+      "id": "agent:seller-verify",
+      "name": "Address Verification Agent",
+      "role": "Subagent",
+      "level": "subagent",
+      "parent_id": "agent:seller-engine",
+      "summary": "Geocodes and validates the property address",
       "tools": [
-        {"id": "tool:verify-address", "name": "Verify address", "summary": "Normalizes and validates the property"},
-        {"id": "tool:valuation", "name": "Valuation", "summary": "Comps + estimate"},
-        {"id": "tool:str-roi", "name": "STR ROI", "summary": "Airbnb revenue model"}
+        {"id": "tool:geocode_address", "name": "geocode_address", "summary": "lat/lng + confidence"}
       ]
     }
   ]
@@ -183,7 +197,14 @@ Allowed `kind`: `journey|screen|action|route|handler|service|store|entity|extern
 Allowed edge `kind`: `navigates|triggers|calls|reads|writes|transforms|returns|contains|depends_on`  
 Allowed `layer`: `experience|interface|application|data|infra`
 
-**Always author `agents` when the codebase has LangGraph / LLM workers** — each agent lists its tools (graph nodes, retrieval, externals). The Agents & tools view depends on this.
+**Always author `agents` when the codebase is agentic** (LangGraph, tool-calling workers, multi-agent). Each entry needs:
+- `level`: `system` | `orchestrator` | `subagent`
+- `role` + `summary` (what it does)
+- `parent_id` / `flow` (hierarchy + ordered pipeline)
+- `relations` (feeds / invokes / hands_off / indexes_for between agents)
+- `tools` (real tool names the model can call)
+
+The **Agents & tools** view is the product for agentic repos — do not flatten agents into fake “services”.
 
 **Reuse skeleton node ids when they match.** Add new story ids when the skeleton is incomplete.
 
