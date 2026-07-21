@@ -4,18 +4,23 @@ from __future__ import annotations
 
 import json
 import re
+from difflib import get_close_matches
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args
 
 from okad.model import (
     Agent,
     AgentRelation,
     AgentTool,
+    Confidence,
     DataFlow,
     Edge,
+    EdgeKind,
     Journey,
     JourneyStep,
+    LayerId,
     Node,
+    NodeKind,
     RequestPath,
     StoryGraph,
 )
@@ -31,10 +36,31 @@ def save_story(graph: StoryGraph, path: Path) -> None:
     path.write_text(json.dumps(graph.to_dict(), indent=2), encoding="utf-8")
 
 
+_NODE_KINDS = set(get_args(NodeKind))
+_EDGE_KINDS = set(get_args(EdgeKind))
+_LAYER_IDS = set(get_args(LayerId))
+_CONFIDENCES = set(get_args(Confidence))
+
+
+def _coerce(value: Any, allowed: set[str], default: str, warnings: list[str], what: str) -> str:
+    """Validate an LLM-supplied enum value; close-match typos, else fall back."""
+    v = str(value or "").strip().lower()
+    if v in allowed:
+        return v
+    if v:
+        close = get_close_matches(v, allowed, n=1, cutoff=0.75)
+        if close:
+            warnings.append(f"{what}: corrected {value!r} → {close[0]!r}")
+            return close[0]
+        warnings.append(f"{what}: unknown {value!r}, using {default!r}")
+    return default
+
+
 def merge_story(skeleton: StoryGraph, story: dict[str, Any]) -> StoryGraph:
     """Validate and merge LLM story output onto the structural skeleton."""
     nodes: dict[str, Node] = {n.id: n for n in skeleton.nodes}
     edges: dict[str, Edge] = {e.id: e for e in skeleton.edges}
+    warnings: list[str] = []
 
     for raw in story.get("nodes", []):
         nid = str(raw.get("id") or "").strip()
@@ -43,8 +69,8 @@ def merge_story(skeleton: StoryGraph, story: dict[str, Any]) -> StoryGraph:
         node = Node(
             id=nid,
             label=str(raw.get("label") or nid),
-            kind=raw.get("kind") or "service",  # type: ignore[arg-type]
-            layer=raw.get("layer") or "application",  # type: ignore[arg-type]
+            kind=_coerce(raw.get("kind"), _NODE_KINDS, "service", warnings, f"node {nid} kind"),  # type: ignore[arg-type]
+            layer=_coerce(raw.get("layer"), _LAYER_IDS, "application", warnings, f"node {nid} layer"),  # type: ignore[arg-type]
             summary=str(raw.get("summary") or ""),
             source=raw.get("source"),
             meta=dict(raw.get("meta") or {}),
@@ -60,9 +86,9 @@ def merge_story(skeleton: StoryGraph, story: dict[str, Any]) -> StoryGraph:
             id=eid,
             source=str(src),
             target=str(tgt),
-            kind=raw.get("kind") or "calls",  # type: ignore[arg-type]
+            kind=_coerce(raw.get("kind"), _EDGE_KINDS, "calls", warnings, f"edge {eid} kind"),  # type: ignore[arg-type]
             label=str(raw.get("label") or ""),
-            confidence=raw.get("confidence") or "inferred",  # type: ignore[arg-type]
+            confidence=_coerce(raw.get("confidence"), _CONFIDENCES, "inferred", warnings, f"edge {eid} confidence"),  # type: ignore[arg-type]
             meta=dict(raw.get("meta") or {}),
         )
 
@@ -182,6 +208,7 @@ def merge_story(skeleton: StoryGraph, story: dict[str, Any]) -> StoryGraph:
             "agent_count": len(agents),
             "node_count": len(nodes),
             "edge_count": len(edges),
+            **({"warnings": warnings} if warnings else {}),
         },
     )
     graph.prune_orphan_edges()

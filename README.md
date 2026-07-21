@@ -138,7 +138,7 @@ xdg-open okad-out/story.html    # Linux
 start okad-out/story.html       # Windows
 ```
 
-In the browser you get four views: **Architecture · Journeys · Requests · Data flow**.
+In the browser you get five graph views: **Agents & tools · Architecture · Journeys · Requests · Data flow** — all rendered by a deterministic zero-library engine (HTML cards + orthogonal SVG edges). Architecture defaults to a journey-scoped subgraph; every view is deep-linkable (`story.html#architecture/j-checkout`).
 
 ### Ask the map questions (no rebuild)
 
@@ -228,9 +228,14 @@ okad query "How does checkout work?"
 okad path "Checkout" "Order store"
 okad explain "Auth gate"
 okad install [--platform claude|codex|cursor|agents|auto]
+okad update [--skill-only]         # self-update to latest published + refresh skills
+okad render [path]                 # re-render story.html from story.json (no LLM)
 okad open [path]                   # print story.html path
 okad version
 ```
+
+Inside the LLM app there is also `/okad-delete` — deletes the current project's
+`okad-out/` story after confirming with you (agent-side only, not a CLI command).
 
 ### How the pipeline works
 

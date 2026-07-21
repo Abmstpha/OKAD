@@ -1,12 +1,12 @@
 # Story JSON schema
 
-Version `1` documents produced by OKAD.
+Version `2` documents produced by OKAD (version `1` lacked `agents`).
 
 ## Top level
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "system_name": "string",
   "summary": "string",
   "layers": [{ "id": "experience", "label": "Experience", "blurb": "..." }],
@@ -15,9 +15,38 @@ Version `1` documents produced by OKAD.
   "journeys": [],
   "requests": [],
   "data_flows": [],
+  "agents": [],
   "meta": {}
 }
 ```
+
+## Agent
+
+```json
+{
+  "id": "agent:seller-engine",
+  "name": "Seller Deal Engine",
+  "summary": "What this agent does",
+  "role": "LangGraph orchestrator",
+  "level": "orchestrator",
+  "parent_id": "agent:pipeline",
+  "node_id": "service:seller-graph",
+  "flow": ["agent:verify", "agent:value"],
+  "relations": [{ "target": "agent:buyer", "kind": "feeds", "label": "deal package" }],
+  "tools": [{ "id": "t1", "name": "estimate_value", "summary": "", "source": null }]
+}
+```
+
+`level` is `system | orchestrator | subagent`. `flow` orders child agents;
+the viewer shows it as numbered badges. `node_id` links the agent to an
+architecture node.
+
+## Validation
+
+`okad finalize` validates draft values against the schema enums: unknown
+`kind` / `layer` / `confidence` values are close-match corrected (e.g.
+`"aplication"` → `"application"`) or fall back to defaults, and every
+correction is recorded in `meta.warnings`.
 
 ## Node
 
